@@ -13,9 +13,12 @@ pub enum Primitive {
     Reach {},
     // A process by which the agent attaches one part to another
     Fasten {},
-    // A process by which the agent moves around the space
+    // A process by which the agent applies pressure on a target or surface
     Press {},
+    // A process by which the agent inserts a target object into a target recepticle
     Insertion {},
+    // A process by which a target is observed and asessed according to certain properties
     Inspection {},
+    // A process by which an agent swaps one tool for another
     ToolSwap {},
 }
