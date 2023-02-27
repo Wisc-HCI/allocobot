@@ -26,6 +26,9 @@ fn main() {
         Task::new(ctx, "Task1".into(), Some(&charlie), 5000),
         Task::new(ctx, "Task2".into(), Some(&panda), 3000),
         Task::new(ctx, "Task3".into(), None, 3000),
+        Task::new(ctx, "Task4".into(), None, 2500),
+        Task::new(ctx, "Task5".into(), None, 2000),
+        Task::new(ctx, "Task6".into(), None, 1000)
     ];
 
     let timeline: Timeline = Timeline::new(ctx, tasks.iter().collect(), &agents);
@@ -303,7 +306,7 @@ pub struct Timeline<'a> {
 
 impl<'a> Timeline<'a> {
     pub fn new(ctx: &'a Context, tasks: Vec<&Task>, agents: &Vec<&Agent>) -> Self {
-        let times: Vec<ast::Int> = (0..tasks.len() * 3)
+        let times: Vec<ast::Int> = (0..tasks.len() * 2)
             .map(|i| ast::Int::new_const(ctx, format!("t{}", i)))
             .collect();
         let mut busy_grid: HashMap<String, HashMap<String, Vec<ast::Bool<'a>>>> = HashMap::new();
