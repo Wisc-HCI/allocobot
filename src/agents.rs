@@ -1,5 +1,6 @@
 use z3::ast;
 use z3::{Context, Model};
+use crate::primitives::Primitive;
 
 #[derive(Clone, Debug)]
 pub enum Agent {
@@ -8,10 +9,27 @@ pub enum Agent {
 }
 
 impl Agent {
-    pub fn new_robot(id: String, name: String) -> Self {
+    pub fn new_robot(
+        id: String, 
+        name: String,
+        reach: f64,     // meters
+        payload: f64,   // kg
+        agility: f64,   // rating 0-1
+        speed: f64,     // m/s
+        precision: f64, // m (repeatability)
+        sensing: f64,   // rating 0-1
+        mobile: bool    // true/false
+    ) -> Self {
         return Agent::Robot(RobotInfo {
             id: id.clone(),
             name,
+            reach,
+            payload,
+            agility,
+            speed,
+            precision,
+            sensing,
+            mobile
         });
     }
 
@@ -35,12 +53,27 @@ impl Agent {
             Agent::Human(human_info) => return human_info.name.clone(),
         }
     }
+
+    pub fn assess_cost(&self, primitive: Primitive) -> f64 {
+        0.0
+    }
+
+    pub fn assess_time(&self, primitive: Primitive) -> f64 {
+        0.0
+    }
 }
 
 #[derive(Clone, Debug)]
 pub struct RobotInfo {
     pub id: String,
     pub name: String,
+    pub reach: f64,
+    pub payload: f64,
+    pub agility: f64,
+    pub speed: f64,
+    pub precision: f64,
+    pub sensing: f64,
+    pub mobile: bool
 }
 
 #[derive(Clone, Debug)]

@@ -1,6 +1,6 @@
 use allocobot::agents::Agent;
 use allocobot::planner::Planner;
-use allocobot::tasks::{TaskInfo};
+use allocobot::tasks::TaskInfo;
 use plotly::common::color::Rgb;
 use plotly::common::{Fill, Line};
 use plotly::{Plot, Scatter};
@@ -13,24 +13,94 @@ fn main() {
         Rgb::new(100, 100, 200),
     ];
 
-    
-
     // define Human
-    let agents: HashMap<String,Agent> = HashMap::from([
-        ("charlie".into(),Agent::new_human("charlie".into(), "Charlie".into())),
-        ("panda".into(),Agent::new_robot("panda".into(), "Panda".into()))
+    let agents: HashMap<String, Agent> = HashMap::from([
+        (
+            "charlie".into(),
+            Agent::new_human("charlie".into(), "Charlie".into()),
+        ),
+        (
+            "panda".into(),
+            Agent::new_robot(
+                "panda".into(),
+                "Panda".into(),
+                0.855,
+                3.0,
+                0.7,
+                2.0,
+                0.0001,
+                0.7,
+                false,
+            ),
+        ),
     ]);
 
-    let tasks: HashMap<String,TaskInfo> = HashMap::from([
-        ("task1".into(),TaskInfo::new("task1".into(), vec![],Some("charlie".into()), 5000, vec![])),
-        ("task2".into(),TaskInfo::new("task2".into(), vec![],Some("panda".into()), 3000, vec![])),
-        ("task3".into(),TaskInfo::new("task3".into(), vec![],None, 3000, vec!["task1".into()])),
-        ("task4".into(),TaskInfo::new("task4".into(), vec![],None, 2500, vec![])),
-        ("task5".into(),TaskInfo::new("task5".into(), vec![],None, 2000, vec![])),
-        ("task6".into(),TaskInfo::new("task6".into(), vec![],None, 1000, vec!["task3".into()]))
+    let tasks: HashMap<String, TaskInfo> = HashMap::from([
+        (
+            "get_and_take_protector".into(),
+            TaskInfo::new("get_and_take_protector".into(), vec![], None, 5000, vec![]),
+        ),
+        (
+            "insert_blue_protector".into(),
+            TaskInfo::new(
+                "insert_blue_protector".into(),
+                vec![],
+                None,
+                3000,
+                vec!["get_and_take_protector".into()],
+            ),
+        ),
+        (
+            "get_half_shaft".into(),
+            TaskInfo::new("get_half_shaft".into(), vec![], None, 3000, vec![]),
+        ),
+        (
+            "install_half_shaft".into(),
+            TaskInfo::new("install_half_shaft".into(), vec![], None, 2500, vec![]),
+        ),
+        (
+            "dispose_blue_protector".into(),
+            TaskInfo::new("dispose_blue_protector".into(), vec![], None, 2000, vec![]),
+        ),
+        (
+            "get_stab_bolt1".into(),
+            TaskInfo::new("get_stab_bolt1".into(), vec![], None, 1000, vec![]),
+        ),
+        (
+            "get_stab_bolt2".into(),
+            TaskInfo::new("get_stab_bolt2".into(), vec![], None, 1000, vec![]),
+        ),
+        (
+            "install_harness".into(),
+            TaskInfo::new("install_harness".into(), vec![], None, 1000, vec![]),
+        ),
+        (
+            "place_front_strut".into(),
+            TaskInfo::new("place_front_strut".into(), vec![], None, 1000, vec![]),
+        ),
+        (
+            "scan_half_shaft".into(),
+            TaskInfo::new("scan_half_shaft".into(), vec![], None, 1000, vec![]),
+        ),
+        (
+            "place_x_tool".into(),
+            TaskInfo::new("place_x_tool".into(), vec![], None, 1000, vec![]),
+        ),
+        (
+            "manual_retention_check".into(),
+            TaskInfo::new("manual_retention_check".into(), vec![], None, 1000, vec![]),
+        ),
+        (
+            "x_tool_retention_check".into(),
+            TaskInfo::new("x_tool_retention_check".into(), vec![], None, 1000, vec![]),
+        ),
+        (
+            "remove_x_tool".into(),
+            TaskInfo::new("remove_x_tool".into(), vec![], None, 1000, vec![]),
+        ),
     ]);
 
-    let mut planner = Planner::new(&tasks,&agents);
+    let mut planner = Planner::new(&tasks, &agents);
 
     let result = planner.plan();
     let mut agent_ids: Vec<String> = vec![];
@@ -39,18 +109,26 @@ fn main() {
         agent_ids.push(agent.get_id());
         agent_names.push(agent.get_name());
     }
-    println!("{:?}",agent_ids);
+    println!("{:?}", agent_ids);
 
     match result {
         Ok(allocated_tasks) => {
             let mut plot = Plot::new();
-            for (task_id,  task) in &allocated_tasks {
-                println!("{:?}",task);
-                let agent_idx = agent_ids.iter().position(|v| v==&task.agent_id).unwrap_or(0);
+            for (task_id, task) in &allocated_tasks {
+                println!("{:?}", task);
+                let agent_idx = agent_ids
+                    .iter()
+                    .position(|v| v == &task.agent_id)
+                    .unwrap_or(0);
                 let agent_name = agents.get(&task.agent_id).unwrap().get_name();
-                
+
                 let trace = Scatter::new(
-                    vec![task.start_time, task.end_time, task.end_time, task.start_time],
+                    vec![
+                        task.start_time,
+                        task.end_time,
+                        task.end_time,
+                        task.start_time,
+                    ],
                     vec![agent_idx, agent_idx, agent_idx + 1, agent_idx + 1],
                 )
                 .line(Line::new().color(colors[agent_idx]))
@@ -62,7 +140,7 @@ fn main() {
             plot.show();
         }
         Err(msg) => {
-            println!("{}",msg)
+            println!("{}", msg)
         }
     }
 }

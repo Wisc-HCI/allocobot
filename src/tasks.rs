@@ -3,20 +3,21 @@ use std::collections::HashMap;
 use z3::ast;
 use z3::{Model,Context};
 use crate::agents::Z3Agent;
+use crate::primitives::Primitive;
 use crate::timeline::Timeline;
 use z3::ast::Ast;
 
 #[derive(Clone,Debug)]
 pub struct TaskInfo {
     pub id: String,
-    pub primitives: Vec<String>,
+    pub primitives: Vec<Primitive>,
     pub agent_id: Option<String>,
     pub duration: i64,
     pub task_dependencies: Vec<String>
 }
 
 impl TaskInfo {
-    pub fn new(id: String, primitives: Vec<String>, agent_id: Option<String>, duration: i64, task_dependencies: Vec<String>) -> Self {
+    pub fn new(id: String, primitives: Vec<Primitive>, agent_id: Option<String>, duration: i64, task_dependencies: Vec<String>) -> Self {
         Self { id, primitives, agent_id, duration, task_dependencies}
     }
 }
@@ -24,7 +25,7 @@ impl TaskInfo {
 #[derive(Clone,Debug)]
 pub struct AllocatedTask {
     pub id: String,
-    pub primitives: Vec<String>,
+    pub primitives: Vec<Primitive>,
     pub agent_id: String,
     pub start_time: i64,
     pub end_time: i64,
