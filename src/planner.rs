@@ -49,7 +49,7 @@ impl Planner {
         }
 
         for task in z3_tasks.values() {
-            for assertion in task.get_assertions(&self.ctx, &timeline, &z3_agents).iter() {
+            for assertion in task.get_assertions(&self.ctx, &timeline, &z3_agents, &z3_tasks).iter() {
                 optimizer.assert(assertion)
             }
         }
@@ -90,6 +90,7 @@ impl Planner {
                                     agent_id: agent_id.clone(),
                                     start_time: task_times.0,
                                     end_time: task_times.1,
+                                    task_dependencies: task.task_info.task_dependencies.clone()
                                 },
                             );
                         }

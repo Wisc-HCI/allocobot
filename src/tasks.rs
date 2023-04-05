@@ -11,12 +11,13 @@ pub struct TaskInfo {
     pub id: String,
     pub primitives: Vec<String>,
     pub agent_id: Option<String>,
-    pub duration: i64
+    pub duration: i64,
+    pub task_dependencies: Vec<String>
 }
 
 impl TaskInfo {
-    pub fn new(id: String, primitives: Vec<String>, agent_id: Option<String>, duration: i64) -> Self {
-        Self { id, primitives, agent_id, duration }
+    pub fn new(id: String, primitives: Vec<String>, agent_id: Option<String>, duration: i64, task_dependencies: Vec<String>) -> Self {
+        Self { id, primitives, agent_id, duration, task_dependencies}
     }
 }
 
@@ -26,7 +27,8 @@ pub struct AllocatedTask {
     pub primitives: Vec<String>,
     pub agent_id: String,
     pub start_time: i64,
-    pub end_time: i64
+    pub end_time: i64,
+    pub task_dependencies: Vec<String>
 }
 
 pub struct Z3Task<'a> {
@@ -56,6 +58,7 @@ impl<'a> Z3Task<'a> {
         ctx: &'a Context,
         timeline: &Timeline<'a>,
         agents: &'a HashMap<String,Z3Agent<'a>>,
+        tasks: &'a HashMap<String,Z3Task<'a>>,
     ) -> Vec<ast::Bool> {
         let mut assertions: Vec<ast::Bool> = Vec::new();
 
@@ -119,6 +122,16 @@ impl<'a> Z3Task<'a> {
                 .as_slice(),
             1,
         );
+
+        // Require that the start-time is after the end-time of any task dependencies
+        for task_dependency in self.task_info.task_dependencies.iter() {
+            match tasks.get(task_dependency) {
+                Some(dep) => assertions.push(self.z3_start_time.gt(&dep.z3_end_time)),
+                None => {
+                    println!("Task Dependency {:?} not found!",task_dependency);
+                }
+            }
+        }
 
         // For each agent, if assigned, then the robot is busy between start and end
         for agent in agents.values() {

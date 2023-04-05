@@ -22,12 +22,12 @@ fn main() {
     ]);
 
     let tasks: HashMap<String,TaskInfo> = HashMap::from([
-        ("Task1".into(),TaskInfo::new("Task1".into(), vec![],Some("charlie".into()), 5000)),
-        ("Task2".into(),TaskInfo::new("Task2".into(), vec![],Some("panda".into()), 3000)),
-        ("Task3".into(),TaskInfo::new("Task3".into(), vec![],None, 3000)),
-        ("Task4".into(),TaskInfo::new("Task4".into(), vec![],None, 2500)),
-        ("Task5".into(),TaskInfo::new("Task5".into(), vec![],None, 2000)),
-        ("Task6".into(),TaskInfo::new("Task6".into(), vec![],None, 1000))
+        ("task1".into(),TaskInfo::new("task1".into(), vec![],Some("charlie".into()), 5000, vec![])),
+        ("task2".into(),TaskInfo::new("task2".into(), vec![],Some("panda".into()), 3000, vec![])),
+        ("task3".into(),TaskInfo::new("task3".into(), vec![],None, 3000, vec!["task1".into()])),
+        ("task4".into(),TaskInfo::new("task4".into(), vec![],None, 2500, vec![])),
+        ("task5".into(),TaskInfo::new("task5".into(), vec![],None, 2000, vec![])),
+        ("task6".into(),TaskInfo::new("task6".into(), vec![],None, 1000, vec!["task3".into()]))
     ]);
 
     let mut planner = Planner::new(&tasks,&agents);
