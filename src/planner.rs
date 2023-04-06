@@ -107,10 +107,3 @@ impl Planner {
     }
 }
 
-pub struct PlanResult<'a> {
-    pub satisfied: SatResult,
-    pub model: Option<Model<'a>>,
-    pub timeline: Timeline<'a>,
-    pub z3_agents: HashMap<String, Z3Agent<'a>>,
-    pub z3_tasks: HashMap<String, Z3Task<'a>>,
-}

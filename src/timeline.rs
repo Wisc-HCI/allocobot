@@ -3,9 +3,11 @@ use z3::ast;
 use z3::Context;
 use crate::tasks::Z3Task;
 use crate::agents::Z3Agent;
+use crate::state::StateProperty;
 
 pub struct Timeline<'a> {
     pub times: Vec<ast::Int<'a>>,
+    pub states: Vec<HashMap<String,StateProperty<'a>>>,
     pub busy_grid: HashMap<String, HashMap<String, Vec<ast::Bool<'a>>>>,
     pub assertions: Vec<ast::Bool<'a>>,
 }
@@ -15,6 +17,11 @@ impl<'a> Timeline<'a> {
         let times: Vec<ast::Int> = (0..tasks.len() * 2)
             .map(|i| ast::Int::new_const(ctx, format!("t{}", i)))
             .collect();
+        let states: Vec<HashMap<String,StateProperty<'a>>> = (0..tasks.len() * 2)
+            .map(|_| HashMap::new())
+            .collect();
+
+
         let mut busy_grid: HashMap<String, HashMap<String, Vec<ast::Bool<'a>>>> = HashMap::new();
 
         for agent in agents.values() {
@@ -64,6 +71,7 @@ impl<'a> Timeline<'a> {
 
         return Self {
             times,
+            states,
             busy_grid,
             assertions,
         };
