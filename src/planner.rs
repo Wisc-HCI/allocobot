@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use crate::poi::PointOfInterest;
 use crate::tasks::{AllocatedTask, TaskInfo};
 use crate::{agents::Agent, agents::Z3Agent, tasks::Z3Task, timeline::Timeline};
 use z3::ast;
@@ -9,13 +10,14 @@ use z3::{Config, Context, Model, Optimize, SatResult};
 pub struct Planner {
     pub tasks: HashMap<String, TaskInfo>,
     pub agents: HashMap<String, Agent>,
+    pub pois: HashMap<String, PointOfInterest>,
     pub ctx: Context,
 }
 
 impl Planner {
-    pub fn new(tasks: &HashMap<String, TaskInfo>, agents: &HashMap<String, Agent>) -> Self {
+    pub fn new(tasks: &HashMap<String, TaskInfo>, agents: &HashMap<String, Agent>, pois: &HashMap<String, PointOfInterest>) -> Self {
         let ctx: Context = Context::new(&Config::default());
-        return Self { tasks: tasks.clone(), agents: agents.clone(), ctx };
+        return Self { tasks: tasks.clone(), agents: agents.clone(), pois: pois.clone(), ctx };
     }
 
     pub fn plan(&mut self) -> Result<HashMap<String,AllocatedTask>,String> {

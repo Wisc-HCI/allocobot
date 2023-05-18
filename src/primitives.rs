@@ -3,6 +3,12 @@ pub enum Primitive {
     // A process by which a target is selected
     Selection {
         target: String,
+        // Rules
+        /*
+        pre(agent) -> !busy(agent)
+        during(agent) -> busy(agent)
+        post(agent) -> !busy(agent)
+        */
         // Features
         structure: f64,
         variability: f64,
@@ -14,6 +20,7 @@ pub enum Primitive {
         // Features
         structure: f64,
         variability: f64,
+        displacement: f64,
         manipulation: f64,
         alignment: f64
     },
@@ -31,45 +38,25 @@ pub enum Primitive {
         target: String,
         // Features
         manipulation: f64,
-        alignment: f64,
-        distance: f64
-    },
-    // A process by which the agent moves around the space
-    Lift {
-        // Features
-        manipulation: f64,
-        alignment: f64,
-        distance: f64
+        alignment: f64
     },
     // A process by which the agent raises its arm, torso, or body part
     Travel {
+        poi: String,
         // Features
         structure: f64,
         variability: f64,
         accessibility: f64,
         displacement: f64,
-        alignment: f64,
-        distance: f64,
-        mobility: bool
+        alignment: f64
     },
     // A process by which the agent extends/retracts its arm(s)
     Reach {
+        poi: String,
         // Features
         structure: f64,
         variability: f64,
         accessibility: f64,
-        displacement: f64,
-        alignment: f64,
-        distance: f64,
-        mobility: bool
-    },
-    // A process by which an object is turned or rotated
-    Position {
-        // Features
-        structure: f64,
-        variability: f64,
-        displacement: f64,
-        manipulation: f64,
         alignment: f64
     },
     // A process by which the agent attaches one part to another
@@ -83,8 +70,7 @@ pub enum Primitive {
         displacement: f64,
         manipulation: f64,
         alignment: f64,
-        forces: f64,
-        mobility: bool
+        forces: f64
     },
     // A process by which the agent applies pressure on a target or surface
     Press {
@@ -94,8 +80,7 @@ pub enum Primitive {
         variability: f64,
         accessibility: f64,
         alignment: f64,
-        forces: f64,
-        mobility: bool
+        forces: f64
     },
     // A process by which the agent inserts a target object into a target recepticle/base
     Insert {
@@ -106,8 +91,18 @@ pub enum Primitive {
         variability: f64,
         accessibility: f64,
         alignment: f64,
-        forces: f64,
-        mobility: bool
+        forces: f64
+    },
+    // A process by which the agent separates a target object from a target recepticle/base
+    Separate {
+        base_target: String,
+        separate_target: String,
+        // Features
+        structure: f64,
+        variability: f64,
+        accessibility: f64,
+        alignment: f64,
+        forces: f64
     },
     // A process by which a target is observed and asessed according to certain properties
     Inspect {
@@ -115,8 +110,7 @@ pub enum Primitive {
         // Features
         structure: f64,
         variability: f64,
-        displacement: f64,
-        mobility: bool
+        displacement: f64
     },
     // A process by which an agent swaps one tool for another
     ToolSwap {

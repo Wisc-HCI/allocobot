@@ -1,26 +1,53 @@
+use crate::agents::Z3Agent;
+use crate::state::StateProperty;
+use crate::tasks::Z3Task;
 use std::collections::HashMap;
 use z3::ast;
 use z3::Context;
-use crate::tasks::Z3Task;
-use crate::agents::Z3Agent;
-use crate::state::StateProperty;
 
 pub struct Timeline<'a> {
     pub times: Vec<ast::Int<'a>>,
-    pub states: Vec<HashMap<String,StateProperty<'a>>>,
+    pub states: Vec<HashMap<String, StateProperty<'a>>>,
     pub busy_grid: HashMap<String, HashMap<String, Vec<ast::Bool<'a>>>>,
     pub assertions: Vec<ast::Bool<'a>>,
 }
 
 impl<'a> Timeline<'a> {
-    pub fn new(ctx: &'a Context, tasks: &HashMap<String,Z3Task>, agents: &HashMap<String,Z3Agent>) -> Self {
+    pub fn new(
+        ctx: &'a Context,
+        tasks: &HashMap<String, Z3Task>,
+        agents: &HashMap<String, Z3Agent>,
+    ) -> Self {
+        let mut assertions: Vec<ast::Bool> = Vec::new();
+
         let times: Vec<ast::Int> = (0..tasks.len() * 2)
             .map(|i| ast::Int::new_const(ctx, format!("t{}", i)))
             .collect();
-        let states: Vec<HashMap<String,StateProperty<'a>>> = (0..tasks.len() * 2)
-            .map(|_| HashMap::new())
-            .collect();
+        let mut states: Vec<HashMap<String, StateProperty<'a>>> =
+            (0..tasks.len() * 2).map(|_| HashMap::new()).collect();
 
+        for state in states.iter_mut() {
+            for task in tasks.values() {
+                let mut task_assignment: HashMap<String, ast::Bool<'a>> = HashMap::new();
+                for agent in agents.values() {
+                    task_assignment.insert(format!("b_{}_{}", agent.get_id(), task.task_info.id), ast::Bool::new_const(
+                        ctx,
+                        format!("b_{}_{}", agent.get_id(), task.task_info.id),
+                    ));
+                }
+                state.insert(
+                    format!("{}_agent", task.task_info.id),
+                    StateProperty::Token {
+                        value: task_assignment,
+                        modified: ast::Bool::new_const(
+                            ctx,
+                            format!("{}_agent_modified", task.task_info.id),
+                        ),
+                        capacity: 1,
+                    },
+                );
+            }
+        }
 
         let mut busy_grid: HashMap<String, HashMap<String, Vec<ast::Bool<'a>>>> = HashMap::new();
 
@@ -41,8 +68,6 @@ impl<'a> Timeline<'a> {
             }
             busy_grid.insert(agent.get_id(), agent_busy_grid);
         }
-
-        let mut assertions: Vec<ast::Bool> = Vec::new();
 
         for time_idx in 0..times.len() {
             for agent in agents.values() {

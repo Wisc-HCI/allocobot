@@ -1,5 +1,7 @@
 use allocobot::agents::Agent;
 use allocobot::planner::Planner;
+use allocobot::poi::PointOfInterest;
+use allocobot::primitives::Primitive;
 use allocobot::tasks::TaskInfo;
 use plotly::common::color::Rgb;
 use plotly::common::{Fill, Line};
@@ -13,7 +15,7 @@ fn main() {
         Rgb::new(100, 100, 200),
     ];
 
-    // define Human
+    // define Human and Robot Agents
     let agents: HashMap<String, Agent> = HashMap::from([
         (
             "charlie".into(),
@@ -35,16 +37,35 @@ fn main() {
         ),
     ]);
 
+    let pois: HashMap<String, PointOfInterest> = HashMap::from([
+        (
+            "p1".into(),
+            PointOfInterest::new("p1".into(), "Point 1".into(), 0.0, 1.0, 0.1),
+        ),
+        (
+            "p2".into(),
+            PointOfInterest::new("p2".into(), "Point 2".into(), 1.0, 1.1, 0.4),
+        ),
+        (
+            "p3".into(),
+            PointOfInterest::new("p3".into(), "Point 3".into(), 0.5, 4.0, 0.4),
+        ),
+    ]);
+
     let tasks: HashMap<String, TaskInfo> = HashMap::from([
         (
             "get_and_take_protector".into(),
-            TaskInfo::new("get_and_take_protector".into(), vec![], None, 5000, vec![]),
+            TaskInfo::new("get_and_take_protector".into(), vec![
+
+            ], None, 5000, vec![]),
         ),
         (
             "insert_blue_protector".into(),
             TaskInfo::new(
                 "insert_blue_protector".into(),
-                vec![],
+                vec![
+                    
+                ],
                 None,
                 3000,
                 vec!["get_and_take_protector".into()],
@@ -52,55 +73,65 @@ fn main() {
         ),
         (
             "get_half_shaft".into(),
-            TaskInfo::new("get_half_shaft".into(), vec![], None, 3000, vec![]),
+            TaskInfo::new("get_half_shaft".into(), vec![
+
+            ], None, 3000, vec![]),
         ),
         (
             "install_half_shaft".into(),
-            TaskInfo::new("install_half_shaft".into(), vec![], None, 2500, vec![]),
+            TaskInfo::new("install_half_shaft".into(), vec![
+
+            ], None, 2500, vec![]),
         ),
         (
             "dispose_blue_protector".into(),
-            TaskInfo::new("dispose_blue_protector".into(), vec![], None, 2000, vec![]),
+            TaskInfo::new("dispose_blue_protector".into(), vec![
+
+            ], None, 2000, vec![]),
         ),
         (
             "get_stab_bolt1".into(),
-            TaskInfo::new("get_stab_bolt1".into(), vec![], None, 1000, vec![]),
+            TaskInfo::new("get_stab_bolt1".into(), vec![
+
+            ], None, 1000, vec![]),
         ),
         (
             "get_stab_bolt2".into(),
-            TaskInfo::new("get_stab_bolt2".into(), vec![], None, 1000, vec![]),
+            TaskInfo::new("get_stab_bolt2".into(), vec![
+                
+            ], None, 1000, vec![]),
         ),
-        (
-            "install_harness".into(),
-            TaskInfo::new("install_harness".into(), vec![], None, 1000, vec![]),
-        ),
-        (
-            "place_front_strut".into(),
-            TaskInfo::new("place_front_strut".into(), vec![], None, 1000, vec![]),
-        ),
-        (
-            "scan_half_shaft".into(),
-            TaskInfo::new("scan_half_shaft".into(), vec![], None, 1000, vec![]),
-        ),
-        (
-            "place_x_tool".into(),
-            TaskInfo::new("place_x_tool".into(), vec![], None, 1000, vec![]),
-        ),
-        (
-            "manual_retention_check".into(),
-            TaskInfo::new("manual_retention_check".into(), vec![], None, 1000, vec![]),
-        ),
-        (
-            "x_tool_retention_check".into(),
-            TaskInfo::new("x_tool_retention_check".into(), vec![], None, 1000, vec![]),
-        ),
-        (
-            "remove_x_tool".into(),
-            TaskInfo::new("remove_x_tool".into(), vec![], None, 1000, vec![]),
-        ),
+        // (
+        //     "install_harness".into(),
+        //     TaskInfo::new("install_harness".into(), vec![], None, 1000, vec![]),
+        // ),
+        // (
+        //     "place_front_strut".into(),
+        //     TaskInfo::new("place_front_strut".into(), vec![], None, 1000, vec![]),
+        // ),
+        // (
+        //     "scan_half_shaft".into(),
+        //     TaskInfo::new("scan_half_shaft".into(), vec![], None, 1000, vec![]),
+        // ),
+        // (
+        //     "place_x_tool".into(),
+        //     TaskInfo::new("place_x_tool".into(), vec![], None, 1000, vec![]),
+        // ),
+        // (
+        //     "manual_retention_check".into(),
+        //     TaskInfo::new("manual_retention_check".into(), vec![], None, 1000, vec![]),
+        // ),
+        // (
+        //     "x_tool_retention_check".into(),
+        //     TaskInfo::new("x_tool_retention_check".into(), vec![], None, 1000, vec![]),
+        // ),
+        // (
+        //     "remove_x_tool".into(),
+        //     TaskInfo::new("remove_x_tool".into(), vec![], None, 1000, vec![]),
+        // ),
     ]);
 
-    let mut planner = Planner::new(&tasks, &agents);
+    let mut planner = Planner::new(&tasks, &agents, &pois);
 
     let result = planner.plan();
     let mut agent_ids: Vec<String> = vec![];
