@@ -1,6 +1,6 @@
 use nalgebra::Vector3;
 
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct PointOfInterest {
     pub id: String,
     pub name: String,

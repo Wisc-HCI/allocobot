@@ -1,8 +1,10 @@
-use allocobot::agents::Agent;
-use allocobot::planner::Planner;
-use allocobot::poi::PointOfInterest;
-use allocobot::primitives::Primitive;
-use allocobot::tasks::TaskInfo;
+use allocobot::description::agent::Agent;
+// use allocobot::planner::Planner;
+use allocobot::description::poi::PointOfInterest;
+use allocobot::description::primitive::Primitive;
+use allocobot::description::target::Target;
+use allocobot::description::task::Task;
+use allocobot::petri::net::BasicNet;
 use plotly::common::color::Rgb;
 use plotly::common::{Fill, Line};
 use plotly::{Plot, Scatter};
@@ -17,25 +19,14 @@ fn main() {
 
     // define Human and Robot Agents
     let agents: HashMap<String, Agent> = HashMap::from([
-        (
-            "charlie".into(),
-            Agent::new_human("charlie".into(), "Charlie".into()),
-        ),
+        ("charlie".into(), Agent::new_human("charlie".into())),
         (
             "panda".into(),
-            Agent::new_robot(
-                "panda".into(),
-                "Panda".into(),
-                0.855,
-                3.0,
-                0.7,
-                2.0,
-                0.0001,
-                0.7,
-                false,
-            ),
+            Agent::new_robot("Panda".into(), 0.855, 3.0, 0.7, 2.0, 0.0001, 0.7, false),
         ),
     ]);
+
+    // let parts = vec![];
 
     let pois: HashMap<String, PointOfInterest> = HashMap::from([
         (
@@ -52,126 +43,58 @@ fn main() {
         ),
     ]);
 
-    let tasks: HashMap<String, TaskInfo> = HashMap::from([
-        (
-            "get_and_take_protector".into(),
-            TaskInfo::new("get_and_take_protector".into(), vec![
+    let part1: Target = Target::new("Part1".into(), 5.0, 5.0);
+    let part2: Target = Target::new("Part2".into(), 1.0, 3.0);
+    let part3: Target = Target::new("Part3".into(), 6.0, 2.0);
 
-            ], None, 5000, vec![]),
-        ),
-        (
-            "insert_blue_protector".into(),
-            TaskInfo::new(
-                "insert_blue_protector".into(),
-                vec![
-                    
-                ],
-                None,
-                3000,
-                vec!["get_and_take_protector".into()],
-            ),
-        ),
-        (
-            "get_half_shaft".into(),
-            TaskInfo::new("get_half_shaft".into(), vec![
+    let s1: Task = Task::new_spawn().with_name("s1".into()).with_output(&part1, 1);
 
-            ], None, 3000, vec![]),
-        ),
-        (
-            "install_half_shaft".into(),
-            TaskInfo::new("install_half_shaft".into(), vec![
+    let t1: Task = Task::new_process()
+        .with_name("task1".into())
+        .with_primitive(Primitive::Selection {
+            target: &part1,
+            structure: 0.0,
+            variability: 0.0,
+            displacement: 0.0,
+        })
+        .with_primitive(Primitive::Grasp {
+            target: &part1,
+            structure: 0.0,
+            variability: 0.0,
+            displacement: 0.0,
+            manipulation: 0.0,
+            alignment: 0.0,
+        })
+        .with_dependency(&s1, &part1)
+        .with_dependency(&s1, &part1)
+        .with_output(&part1, 1);
 
-            ], None, 2500, vec![]),
-        ),
-        (
-            "dispose_blue_protector".into(),
-            TaskInfo::new("dispose_blue_protector".into(), vec![
+    let t2: Task = Task::new_process()
+        .with_name("task2".into())
+        .with_primitive(Primitive::Release {
+            target: &part1,
+            structure: 0.0,
+            variability: 0.0,
+            manipulation: 0.0,
+            alignment: 0.0,
+        })
+        .with_dependency(&t1, &part1)
+        .with_output(&part1, 1)
+        .with_poi(&pois["p1"])
+        .with_poi(&pois["p2"]);
 
-            ], None, 2000, vec![]),
-        ),
-        (
-            "get_stab_bolt1".into(),
-            TaskInfo::new("get_stab_bolt1".into(), vec![
+    let c1: Task = Task::new_complete()
+        .with_name("c1".into())
+        .with_dependency(&t2, &part1);
 
-            ], None, 1000, vec![]),
-        ),
-        (
-            "get_stab_bolt2".into(),
-            TaskInfo::new("get_stab_bolt2".into(), vec![
-                
-            ], None, 1000, vec![]),
-        ),
-        // (
-        //     "install_harness".into(),
-        //     TaskInfo::new("install_harness".into(), vec![], None, 1000, vec![]),
-        // ),
-        // (
-        //     "place_front_strut".into(),
-        //     TaskInfo::new("place_front_strut".into(), vec![], None, 1000, vec![]),
-        // ),
-        // (
-        //     "scan_half_shaft".into(),
-        //     TaskInfo::new("scan_half_shaft".into(), vec![], None, 1000, vec![]),
-        // ),
-        // (
-        //     "place_x_tool".into(),
-        //     TaskInfo::new("place_x_tool".into(), vec![], None, 1000, vec![]),
-        // ),
-        // (
-        //     "manual_retention_check".into(),
-        //     TaskInfo::new("manual_retention_check".into(), vec![], None, 1000, vec![]),
-        // ),
-        // (
-        //     "x_tool_retention_check".into(),
-        //     TaskInfo::new("x_tool_retention_check".into(), vec![], None, 1000, vec![]),
-        // ),
-        // (
-        //     "remove_x_tool".into(),
-        //     TaskInfo::new("remove_x_tool".into(), vec![], None, 1000, vec![]),
-        // ),
-    ]);
+    println!("{:?}",t1.dependencies());
 
-    let mut planner = Planner::new(&tasks, &agents, &pois);
+    let net_result = BasicNet::from_tasks("PRIME".into(), vec![&s1, &t1, &t2, &c1]);
 
-    let result = planner.plan();
-    let mut agent_ids: Vec<String> = vec![];
-    let mut agent_names: Vec<String> = vec![];
-    for agent in agents.values() {
-        agent_ids.push(agent.get_id());
-        agent_names.push(agent.get_name());
-    }
-    println!("{:?}", agent_ids);
-
-    match result {
-        Ok(allocated_tasks) => {
-            let mut plot = Plot::new();
-            for (task_id, task) in &allocated_tasks {
-                println!("{:?}", task);
-                let agent_idx = agent_ids
-                    .iter()
-                    .position(|v| v == &task.agent_id)
-                    .unwrap_or(0);
-                let agent_name = agents.get(&task.agent_id).unwrap().get_name();
-
-                let trace = Scatter::new(
-                    vec![
-                        task.start_time,
-                        task.end_time,
-                        task.end_time,
-                        task.start_time,
-                    ],
-                    vec![agent_idx, agent_idx, agent_idx + 1, agent_idx + 1],
-                )
-                .line(Line::new().color(colors[agent_idx]))
-                .fill(Fill::ToSelf)
-                .name(format!("{} - {}", agent_name, task_id).as_str());
-                // .legend_group_title(LegendGroupTitle::new(format!("{} - {}",agent.get_id(),task.id).as_str()));
-                plot.add_trace(trace);
-            }
-            plot.show();
-        }
-        Err(msg) => {
-            println!("{}", msg)
-        }
+    match net_result {
+        Ok(net) => println!("{}", net),
+        Err(e) => {
+            eprintln!("{}", e)
+        },
     }
 }
