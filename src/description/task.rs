@@ -98,11 +98,11 @@ impl<'a> Task<'a> {
     pub fn with_output(self, target: &'a Target, count: usize) -> Self {
         match self {
             Self::Process(mut process) => {
-                let mut found_output: Option<(usize, &(&Target, usize))> = process
+                let found_output: Option<(usize, &(&Target, usize))> = process
                     .output
                     .iter()
                     .enumerate()
-                    .find(|(idx, target_pair)| target_pair.0.id == target.id);
+                    .find(|(_idx, target_pair)| target_pair.0.id == target.id);
                 match found_output {
                     Some((idx, _)) => {
                         process.output[idx].1 += count;

@@ -1,10 +1,11 @@
 use allocobot::description::agent::Agent;
 // use allocobot::planner::Planner;
 use allocobot::description::poi::PointOfInterest;
-use allocobot::description::primitive::Primitive;
+// use allocobot::description::primitive::Primitive;
 use allocobot::description::target::Target;
 use allocobot::description::task::Task;
-use allocobot::petri::net::{BasicNet, PetriNet};
+use allocobot::petri::nets::basic::BasicNet;
+use allocobot::petri::nets::net::PetriNet;
 // use plotly::common::color::Rgb;
 // use plotly::common::{Fill, Line};
 // use plotly::{Plot, Scatter};
@@ -98,8 +99,6 @@ fn main() -> std::io::Result<()> {
         .with_poi(&pois["p1"])
         .with_poi(&pois["p2"]);
 
-    println!("{:?}", t2.output());
-
     let c1: Task = Task::new_complete()
         .with_name("c1".into())
         .with_dependency(&t2, &part5);
@@ -123,7 +122,7 @@ fn main() -> std::io::Result<()> {
 
     match net_result {
         Ok(net) => {
-            println!("{}", net);
+            println!("{:#?}", net);
             let mut file = File::create("basic.dot")?;
             file.write_all(net.get_dot().as_bytes())?;
             Ok(())

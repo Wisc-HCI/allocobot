@@ -1,4 +1,4 @@
-pub mod net;
+pub mod nets;
 pub mod place;
 pub mod token;
 pub mod transition;

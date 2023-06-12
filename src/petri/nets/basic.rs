@@ -7,15 +7,9 @@ use crate::description::task::Task;
 use crate::petri::place::Place;
 use crate::petri::transition::Transition;
 use crate::petri::token::TokenSet;
+use crate::petri::nets::net::PetriNet;
 use uuid::Uuid;
-use std::fmt;
-
-pub trait PetriNet<'a> {
-    fn get_places(&mut self) -> HashMap<Uuid, &mut Place>;
-    fn get_transitions(&mut self) -> HashMap<Uuid, &mut Transition>;
-    fn get_tasks(&mut self) -> HashMap<Uuid, &mut Task<'a>>;
-    fn get_dot(&self) -> String;
-}
+// use std::fmt;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct BasicNet<'a> {
@@ -246,7 +240,40 @@ impl<'a> BasicNet<'a> {
 }
 
 impl <'a> PetriNet<'a> for BasicNet<'a> {
-    fn get_places(&mut self) -> HashMap<Uuid, &mut Place> {
+
+    fn get_id(&self) -> &Uuid {
+        &self.id
+    }
+
+    fn get_name(&self) -> &String {
+        &self.name
+    }
+
+    fn get_places(&self) -> HashMap<Uuid, &Place> {
+        let mut places: HashMap<Uuid, &Place> = HashMap::new();
+        self.places.values().for_each(|place: &Place| {
+            places.insert(place.id, place);
+        });
+        places
+    }
+
+    fn get_transitions(&self) -> HashMap<Uuid, &Transition> {
+        let mut transitions: HashMap<Uuid, &Transition> = HashMap::new();
+        self.transitions.values().for_each(|transition: &Transition| {
+            transitions.insert(transition.id, transition);
+        });
+        transitions
+    }
+
+    fn get_tasks(&self) -> HashMap<Uuid, &Task<'a>> {
+        let mut tasks: HashMap<Uuid, &Task<'a>> = HashMap::new();
+        self.tasks.values().for_each(|task: &Task| {
+            tasks.insert(task.id(), task);
+        });
+        tasks
+    }
+
+    fn get_places_mut(&mut self) -> HashMap<Uuid, &mut Place> {
         let mut places: HashMap<Uuid, &mut Place> = HashMap::new();
         self.places.values_mut().for_each(|place: &mut Place| {
             places.insert(place.id, place);
@@ -254,7 +281,7 @@ impl <'a> PetriNet<'a> for BasicNet<'a> {
         places
     }
 
-    fn get_transitions(&mut self) -> HashMap<Uuid, &mut Transition> {
+    fn get_transitions_mut(&mut self) -> HashMap<Uuid, &mut Transition> {
         let mut transitions: HashMap<Uuid, &mut Transition> = HashMap::new();
         self.transitions.values_mut().for_each(|transition: &mut Transition| {
             transitions.insert(transition.id, transition);
@@ -262,7 +289,7 @@ impl <'a> PetriNet<'a> for BasicNet<'a> {
         transitions
     }
 
-    fn get_tasks(&mut self) -> HashMap<Uuid, &mut Task<'a>> {
+    fn get_tasks_mut(&mut self) -> HashMap<Uuid, &mut Task<'a>> {
         let mut tasks: HashMap<Uuid, &mut Task> = HashMap::new();
         self.tasks.values_mut().for_each(|task: &mut Task| {
             tasks.insert(task.id(), task);
@@ -270,52 +297,31 @@ impl <'a> PetriNet<'a> for BasicNet<'a> {
         tasks
     }
 
-    fn get_dot(&self) -> String {
-        let mut dot = String::from(&format!("digraph {} {{\n", self.name));
-        for place in self.places.values() {
-            dot.push_str(&format!("// Place {}\n", place.name));
-            dot.push_str(&format!("\t{} [label=\"{}\"];\n", place.id.as_u128(), place.name));
-        }
-        for transition in self.transitions.values() {
-            dot.push_str(&format!("// Transition {}\n", transition.name));
-            dot.push_str(&format!("\t{} [label=\"{}\",shape=box];\n", transition.id.as_u128(), transition.name));
-        }
-        for (id, transition) in self.transitions.iter() {
-            for (place_id, count) in transition.input.iter() {
-                dot.push_str(&format!("\t{} -> {} [label=\"{}\"];\n", place_id.as_u128(), id.as_u128(), count));
-            }
-            for (place_id, count) in transition.output.iter() {
-                dot.push_str(&format!("\t{} -> {} [label=\"{}\"];\n", id.as_u128(), place_id.as_u128(), count));
-            }
-        }
-        dot.push_str("}");
-        dot
-    }
 }
 
-impl <'a> fmt::Display for BasicNet<'a> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "BasicNet {} ({}): {{\n", self.name, self.id)?;
-        if self.places.is_empty() {
-            write!(f, "\tPlaces: [],\n")?;
-        } else {
-            write!(f, "\tPlaces: [\n")?;
-            for place in self.places.values() {
-                write!(f, "\t\t{}: {{ name: {}, tokens: {:?}, source_task: {:?}}},\n", place.id, place.name, place.tokens, place.source_task)?;
-            }
-            write!(f, "\t],\n")?;
-        }
+// impl <'a> fmt::Display for BasicNet<'a> {
+//     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+//         write!(f, "BasicNet {} ({}): {{\n", self.name, self.id)?;
+//         if self.places.is_empty() {
+//             write!(f, "\tPlaces: [],\n")?;
+//         } else {
+//             write!(f, "\tPlaces: [\n")?;
+//             for place in self.places.values() {
+//                 write!(f, "\t\t{}: {{ name: {}, tokens: {:?}, source_task: {:?}}},\n", place.id, place.name, place.tokens, place.source_task)?;
+//             }
+//             write!(f, "\t],\n")?;
+//         }
 
-        if self.transitions.is_empty() {
-            write!(f, "\tTransitions: [],\n")?;
-        } else {
-            write!(f, "\tTransitions: [\n")?;
-            for transition in self.transitions.values() {
-                write!(f, "\t\t{}: {{ name: {}, input: {:?}, output: {:?}, source_task: {:?}}},\n", transition.id, transition.name, transition.input,  transition.output, transition.source_task)?;
-            }
-            write!(f, "\t],\n")?;
-        }
+//         if self.transitions.is_empty() {
+//             write!(f, "\tTransitions: [],\n")?;
+//         } else {
+//             write!(f, "\tTransitions: [\n")?;
+//             for transition in self.transitions.values() {
+//                 write!(f, "\t\t{}: {{ name: {}, input: {:?}, output: {:?}, source_task: {:?}}},\n", transition.id, transition.name, transition.input,  transition.output, transition.source_task)?;
+//             }
+//             write!(f, "\t],\n")?;
+//         }
        
-        write!(f, "}}\n")
-    }
-}
+//         write!(f, "}}\n")
+//     }
+// }
