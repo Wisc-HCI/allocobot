@@ -4,7 +4,7 @@ use allocobot::description::poi::PointOfInterest;
 use allocobot::description::primitive::Primitive;
 use allocobot::description::target::Target;
 use allocobot::description::task::Task;
-use allocobot::petri::net::{BasicNet,PetriNet};
+use allocobot::petri::net::{BasicNet, PetriNet};
 // use plotly::common::color::Rgb;
 // use plotly::common::{Fill, Line};
 // use plotly::{Plot, Scatter};
@@ -46,50 +46,80 @@ fn main() -> std::io::Result<()> {
     ]);
 
     let part1: Target = Target::new("Part1".into(), 5.0, 5.0);
-    let _part2: Target = Target::new("Part2".into(), 1.0, 3.0);
-    let _part3: Target = Target::new("Part3".into(), 6.0, 2.0);
+    let part2: Target = Target::new("Part2".into(), 1.0, 3.0);
+    let part3: Target = Target::new("Part3".into(), 6.0, 2.0);
+    let part4: Target = Target::new("Part4".into(), 14.0, 1.0);
+    let part5: Target = Target::new("Part5".into(), 4.0, 1.0);
+    let part6: Target = Target::new("Part6".into(), 10.0, 3.0);
 
-    let s1: Task = Task::new_spawn().with_name("s1".into()).with_output(&part1, 1);
+    let s1: Task = Task::new_spawn()
+        .with_name("s1".into())
+        .with_output(&part1, 1);
+    let s2: Task = Task::new_spawn()
+        .with_name("s2".into())
+        .with_output(&part2, 1);
+    let s3: Task = Task::new_spawn()
+        .with_name("s3".into())
+        .with_output(&part4, 1);
 
     let t1: Task = Task::new_process()
         .with_name("task1".into())
-        .with_primitive(Primitive::Selection {
-            target: &part1,
-            structure: 0.0,
-            variability: 0.0,
-            displacement: 0.0,
-        })
-        .with_primitive(Primitive::Grasp {
-            target: &part1,
-            structure: 0.0,
-            variability: 0.0,
-            displacement: 0.0,
-            manipulation: 0.0,
-            alignment: 0.0,
-        })
+        // .with_primitive(Primitive::Selection {
+        //     target: &part1,
+        //     structure: 0.0,
+        //     variability: 0.0,
+        //     displacement: 0.0,
+        // })
+        // .with_primitive(Primitive::Grasp {
+        //     target: &part1,
+        //     structure: 0.0,
+        //     variability: 0.0,
+        //     displacement: 0.0,
+        //     manipulation: 0.0,
+        //     alignment: 0.0,
+        // })
         .with_dependency(&s1, &part1)
-        .with_dependency(&s1, &part1)
-        .with_output(&part1, 1);
+        .with_dependency(&s2, &part2)
+        .with_output(&part3, 1);
 
     let t2: Task = Task::new_process()
         .with_name("task2".into())
-        .with_primitive(Primitive::Release {
-            target: &part1,
-            structure: 0.0,
-            variability: 0.0,
-            manipulation: 0.0,
-            alignment: 0.0,
-        })
-        .with_dependency(&t1, &part1)
-        .with_output(&part1, 1)
+        // .with_primitive(Primitive::Release {
+        //     target: &part1,
+        //     structure: 0.0,
+        //     variability: 0.0,
+        //     manipulation: 0.0,
+        //     alignment: 0.0,
+        // })
+        .with_dependency(&t1, &part3)
+        .with_dependency(&s3, &part4)
+        .with_output(&part5, 1)
+        .with_output(&part6, 1)
         .with_poi(&pois["p1"])
         .with_poi(&pois["p2"]);
 
+    println!("{:?}", t2.output());
+
     let c1: Task = Task::new_complete()
         .with_name("c1".into())
-        .with_dependency(&t2, &part1);
+        .with_dependency(&t2, &part5);
 
-    let net_result = BasicNet::from_tasks("PRIME".into(), vec![&s1, &t1, &t2, &c1]);
+    let c2: Task = Task::new_complete()
+        .with_name("c2".into())
+        .with_dependency(&t2, &part6);
+
+    let net_result = BasicNet::from_tasks(
+        "PRIME".into(), 
+        vec![
+            &s1, 
+            &s2, 
+            &s3, 
+            &t1, 
+            &t2, 
+            &c1, 
+            &c2
+        ]
+    );
 
     match net_result {
         Ok(net) => {
@@ -97,10 +127,10 @@ fn main() -> std::io::Result<()> {
             let mut file = File::create("basic.dot")?;
             file.write_all(net.get_dot().as_bytes())?;
             Ok(())
-        },
+        }
         Err(e) => {
             eprintln!("{}", e);
             Err(std::io::Error::new(std::io::ErrorKind::Other, "Error"))
-        },
+        }
     }
 }

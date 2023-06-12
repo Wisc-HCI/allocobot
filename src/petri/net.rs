@@ -89,7 +89,20 @@ impl<'a> BasicNet<'a> {
                 },
                 Task::Process(process) => {
                     for dependency in process.dependencies.iter() {
-                        let dep_task = tasks.iter().find(|t| t.id()==dependency.task.id()).unwrap();
+                        let dep_task_option = tasks.iter().find(|t| t.id()==dependency.task.id());
+                        let dep_task: &&Task;
+                        match dep_task_option {
+                            Some(t) => {
+                                dep_task = t;
+                            },
+                            None => {
+                                return Err(format!("Error Building Basic Net: Dependency for task {} cannot be satisfied. Task {} with target {} cannot be found", 
+                                        process.name, 
+                                        dependency.task.name(),
+                                        dependency.target.name
+                                    ));
+                            }
+                        }
                         let matching_dep_places = net.query_places(Some(dependency.task.id()), Some(dependency.target.id));
                         if !matching_dep_places.is_empty() {
                             let place = matching_dep_places[0];
@@ -161,9 +174,10 @@ impl<'a> BasicNet<'a> {
                                 ));
                             }
                         } else {
-                            return Err(format!("Error Building Basic Net: Dependency for task {} cannot be satisfied. Task {} cannot be found", 
+                            return Err(format!("Error Building Basic Net: Dependency for task {} cannot be satisfied. Task {} with target {} cannot be found", 
                                     complete.name, 
-                                    dependency.task.name()
+                                    dependency.task.name(),
+                                    dependency.target.name
                                 ));
                         }
                         // Create the post-transition node connections based on the dependencies

@@ -1,9 +1,8 @@
+use crate::description::dependency::Dependency;
+use crate::description::poi::PointOfInterest;
 use crate::description::primitive::Primitive;
 use crate::description::target::Target;
-use crate::description::poi::PointOfInterest;
-use crate::description::dependency::Dependency;
 use uuid::Uuid;
-
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Task<'a> {
@@ -12,7 +11,7 @@ pub enum Task<'a> {
     Complete(Complete<'a>),
 }
 
-impl <'a> Task<'a> {
+impl<'a> Task<'a> {
     pub fn new_process() -> Self {
         Self::Process(Process::new())
     }
@@ -30,11 +29,11 @@ impl <'a> Task<'a> {
             Self::Process(mut process) => {
                 process.name = name;
                 Self::Process(process)
-            },
+            }
             Self::Spawn(mut spawn) => {
                 spawn.name = name;
                 Self::Spawn(spawn)
-            },
+            }
             Self::Complete(mut complete) => {
                 complete.name = name;
                 Self::Complete(complete)
@@ -47,7 +46,7 @@ impl <'a> Task<'a> {
             Self::Process(mut process) => {
                 process.primitives.push(primitive);
                 Self::Process(process)
-            },
+            }
             _ => {
                 println!("Cannot add primitive to Spawn or Complete task");
                 self
@@ -59,30 +58,36 @@ impl <'a> Task<'a> {
         match self {
             Self::Process(mut process) => {
                 let mut found: bool = false;
-                process.dependencies.iter_mut().for_each(|dependency: &mut Dependency| {
-                    if dependency.task == task && dependency.target == target {
-                        dependency.increment();
-                        found = true;
-                    }
-                });
+                process
+                    .dependencies
+                    .iter_mut()
+                    .for_each(|dependency: &mut Dependency| {
+                        if dependency.task == task && dependency.target == target {
+                            dependency.increment();
+                            found = true;
+                        }
+                    });
                 if !found {
                     process.dependencies.push(Dependency::new(task, target));
                 }
                 Self::Process(process)
-            },
+            }
             Self::Complete(mut complete) => {
                 let mut found: bool = false;
-                complete.dependencies.iter_mut().for_each(|dependency: &mut Dependency| {
-                    if dependency.task == task && dependency.target == target {
-                        dependency.increment();
-                        found = true;
-                    }
-                });
+                complete
+                    .dependencies
+                    .iter_mut()
+                    .for_each(|dependency: &mut Dependency| {
+                        if dependency.task == task && dependency.target == target {
+                            dependency.increment();
+                            found = true;
+                        }
+                    });
                 if !found {
                     complete.dependencies.push(Dependency::new(task, target));
                 }
                 Self::Complete(complete)
-            },
+            }
             _ => {
                 println!("Cannot add dependency to Spawn task");
                 self
@@ -93,18 +98,21 @@ impl <'a> Task<'a> {
     pub fn with_output(self, target: &'a Target, count: usize) -> Self {
         match self {
             Self::Process(mut process) => {
-                let mut found: bool = false;
-                for (idx,(target,_)) in process.output.clone().iter().enumerate() {
-                    if target == target {
+                let mut found_output: Option<(usize, &(&Target, usize))> = process
+                    .output
+                    .iter()
+                    .enumerate()
+                    .find(|(idx, target_pair)| target_pair.0.id == target.id);
+                match found_output {
+                    Some((idx, _)) => {
                         process.output[idx].1 += count;
-                        found = true;
+                    }
+                    None => {
+                        process.output.push((target, count));
                     }
                 }
-                if !found {
-                    process.output.push((target, count));
-                }
                 Self::Process(process)
-            },
+            }
             Self::Spawn(mut spawn) => {
                 match spawn.output {
                     Some(o) => {
@@ -113,14 +121,14 @@ impl <'a> Task<'a> {
                         } else {
                             spawn.output = Some((target, 1));
                         }
-                    },
+                    }
                     None => {
                         spawn.output = Some((target, 1));
                     }
                 }
                 spawn.output = Some((target, 1));
                 Self::Spawn(spawn)
-            },
+            }
             _ => {
                 println!("Cannot add output to Complete task");
                 self
@@ -133,11 +141,11 @@ impl <'a> Task<'a> {
             Self::Process(mut process) => {
                 process.pois.push(poi);
                 Self::Process(process)
-            },
+            }
             Self::Spawn(mut spawn) => {
                 spawn.pois.push(poi);
                 Self::Spawn(spawn)
-            },
+            }
             Self::Complete(mut complete) => {
                 complete.pois.push(poi);
                 Self::Complete(complete)
@@ -147,51 +155,31 @@ impl <'a> Task<'a> {
 
     pub fn id(&self) -> Uuid {
         match self {
-            Self::Process(process) => {
-                process.id
-            },
-            Self::Spawn(spawn) => {
-                spawn.id
-            },
-            Self::Complete(complete) => {
-                complete.id
-            }
+            Self::Process(process) => process.id,
+            Self::Spawn(spawn) => spawn.id,
+            Self::Complete(complete) => complete.id,
         }
     }
 
     pub fn name(&self) -> String {
         match self {
-            Self::Process(process) => {
-                process.name.clone()
-            },
-            Self::Spawn(spawn) => {
-                spawn.name.clone()
-            },
-            Self::Complete(complete) => {
-                complete.name.clone()
-            }
+            Self::Process(process) => process.name.clone(),
+            Self::Spawn(spawn) => spawn.name.clone(),
+            Self::Complete(complete) => complete.name.clone(),
         }
     }
 
     pub fn pois(&self) -> Vec<&PointOfInterest> {
         match self {
-            Self::Process(process) => {
-                process.pois.clone()
-            },
-            Self::Spawn(spawn) => {
-                spawn.pois.clone()
-            },
-            Self::Complete(complete) => {
-                complete.pois.clone()
-            }
+            Self::Process(process) => process.pois.clone(),
+            Self::Spawn(spawn) => spawn.pois.clone(),
+            Self::Complete(complete) => complete.pois.clone(),
         }
     }
 
     pub fn primitives(&self) -> Vec<&Primitive> {
         match self {
-            Self::Process(process) => {
-                process.primitives.iter().collect()
-            },
+            Self::Process(process) => process.primitives.iter().collect(),
             _ => {
                 vec![]
             }
@@ -200,26 +188,18 @@ impl <'a> Task<'a> {
 
     pub fn dependencies(&self) -> Vec<&Dependency> {
         match self {
-            Self::Process(process) => {
-                process.dependencies.iter().collect()
-            },
-            Self::Complete(complete) => {
-                complete.dependencies.iter().collect()
-            },
+            Self::Process(process) => process.dependencies.iter().collect(),
+            Self::Complete(complete) => complete.dependencies.iter().collect(),
             _ => {
                 vec![]
             }
         }
     }
 
-    pub fn output(&self) -> Vec<(&Target,usize)> {
+    pub fn output(&self) -> Vec<(&Target, usize)> {
         match self {
-            Self::Process(process) => {
-                process.output.iter().map(|target| *target).collect()
-            },
-            Self::Spawn(spawn) => {
-                spawn.output.map_or(vec![], |target| vec![target])
-            },
+            Self::Process(process) => process.output.iter().map(|target| *target).collect(),
+            Self::Spawn(spawn) => spawn.output.map_or(vec![], |target| vec![target]),
             _ => {
                 vec![]
             }
@@ -228,15 +208,16 @@ impl <'a> Task<'a> {
 
     pub fn output_target_count(&self, id: &Uuid) -> usize {
         match self {
-            Self::Process(process) => {
-                process.output.iter().filter_map(|(target, count)| if target.id == *id {Some(count)} else {None}).sum()
-            },
-            Self::Spawn(spawn) => {
-                spawn.output.map_or(0, |(target,count)| if target.id == *id {count} else {0})
-            },
-            _ => {
-                0
-            }
+            Self::Process(process) => process
+                .output
+                .iter()
+                .filter_map(|(target, count)| if target.id == *id { Some(count) } else { None })
+                .sum(),
+            Self::Spawn(spawn) => spawn.output.map_or(
+                0,
+                |(target, count)| if target.id == *id { count } else { 0 },
+            ),
+            _ => 0,
         }
     }
 
@@ -249,14 +230,14 @@ impl <'a> Task<'a> {
                         targets.push(dependency.target);
                     }
                 }
-            },
+            }
             Self::Complete(complete) => {
                 for dependency in &complete.dependencies {
                     if !targets.contains(&dependency.target) {
                         targets.push(dependency.target);
                     }
                 }
-            },
+            }
             _ => {}
         }
         targets
