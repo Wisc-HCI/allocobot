@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use uuid::Uuid;
-use crate::petri::place::Place;
-use crate::description::task::Task;
+// use crate::petri::place::Place;
+// use crate::description::task::Task;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Transition {

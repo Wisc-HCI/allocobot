@@ -1,7 +1,7 @@
 use std::collections::HashMap;
-use std::error::Error;
+// use std::error::Error;
 
-use crate::description::target;
+// use crate::description::target;
 use crate::description::task::Task;
 // use crate::description::target::Target;
 use crate::petri::place::Place;
@@ -10,10 +10,11 @@ use crate::petri::token::TokenSet;
 use uuid::Uuid;
 use std::fmt;
 
-trait PetriNet<'a> {
+pub trait PetriNet<'a> {
     fn get_places(&mut self) -> HashMap<Uuid, &mut Place>;
     fn get_transitions(&mut self) -> HashMap<Uuid, &mut Transition>;
     fn get_tasks(&mut self) -> HashMap<Uuid, &mut Task<'a>>;
+    fn get_dot(&self) -> String;
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -37,10 +38,7 @@ impl<'a> BasicNet<'a> {
     }
 
     pub fn from_tasks(name: String, tasks: Vec<&'a Task<'a>>) -> Result<Self, String> {
-        let mut places: HashMap<Uuid, Place> = HashMap::new();
-        let mut transitions: HashMap<Uuid, Transition> = HashMap::new();
         let mut net: BasicNet = Self::new(name);
-        let mut added: HashMap<Uuid, Task<'a>> = HashMap::new();
 
         // Add all tasks as places to the net
         for task in tasks.iter() {
@@ -48,7 +46,7 @@ impl<'a> BasicNet<'a> {
                 Task::Process(process) => {
                     for target in process.output.iter() {
                         let place = Place::new(
-                            format!("place-{}-{:?}", target.0.name, process.name), 
+                            format!("place-{}-{}", target.0.name, process.name), 
                             TokenSet::Finite, 
                             Some(task.id()),
                             Some(target.0.id)
@@ -59,7 +57,7 @@ impl<'a> BasicNet<'a> {
                 Task::Spawn(spawn) => {
                     for target in spawn.output.iter() {
                         let place = Place::new(
-                            format!("place-{}-{:?}", target.0.name, spawn.name), 
+                            format!("place-{}-{}", target.0.name, spawn.name), 
                             TokenSet::Infinite, 
                             Some(task.id()),
                             Some(target.0.id),
@@ -68,13 +66,15 @@ impl<'a> BasicNet<'a> {
                     }
                 }
                 Task::Complete(complete) => {
-                    let place = Place::new(
-                        format!("place-{:?}", complete.name), 
-                        TokenSet::Sink, 
-                        Some(task.id()),
-                        None
-                    );
-                    net.places.insert(place.id, place);
+                    for dependency in complete.dependencies.iter() {
+                        let place = Place::new(
+                            format!("place-{}", complete.name), 
+                            TokenSet::Sink, 
+                            Some(task.id()),
+                            Some(dependency.target.id),
+                        );
+                        net.places.insert(place.id, place);
+                    }
                 }
             }
         }
@@ -83,62 +83,113 @@ impl<'a> BasicNet<'a> {
         for task in tasks.iter() {
             let mut input: HashMap<Uuid, usize> = HashMap::new();
             let mut output: HashMap<Uuid, usize> = HashMap::new();
-            for dependency in task.dependencies() {
-                let dep_task = tasks.iter().find(|t| t.id()==dependency.task.id()).unwrap();
-                let matching_dep_places = net.query_places(Some(dependency.task.id()), Some(dependency.target.id));
-                if !matching_dep_places.is_empty() {
-                    let place = matching_dep_places[0];
-                    if place.tokens == TokenSet::Infinite {
-                        input.insert(place.id, dependency.count);
-                    } else if place.tokens == TokenSet::Finite && place.source_task.map_or_else(|| false, |t| {
-                        dep_task.output_target_count(&dependency.target.id) >= dependency.count
-                    }) {
-                        input.insert(place.id, dependency.count);
-                    } else {
-                        return Err(format!("Error Building Basic Net: Dependency for task {} cannot be satisfied. Task {}, which is a dependency, only produces {} of {} ({} needed)", 
-                            task.name(), 
-                            dependency.task.name(), 
-                            dependency.task.output_target_count(&dependency.target.id), 
-                            dependency.target.name, 
-                            dependency.count
-                        ));
+            match task {
+                Task::Spawn(_) => {
+                    continue;
+                },
+                Task::Process(process) => {
+                    for dependency in process.dependencies.iter() {
+                        let dep_task = tasks.iter().find(|t| t.id()==dependency.task.id()).unwrap();
+                        let matching_dep_places = net.query_places(Some(dependency.task.id()), Some(dependency.target.id));
+                        if !matching_dep_places.is_empty() {
+                            let place = matching_dep_places[0];
+                            if place.tokens == TokenSet::Infinite {
+                                input.insert(place.id, dependency.count);
+                            } else if place.tokens == TokenSet::Finite && place.source_task.map_or_else(|| false, |_t| {
+                                dep_task.output_target_count(&dependency.target.id) >= dependency.count
+                            }) {
+                                input.insert(place.id, dependency.count);
+                            } else {
+                                return Err(format!("Error Building Basic Net: Dependency for task {} cannot be satisfied. Task {}, which is a dependency, only produces {} of {} ({} needed)", 
+                                    process.name, 
+                                    dependency.task.name(), 
+                                    dependency.task.output_target_count(&dependency.target.id), 
+                                    dependency.target.name, 
+                                    dependency.count
+                                ));
+                            }
+                        } else {
+                            return Err(format!("Error Building Basic Net: Dependency for task {} cannot be satisfied. Task {} cannot be found", 
+                                    process.name, 
+                                    dependency.task.name()
+                                ));
+                        }
                     }
-                } else {
-                    return Err(format!("Error Building Basic Net: Dependency for task {} cannot be satisfied. Task {} cannot be found", 
-                            task.name(), 
-                            dependency.task.name()
-                        ));
-                }
-            }
-            for (target,count) in task.output() {
-                let matching_places = net.query_places(Some(task.id()), Some(target.id));
-                match matching_places.first() {
-                    Some(place) => {
-                        output.insert(place.id, count);
-                    },
-                    None => {
-                        return Err(format!("Error Building Basic Net: Output for task {} cannot be satisfied. Task {} cannot be found", 
-                                task.name(), 
-                                target.name
-                            ));
+                    for (target,count) in process.output.iter() {
+                        let matching_places = net.query_places(Some(process.id), Some(target.id));
+                        match matching_places.first() {
+                            Some(place) => {
+                                output.insert(place.id, *count);
+                            },
+                            None => {
+                                return Err(format!("Error Building Basic Net: Output for task {} cannot be satisfied. Task {} cannot be found", 
+                                        process.name, 
+                                        target.name
+                                    ));
+                            }
+                        };
                     }
+                    let transition: Transition = Transition {
+                        id: Uuid::new_v4(),
+                        name: format!("transition-{}", process.name),
+                        input,
+                        output,
+                        source_task: Some(process.id),
+                    };
+        
+                    net.transitions.insert(transition.id, transition);
                 }
-            }
-            let transition: Transition = Transition {
-                id: Uuid::new_v4(),
-                name: format!("transition-{:?}", task.name()),
-                input,
-                output,
-                source_task: Some(task.id()),
-            };
+                Task::Complete(complete) => {
+                    for dependency in complete.dependencies.iter() {
+                        let dep_task = tasks.iter().find(|t| t.id()==dependency.task.id()).unwrap();
+                        let matching_dep_places = net.query_places(Some(dependency.task.id()), Some(dependency.target.id));
+                        if !matching_dep_places.is_empty() {
+                            let place = matching_dep_places[0];
+                            if place.tokens == TokenSet::Infinite {
+                                input.insert(place.id, dependency.count);
+                            } else if place.tokens == TokenSet::Finite && place.source_task.map_or_else(|| false, |_t| {
+                                dep_task.output_target_count(&dependency.target.id) >= dependency.count
+                            }) {
+                                input.insert(place.id, dependency.count);
+                            } else {
+                                return Err(format!("Error Building Basic Net: Dependency for task {} cannot be satisfied. Task {}, which is a dependency, only produces {} of {} ({} needed)", 
+                                    complete.name, 
+                                    dependency.task.name(), 
+                                    dependency.task.output_target_count(&dependency.target.id), 
+                                    dependency.target.name, 
+                                    dependency.count
+                                ));
+                            }
+                        } else {
+                            return Err(format!("Error Building Basic Net: Dependency for task {} cannot be satisfied. Task {} cannot be found", 
+                                    complete.name, 
+                                    dependency.task.name()
+                                ));
+                        }
+                        // Create the post-transition node connections based on the dependencies
+                        let associated_places = net.query_places(Some(complete.id), Some(dependency.target.id));
+                        if !associated_places.is_empty() {
+                            output.insert(associated_places[0].id, dependency.count);
+                        } else {
+                            return Err(format!("Error Building Basic Net: Output place for completion task {} cannot be found!", 
+                                    complete.name
+                                ));
+                        }
 
-            net.transitions.insert(transition.id, transition);
+                    }
+                    let transition: Transition = Transition {
+                        id: Uuid::new_v4(),
+                        name: format!("transition-{}", complete.name,),
+                        input,
+                        output,
+                        source_task: Some(complete.id),
+                    };
+        
+                    net.transitions.insert(transition.id, transition);
+                }
+            }
+            
         }
-
-                // let transition: Transition = Transition::new(format!("transition-{:?}", dependency.id()), Some(task.id()))
-                //     .with_input(&dependency.task.id(), 1)
-                //     .with_output(&task.id(), 1);
-                // net.transitions.insert(transition.id, transition);
 
         for task in tasks {
             net.tasks.insert(task.id(), task.clone());
@@ -203,6 +254,28 @@ impl <'a> PetriNet<'a> for BasicNet<'a> {
             tasks.insert(task.id(), task);
         });
         tasks
+    }
+
+    fn get_dot(&self) -> String {
+        let mut dot = String::from(&format!("digraph {} {{\n", self.name));
+        for place in self.places.values() {
+            dot.push_str(&format!("// Place {}\n", place.name));
+            dot.push_str(&format!("\t{} [label=\"{}\"];\n", place.id.as_u128(), place.name));
+        }
+        for transition in self.transitions.values() {
+            dot.push_str(&format!("// Transition {}\n", transition.name));
+            dot.push_str(&format!("\t{} [label=\"{}\",shape=box];\n", transition.id.as_u128(), transition.name));
+        }
+        for (id, transition) in self.transitions.iter() {
+            for (place_id, count) in transition.input.iter() {
+                dot.push_str(&format!("\t{} -> {} [label=\"{}\"];\n", place_id.as_u128(), id.as_u128(), count));
+            }
+            for (place_id, count) in transition.output.iter() {
+                dot.push_str(&format!("\t{} -> {} [label=\"{}\"];\n", id.as_u128(), place_id.as_u128(), count));
+            }
+        }
+        dot.push_str("}");
+        dot
     }
 }
 

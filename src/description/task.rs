@@ -108,7 +108,7 @@ impl <'a> Task<'a> {
             Self::Spawn(mut spawn) => {
                 match spawn.output {
                     Some(o) => {
-                        if (o.0.id == target.id) {
+                        if o.0.id == target.id {
                             spawn.output = Some((o.0, o.1 + 1));
                         } else {
                             spawn.output = Some((target, 1));

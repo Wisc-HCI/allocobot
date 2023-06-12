@@ -54,11 +54,11 @@ impl Agent {
         }
     }
 
-    pub fn assess_cost(&self, primitive: Primitive) -> f64 {
+    pub fn assess_cost(&self, _primitive: Primitive) -> f64 {
         0.0
     }
 
-    pub fn assess_time(&self, primitive: Primitive) -> f64 {
+    pub fn assess_time(&self, _primitive: Primitive) -> f64 {
         0.0
     }
 }

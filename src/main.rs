@@ -4,21 +4,23 @@ use allocobot::description::poi::PointOfInterest;
 use allocobot::description::primitive::Primitive;
 use allocobot::description::target::Target;
 use allocobot::description::task::Task;
-use allocobot::petri::net::BasicNet;
-use plotly::common::color::Rgb;
-use plotly::common::{Fill, Line};
-use plotly::{Plot, Scatter};
+use allocobot::petri::net::{BasicNet,PetriNet};
+// use plotly::common::color::Rgb;
+// use plotly::common::{Fill, Line};
+// use plotly::{Plot, Scatter};
 use std::collections::HashMap;
+use std::fs::File;
+use std::io::prelude::*;
 
-fn main() {
-    let colors: Vec<Rgb> = vec![
-        Rgb::new(200, 100, 100),
-        Rgb::new(100, 200, 100),
-        Rgb::new(100, 100, 200),
-    ];
+fn main() -> std::io::Result<()> {
+    // let colors: Vec<Rgb> = vec![
+    //     Rgb::new(200, 100, 100),
+    //     Rgb::new(100, 200, 100),
+    //     Rgb::new(100, 100, 200),
+    // ];
 
     // define Human and Robot Agents
-    let agents: HashMap<String, Agent> = HashMap::from([
+    let _agents: HashMap<String, Agent> = HashMap::from([
         ("charlie".into(), Agent::new_human("charlie".into())),
         (
             "panda".into(),
@@ -44,8 +46,8 @@ fn main() {
     ]);
 
     let part1: Target = Target::new("Part1".into(), 5.0, 5.0);
-    let part2: Target = Target::new("Part2".into(), 1.0, 3.0);
-    let part3: Target = Target::new("Part3".into(), 6.0, 2.0);
+    let _part2: Target = Target::new("Part2".into(), 1.0, 3.0);
+    let _part3: Target = Target::new("Part3".into(), 6.0, 2.0);
 
     let s1: Task = Task::new_spawn().with_name("s1".into()).with_output(&part1, 1);
 
@@ -87,14 +89,18 @@ fn main() {
         .with_name("c1".into())
         .with_dependency(&t2, &part1);
 
-    println!("{:?}",t1.dependencies());
-
     let net_result = BasicNet::from_tasks("PRIME".into(), vec![&s1, &t1, &t2, &c1]);
 
     match net_result {
-        Ok(net) => println!("{}", net),
+        Ok(net) => {
+            println!("{}", net);
+            let mut file = File::create("basic.dot")?;
+            file.write_all(net.get_dot().as_bytes())?;
+            Ok(())
+        },
         Err(e) => {
-            eprintln!("{}", e)
+            eprintln!("{}", e);
+            Err(std::io::Error::new(std::io::ErrorKind::Other, "Error"))
         },
     }
 }
