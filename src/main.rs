@@ -5,6 +5,7 @@ use allocobot::description::poi::PointOfInterest;
 use allocobot::description::target::Target;
 use allocobot::description::task::Task;
 use allocobot::petri::nets::basic::BasicNet;
+use allocobot::petri::nets::agent::AgentNet;
 use allocobot::petri::nets::net::PetriNet;
 // use plotly::common::color::Rgb;
 // use plotly::common::{Fill, Line};
@@ -21,14 +22,11 @@ fn main() -> std::io::Result<()> {
     // ];
 
     // define Human and Robot Agents
-    let _agents: HashMap<String, Agent> = HashMap::from([
-        ("charlie".into(), Agent::new_human("charlie".into())),
-        (
-            "panda".into(),
-            Agent::new_robot("Panda".into(), 0.855, 3.0, 0.7, 2.0, 0.0001, 0.7, false),
-        ),
-    ]);
-
+    let agents: Vec<Agent> = vec![
+        Agent::new_human("Charlie".into()),
+        Agent::new_robot("Panda".into(), 0.855, 3.0, 0.7, 2.0, 0.0001, 0.7, false)
+    ];
+        
     // let parts = vec![];
 
     let pois: HashMap<String, PointOfInterest> = HashMap::from([
@@ -121,10 +119,15 @@ fn main() -> std::io::Result<()> {
     );
 
     match net_result {
-        Ok(net) => {
-            println!("{:#?}", net);
-            let mut file = File::create("basic.dot")?;
-            file.write_all(net.get_dot().as_bytes())?;
+        Ok(basic_net) => {
+            let mut basicfile = File::create("basic.dot")?;
+            let mut agentfile = File::create("agent.dot")?;
+            
+            basicfile.write_all(basic_net.get_dot().as_bytes())?;
+
+            let agent_net = AgentNet::from((basic_net, agents));
+            agentfile.write_all(agent_net.get_dot().as_bytes())?;
+            
             Ok(())
         }
         Err(e) => {

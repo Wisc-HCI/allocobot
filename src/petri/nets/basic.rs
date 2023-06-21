@@ -3,6 +3,7 @@ use std::collections::HashMap;
 
 // use crate::description::target;
 use crate::description::task::Task;
+use crate::petri::data::Data;
 // use crate::description::target::Target;
 use crate::petri::place::Place;
 use crate::petri::transition::Transition;
@@ -40,10 +41,12 @@ impl<'a> BasicNet<'a> {
                 Task::Process(process) => {
                     for target in process.output.iter() {
                         let place = Place::new(
-                            format!("place-{}-{}", target.0.name, process.name), 
+                            format!("Int. ({})", process.name), 
                             TokenSet::Finite, 
-                            Some(task.id()),
-                            Some(target.0.id)
+                            vec![
+                                Data::TaskPlace(task.id()),
+                                Data::TargetPlace(target.0.id)
+                            ]
                         );
                         net.places.insert(place.id, place);
                     }
@@ -51,10 +54,12 @@ impl<'a> BasicNet<'a> {
                 Task::Spawn(spawn) => {
                     for target in spawn.output.iter() {
                         let place = Place::new(
-                            format!("place-{}-{}", target.0.name, spawn.name), 
+                            format!("Spawn {} ({})", target.0.name, spawn.name), 
                             TokenSet::Infinite, 
-                            Some(task.id()),
-                            Some(target.0.id),
+                            vec![
+                                Data::TaskPlace(task.id()),
+                                Data::TargetPlace(target.0.id)
+                            ]
                         );
                         net.places.insert(place.id, place);
                     }
@@ -62,10 +67,12 @@ impl<'a> BasicNet<'a> {
                 Task::Complete(complete) => {
                     for dependency in complete.dependencies.iter() {
                         let place = Place::new(
-                            format!("place-{}", complete.name), 
+                            format!("Complete {} ({})", dependency.target.name, complete.name), 
                             TokenSet::Sink, 
-                            Some(task.id()),
-                            Some(dependency.target.id),
+                            vec![
+                                Data::TaskPlace(task.id()),
+                                Data::TargetPlace(dependency.target.id)
+                            ]
                         );
                         net.places.insert(place.id, place);
                     }
@@ -97,33 +104,32 @@ impl<'a> BasicNet<'a> {
                                     ));
                             }
                         }
-                        let matching_dep_places = net.query_places(Some(dependency.task.id()), Some(dependency.target.id));
-                        if !matching_dep_places.is_empty() {
-                            let place = matching_dep_places[0];
-                            if place.tokens == TokenSet::Infinite {
-                                input.insert(place.id, dependency.count);
-                            } else if place.tokens == TokenSet::Finite && place.source_task.map_or_else(|| false, |_t| {
+                        let query = vec![
+                            Data::TaskPlace(dependency.task.id()),
+                            Data::TargetPlace(dependency.target.id)
+                        ];
+                        let candidates = net.query_places(
+                            &query,false);
+                        let matching_dep_place = candidates.iter().find(|dep_place| 
+                            dep_place.tokens == TokenSet::Infinite || 
+                            (dep_place.tokens == TokenSet::Finite && 
                                 dep_task.output_target_count(&dependency.target.id) >= dependency.count
-                            }) {
+                            )
+                        );
+                        match matching_dep_place {
+                            Some(place) => {
                                 input.insert(place.id, dependency.count);
-                            } else {
-                                return Err(format!("Error Building Basic Net: Dependency for task {} cannot be satisfied. Task {}, which is a dependency, only produces {} of {} ({} needed)", 
-                                    process.name, 
-                                    dependency.task.name(), 
-                                    dependency.task.output_target_count(&dependency.target.id), 
-                                    dependency.target.name, 
-                                    dependency.count
-                                ));
-                            }
-                        } else {
-                            return Err(format!("Error Building Basic Net: Dependency for task {} cannot be satisfied. Task {} cannot be found", 
+                            },
+                            None => {
+                                return Err(format!("Error Building Basic Net: Dependency for task {} cannot be satisfied. Task {} cannot be found", 
                                     process.name, 
                                     dependency.task.name()
                                 ));
+                            }
                         }
                     }
                     for (target,count) in process.output.iter() {
-                        let matching_places = net.query_places(Some(process.id), Some(target.id));
+                        let matching_places = net.query_places(&vec![Data::TaskPlace(process.id),Data::TargetPlace(target.id)],false);
                         match matching_places.first() {
                             Some(place) => {
                                 output.insert(place.id, *count);
@@ -138,59 +144,74 @@ impl<'a> BasicNet<'a> {
                     }
                     let transition: Transition = Transition {
                         id: Uuid::new_v4(),
-                        name: format!("transition-{}", process.name),
+                        name: format!("{}", process.name),
                         input,
                         output,
-                        source_task: Some(process.id),
+                        meta_data: vec![
+                            Data::TaskTransition(process.id)
+                        ]
                     };
         
                     net.transitions.insert(transition.id, transition);
                 }
                 Task::Complete(complete) => {
                     for dependency in complete.dependencies.iter() {
-                        let dep_task = tasks.iter().find(|t| t.id()==dependency.task.id()).unwrap();
-                        let matching_dep_places = net.query_places(Some(dependency.task.id()), Some(dependency.target.id));
-                        if !matching_dep_places.is_empty() {
-                            let place = matching_dep_places[0];
-                            if place.tokens == TokenSet::Infinite {
+                        let dep_task_option = tasks.iter().find(|t| t.id()==dependency.task.id());
+                        let dep_task: &&Task;
+                        match dep_task_option {
+                            Some(t) => {
+                                dep_task = t;
+                            },
+                            None => {
+                                return Err(format!("Error Building Basic Net: Dependency for task {} cannot be satisfied. Task {} with target {} cannot be found", 
+                                        complete.name, 
+                                        dependency.task.name(),
+                                        dependency.target.name
+                                    ));
+                            }
+                        }
+                        let query = vec![
+                            Data::TaskPlace(dependency.task.id()),
+                            Data::TargetPlace(dependency.target.id)
+                        ];
+                        let candidates = net.query_places(
+                            &query,false);
+                        let matching_dep_place = candidates.iter().find(|dep_place| dep_place.tokens == TokenSet::Infinite || (dep_place.tokens == TokenSet::Finite && dep_task.output_target_count(&dependency.target.id) >= dependency.count));
+                        match matching_dep_place {
+                            Some(place) => {
                                 input.insert(place.id, dependency.count);
-                            } else if place.tokens == TokenSet::Finite && place.source_task.map_or_else(|| false, |_t| {
-                                dep_task.output_target_count(&dependency.target.id) >= dependency.count
-                            }) {
-                                input.insert(place.id, dependency.count);
-                            } else {
-                                return Err(format!("Error Building Basic Net: Dependency for task {} cannot be satisfied. Task {}, which is a dependency, only produces {} of {} ({} needed)", 
+                            },
+                            None => {
+                                return Err(format!("Error Building Basic Net: Dependency for task {} cannot be satisfied. Task {} cannot be found", 
                                     complete.name, 
-                                    dependency.task.name(), 
-                                    dependency.task.output_target_count(&dependency.target.id), 
-                                    dependency.target.name, 
-                                    dependency.count
+                                    dependency.task.name()
                                 ));
                             }
-                        } else {
-                            return Err(format!("Error Building Basic Net: Dependency for task {} cannot be satisfied. Task {} with target {} cannot be found", 
-                                    complete.name, 
-                                    dependency.task.name(),
-                                    dependency.target.name
-                                ));
                         }
-                        // Create the post-transition node connections based on the dependencies
-                        let associated_places = net.query_places(Some(complete.id), Some(dependency.target.id));
-                        if !associated_places.is_empty() {
-                            output.insert(associated_places[0].id, dependency.count);
-                        } else {
-                            return Err(format!("Error Building Basic Net: Output place for completion task {} cannot be found!", 
-                                    complete.name
-                                ));
-                        }
+                        let out_query = vec![Data::TaskPlace(complete.id),Data::TargetPlace(dependency.target.id)];
+                        let candidates = net.query_places(&out_query,false);
+                        let output_place = candidates.first();
+                        match output_place {
+                            Some(place) => {
+                                output.insert(place.id.clone(), dependency.count);
+                            },
+                            None => {
+                                return Err(format!("Error Building Basic Net: Output for task {} cannot be found.", 
+                                        complete.name
+                                    ));
+                            }
+                        };
 
                     }
                     let transition: Transition = Transition {
                         id: Uuid::new_v4(),
-                        name: format!("transition-{}", complete.name,),
+                        name: format!("{}", complete.name),
                         input,
                         output,
-                        source_task: Some(complete.id),
+                        meta_data: vec![
+                            Data::TaskTransition(complete.id),
+                            Data::NonAgentTranstion
+                        ]
                     };
         
                     net.transitions.insert(transition.id, transition);
@@ -206,37 +227,6 @@ impl<'a> BasicNet<'a> {
         Ok(net)
     }
 
-    pub fn query_places(&self, task: Option<Uuid>, target: Option<Uuid>) -> Vec<&Place> {
-        self.places.values().into_iter()
-            .filter(|place| task.is_none() || place.source_task == task)
-            .filter(|place| target.is_none() || place.target_id == target)
-            .collect()
-    }
-
-    pub fn transitions_derived_from_task(&self, task: Uuid) -> Vec<&Transition> {
-        self.transitions.values().into_iter().filter(|transition| transition.source_task == Some(task)).collect()
-    }
-
-    pub fn places_derived_from_task(&self, task: Uuid) -> Vec<&Place> {
-        self.places.values().into_iter().filter(|place| place.source_task == Some(task)).collect()
-    }
-
-    pub fn transitions_between(&mut self, source: Uuid, target: Uuid, source_task: Option<Uuid>) -> Vec<&mut Transition> {
-        let mut transitions: Vec<&mut Transition> = vec![];
-        for transition in self.transitions.values_mut() {
-            if transition.input.contains_key(&source) && transition.output.contains_key(&target) {
-                match source_task {
-                    Some(task) => {
-                        if task == transition.source_task.unwrap() {
-                            transitions.push(transition)
-                        }
-                    }
-                    None => transitions.push(transition)
-                }
-            }
-        }
-        transitions
-    }
 }
 
 impl <'a> PetriNet<'a> for BasicNet<'a> {

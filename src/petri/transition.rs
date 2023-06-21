@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use uuid::Uuid;
+use crate::petri::data::{Data, data_subset};
 // use crate::petri::place::Place;
 // use crate::description::task::Task;
 
@@ -9,17 +10,17 @@ pub struct Transition {
     pub name: String,
     pub input: HashMap<Uuid,usize>,
     pub output: HashMap<Uuid,usize>,
-    pub source_task: Option<Uuid>,
+    pub meta_data: Vec<Data>,
 }
 
 impl Transition {
-    pub fn new(name: String, source_task: Option<Uuid>) -> Self {
+    pub fn new(name: String, meta_data: Vec<Data>) -> Self {
         Self {
             id: Uuid::new_v4(),
             name,
             input: HashMap::new(),
             output: HashMap::new(),
-            source_task
+            meta_data
         }
     }
 
@@ -40,4 +41,50 @@ impl Transition {
         }
         self
     }
+
+    pub fn has_data(&self, meta_data: &Vec<Data>, fuzzy: bool) -> bool {
+        data_subset(&self.meta_data, meta_data, fuzzy)
+    }
+}
+
+#[test]
+pub fn data_query_mismatched_inner_nonfuzzy() {
+    let uuid1 = Uuid::new_v4();
+    let uuid2 = Uuid::new_v4();
+    let transition = Transition::new(
+        "test".to_string(),
+        vec![
+            Data::TaskTransition(uuid1),
+            Data::AgentTransition(uuid2)
+        ]
+    );
+    assert_eq!(transition.has_data(&vec![Data::TaskTransition(uuid2)], false), false);
+}
+
+#[test]
+pub fn data_query_mismatched_inner_fuzzy() {
+    let uuid1 = Uuid::new_v4();
+    let uuid2 = Uuid::new_v4();
+    let transition = Transition::new(
+        "test".to_string(),
+        vec![
+            Data::TaskTransition(uuid1),
+            Data::AgentTransition(uuid2)
+        ]
+    );
+    assert_eq!(transition.has_data(&vec![Data::TaskTransition(uuid2)], true), true);
+}
+
+#[test]
+pub fn data_query_matched_inner_nonfuzzy() {
+    let uuid1 = Uuid::new_v4();
+    let uuid2 = Uuid::new_v4();
+    let transition = Transition::new(
+        "test".to_string(),
+        vec![
+            Data::TaskTransition(uuid1),
+            Data::AgentTransition(uuid2)
+        ]
+    );
+    assert_eq!(transition.has_data(&vec![Data::TaskTransition(uuid1)], false), true);
 }

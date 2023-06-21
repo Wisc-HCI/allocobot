@@ -16,6 +16,7 @@ name = "allocobot"
 version = "0.1.0"
 dependencies = [
  "nalgebra",
+ "rand",
  "uuid",
  "z3",
 ]

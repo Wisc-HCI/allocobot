@@ -1,17 +1,21 @@
 use uuid::Uuid;
 use crate::petri::token::TokenSet;
+use crate::petri::data::{Data,data_subset};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Place {
     pub id: Uuid,
     pub name: String,
     pub tokens: TokenSet,
-    pub source_task: Option<Uuid>,
-    pub target_id: Option<Uuid>,
+    pub meta_data: Vec<Data>,
 }
 
 impl Place {
-    pub fn new(name: String, tokens: TokenSet, source_task: Option<Uuid>, target_id: Option<Uuid>) -> Self {
-        Self { id: Uuid::new_v4(), name, tokens, source_task, target_id }
+    pub fn new(name: String, tokens: TokenSet, meta_data: Vec<Data>) -> Self {
+        Self { id: Uuid::new_v4(), name, tokens, meta_data }
+    }
+
+    pub fn has_data(&self, meta_data: &Vec<Data>, fuzzy: bool) -> bool {
+        data_subset(&self.meta_data, meta_data, fuzzy)
     }
 }

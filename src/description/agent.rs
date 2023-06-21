@@ -40,14 +40,14 @@ impl Agent {
         });
     }
 
-    pub fn get_id(&self) -> Uuid {
+    pub fn id(&self) -> Uuid {
         match self {
             Agent::Robot(robot_info) => return robot_info.id.clone(),
             Agent::Human(human_info) => return human_info.id.clone(),
         }
     }
 
-    pub fn get_name(&self) -> String {
+    pub fn name(&self) -> String {
         match self {
             Agent::Robot(robot_info) => return robot_info.name.clone(),
             Agent::Human(human_info) => return human_info.name.clone(),
