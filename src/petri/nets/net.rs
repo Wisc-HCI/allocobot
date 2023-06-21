@@ -40,6 +40,7 @@ pub trait PetriNet<'a> {
     fn get_places_mut(&mut self) -> HashMap<Uuid, &mut Place>;
     fn get_transitions_mut(&mut self) -> HashMap<Uuid, &mut Transition>;
     fn get_tasks_mut(&mut self) -> HashMap<Uuid, &mut Task<'a>>;
+    fn get_random_initial_marking(&self) -> HashMap<Uuid, usize>;
     fn get_dot(&self) -> String {
         let mut colors: HashMap<Uuid, (u8, u8, u8)> = HashMap::new();
 

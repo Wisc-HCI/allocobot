@@ -167,6 +167,19 @@ impl<'a> PetriNet<'a> for AgentNet<'a> {
         });
         tasks
     }
+
+    fn get_random_initial_marking(&self) -> HashMap<Uuid, usize> {
+        let mut marking: HashMap<Uuid, usize> = HashMap::new();
+        self.places.values().for_each(|place: &Place| {
+            if place.tokens == TokenSet::Finite && !place.meta_data.iter().filter(|d| d.is_agent_lock()).collect::<Vec<&Data>>().is_empty() {
+                marking.insert(place.id, 1);
+            } else {
+                marking.insert(place.id, 0);
+            }
+            
+        });
+        marking
+    }
 }
 
 impl<'a> AgentNet<'a> {

@@ -287,31 +287,12 @@ impl <'a> PetriNet<'a> for BasicNet<'a> {
         tasks
     }
 
+    fn get_random_initial_marking(&self) -> HashMap<Uuid, usize> {
+        let mut marking: HashMap<Uuid, usize> = HashMap::new();
+        self.places.values().for_each(|place: &Place| {
+            marking.insert(place.id, 0);
+        });
+        marking
+    }
+
 }
-
-// impl <'a> fmt::Display for BasicNet<'a> {
-//     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-//         write!(f, "BasicNet {} ({}): {{\n", self.name, self.id)?;
-//         if self.places.is_empty() {
-//             write!(f, "\tPlaces: [],\n")?;
-//         } else {
-//             write!(f, "\tPlaces: [\n")?;
-//             for place in self.places.values() {
-//                 write!(f, "\t\t{}: {{ name: {}, tokens: {:?}, source_task: {:?}}},\n", place.id, place.name, place.tokens, place.source_task)?;
-//             }
-//             write!(f, "\t],\n")?;
-//         }
-
-//         if self.transitions.is_empty() {
-//             write!(f, "\tTransitions: [],\n")?;
-//         } else {
-//             write!(f, "\tTransitions: [\n")?;
-//             for transition in self.transitions.values() {
-//                 write!(f, "\t\t{}: {{ name: {}, input: {:?}, output: {:?}, source_task: {:?}}},\n", transition.id, transition.name, transition.input,  transition.output, transition.source_task)?;
-//             }
-//             write!(f, "\t],\n")?;
-//         }
-       
-//         write!(f, "}}\n")
-//     }
-// }
