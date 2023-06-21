@@ -5,8 +5,8 @@ use uuid::Uuid;
 pub struct MatrixNet {
     pub id: Uuid,
     pub name: String,
-    pub F: DMatrix<u128>,
-    pub V: DMatrix<u128>,
-    pub C: DMatrix<i128>,
+    pub f: DMatrix<u128>,
+    pub v: DMatrix<u128>,
+    pub c: DMatrix<i128>,
     pub marking: DMatrix<u128>
 }

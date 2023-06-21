@@ -91,8 +91,7 @@ pub trait PetriNet<'a> {
                 color_to_hex(border_color)
             ));
         }
-        let mut task_groups: HashMap<Uuid, Vec<(Uuid, Uuid, usize)>> = HashMap::new();
-
+        
         for (id, transition) in self.get_transitions().iter() {
             for (place_id, count) in transition.input.iter() {
                 let mut line_color: (u8, u8, u8) = (0, 0, 0);
@@ -134,22 +133,6 @@ pub trait PetriNet<'a> {
             }
         }
 
-        for (id, transition_set) in task_groups.iter() {
-            dot.push_str(&format!("\tsubgraph cluster_{} {{\n", id.as_u128()));
-            dot.push_str(&format!(
-                "\t\tlabel=\"{}\";\n",
-                self.get_tasks().get(id).unwrap().name()
-            ));
-            for (source, target, count) in transition_set.iter() {
-                dot.push_str(&format!(
-                    "\t\t{} -> {} [label=\"{}\"];\n",
-                    source.as_u128(),
-                    target.as_u128(),
-                    count
-                ));
-            }
-            dot.push_str("\t}\n");
-        }
         dot.push_str("overlap=false\n");
         dot.push_str("}");
         dot

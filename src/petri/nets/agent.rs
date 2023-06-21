@@ -53,11 +53,6 @@ impl<'a> From<(BasicNet<'a>, Vec<Agent>)> for AgentNet<'a> {
             let place_id: Uuid = place.id;
             net.places.insert(place.id, place);
             for transition in value.0.transitions.values() {
-                println!(
-                    "Checking transition: {:?} ({})",
-                    transition.meta_data,
-                    transition.has_data(&vec![Data::NonAgentTranstion], false)
-                );
                 if transition.has_data(&vec![Data::NonAgentTranstion], true)
                     && non_agent_transitions.contains(&transition.id)
                 {
