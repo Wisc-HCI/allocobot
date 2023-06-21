@@ -1,5 +1,6 @@
 pub mod agent;
 pub mod dependency;
+pub mod job;
 pub mod poi;
 pub mod primitive;
 pub mod target;

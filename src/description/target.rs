@@ -8,7 +8,7 @@ pub struct Target {
     pub weight: f64
 }
 
-impl <'a> Target  {
+impl Target  {
     pub fn new(name: String, size: f64, weight: f64) -> Target  {
         Target {
             id: Uuid::new_v4(),

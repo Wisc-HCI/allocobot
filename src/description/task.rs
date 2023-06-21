@@ -1,17 +1,17 @@
 use crate::description::dependency::Dependency;
-use crate::description::poi::PointOfInterest;
-use crate::description::primitive::Primitive;
-use crate::description::target::Target;
+// use crate::description::poi::PointOfInterest;
+// use crate::description::primitive::Primitive;
+// use crate::description::target::Target;
 use uuid::Uuid;
 
 #[derive(Clone, Debug, PartialEq)]
-pub enum Task<'a> {
-    Process(Process<'a>),
-    Spawn(Spawn<'a>),
-    Complete(Complete<'a>),
+pub enum Task {
+    Process(Process),
+    Spawn(Spawn),
+    Complete(Complete),
 }
 
-impl<'a> Task<'a> {
+impl Task {
     pub fn new_process() -> Self {
         Self::Process(Process::new())
     }
@@ -24,131 +24,116 @@ impl<'a> Task<'a> {
         Self::Complete(Complete::new())
     }
 
-    pub fn with_name(self, name: String) -> Self {
-        match self {
-            Self::Process(mut process) => {
-                process.name = name;
-                Self::Process(process)
+    pub fn set_name(&mut self, name: &String) {
+        match *self {
+            Self::Process(ref mut process) => {
+                process.name = name.clone();
             }
-            Self::Spawn(mut spawn) => {
-                spawn.name = name;
-                Self::Spawn(spawn)
+            Self::Spawn(ref mut spawn) => {
+                spawn.name = name.clone();
             }
-            Self::Complete(mut complete) => {
-                complete.name = name;
-                Self::Complete(complete)
+            Self::Complete(ref mut complete) => {
+                complete.name = name.clone();
             }
         }
     }
 
-    pub fn with_primitive(self, primitive: Primitive<'a>) -> Self {
-        match self {
-            Self::Process(mut process) => {
+    pub fn add_primitive(&mut self, primitive: Uuid) {
+        match *self {
+            Self::Process(ref mut process) => {
                 process.primitives.push(primitive);
-                Self::Process(process)
             }
             _ => {
                 println!("Cannot add primitive to Spawn or Complete task");
-                self
             }
         }
     }
 
-    pub fn with_dependency(self, task: &'a Task<'a>, target: &'a Target) -> Self {
+    pub fn add_dependency(&mut self, task: &Uuid, target: &Uuid) {
         match self {
-            Self::Process(mut process) => {
+            Self::Process(ref mut process) => {
                 let mut found: bool = false;
                 process
                     .dependencies
                     .iter_mut()
                     .for_each(|dependency: &mut Dependency| {
-                        if dependency.task == task && dependency.target == target {
+                        if dependency.task == *task && dependency.target == *target {
                             dependency.increment();
                             found = true;
                         }
                     });
                 if !found {
-                    process.dependencies.push(Dependency::new(task, target));
+                    process.dependencies.push(Dependency::new(*task, *target));
                 }
-                Self::Process(process)
             }
-            Self::Complete(mut complete) => {
+            Self::Complete(ref mut complete) => {
                 let mut found: bool = false;
                 complete
                     .dependencies
                     .iter_mut()
                     .for_each(|dependency: &mut Dependency| {
-                        if dependency.task == task && dependency.target == target {
+                        if dependency.task == *task && dependency.target == *target {
                             dependency.increment();
                             found = true;
                         }
                     });
                 if !found {
-                    complete.dependencies.push(Dependency::new(task, target));
+                    complete.dependencies.push(Dependency::new(*task, *target));
                 }
-                Self::Complete(complete)
             }
             _ => {
                 println!("Cannot add dependency to Spawn task");
-                self
             }
         }
     }
 
-    pub fn with_output(self, target: &'a Target, count: usize) -> Self {
-        match self {
-            Self::Process(mut process) => {
-                let found_output: Option<(usize, &(&Target, usize))> = process
+    pub fn add_output(&mut self, target: &Uuid, count: usize) {
+        match *self {
+            Self::Process(ref mut process) => {
+                let found_output: Option<(usize, &(Uuid, usize))> = process
                     .output
                     .iter()
                     .enumerate()
-                    .find(|(_idx, target_pair)| target_pair.0.id == target.id);
+                    .find(|(_idx, (target_candidate, _count))| target_candidate == target);
                 match found_output {
                     Some((idx, _)) => {
                         process.output[idx].1 += count;
                     }
                     None => {
-                        process.output.push((target, count));
+                        process.output.push((*target, count));
                     }
                 }
-                Self::Process(process)
             }
-            Self::Spawn(mut spawn) => {
+            Self::Spawn(ref mut spawn) => {
                 match spawn.output {
-                    Some(o) => {
-                        if o.0.id == target.id {
-                            spawn.output = Some((o.0, o.1 + 1));
+                    Some((spawn_target, spawn_count)) => {
+                        if spawn_target == *target {
+                            spawn.output = Some((spawn_target, spawn_count + count));
                         } else {
-                            spawn.output = Some((target, 1));
+                            spawn.output = Some((*target, count));
                         }
                     }
                     None => {
-                        spawn.output = Some((target, 1));
+                        spawn.output = Some((*target, 1));
                     }
                 }
-                spawn.output = Some((target, 1));
-                Self::Spawn(spawn)
             }
             _ => {
                 println!("Cannot add output to Complete task");
-                self
             }
         }
     }
 
-    pub fn with_poi(self, poi: &'a PointOfInterest) -> Self {
-        match self {
-            Self::Process(mut process) => {
-                process.pois.push(poi);
-                Self::Process(process)
+    pub fn add_poi(&mut self, poi: &Uuid) {
+        match *self {
+            Self::Process(ref mut process) => {
+                process.pois.push(*poi);
             }
-            Self::Spawn(mut spawn) => {
-                spawn.pois.push(poi);
-                Self::Spawn(spawn)
+            Self::Spawn(ref mut spawn) => {
+                spawn.pois.push(*poi);
             }
-            Self::Complete(mut complete) => {
-                complete.pois.push(poi);
-                Self::Complete(complete)
+            Self::Complete(ref mut complete) => {
+                complete.pois.push(*poi);
             }
         }
     }
@@ -169,7 +154,7 @@ impl<'a> Task<'a> {
         }
     }
 
-    pub fn pois(&self) -> Vec<&PointOfInterest> {
+    pub fn pois(&self) -> Vec<Uuid> {
         match self {
             Self::Process(process) => process.pois.clone(),
             Self::Spawn(spawn) => spawn.pois.clone(),
@@ -177,26 +162,26 @@ impl<'a> Task<'a> {
         }
     }
 
-    pub fn primitives(&self) -> Vec<&Primitive> {
+    pub fn primitives(&self) -> Vec<Uuid> {
         match self {
-            Self::Process(process) => process.primitives.iter().collect(),
+            Self::Process(process) => process.primitives.clone(),
             _ => {
                 vec![]
             }
         }
     }
 
-    pub fn dependencies(&self) -> Vec<&Dependency> {
+    pub fn dependencies(&self) -> Vec<Dependency> {
         match self {
-            Self::Process(process) => process.dependencies.iter().collect(),
-            Self::Complete(complete) => complete.dependencies.iter().collect(),
+            Self::Process(process) => process.dependencies.clone(),
+            Self::Complete(complete) => complete.dependencies.clone(),
             _ => {
                 vec![]
             }
         }
     }
 
-    pub fn output(&self) -> Vec<(&Target, usize)> {
+    pub fn output(&self) -> Vec<(Uuid, usize)> {
         match self {
             Self::Process(process) => process.output.iter().map(|target| *target).collect(),
             Self::Spawn(spawn) => spawn.output.map_or(vec![], |target| vec![target]),
@@ -211,18 +196,18 @@ impl<'a> Task<'a> {
             Self::Process(process) => process
                 .output
                 .iter()
-                .filter_map(|(target, count)| if target.id == *id { Some(count) } else { None })
+                .filter_map(|(target, count)| if target == id { Some(count) } else { None })
                 .sum(),
             Self::Spawn(spawn) => spawn.output.map_or(
                 0,
-                |(target, count)| if target.id == *id { count } else { 0 },
+                |(target, count)| if target == *id { count } else { 0 },
             ),
             _ => 0,
         }
     }
 
-    pub fn unique_target_dependencies(&self) -> Vec<&Target> {
-        let mut targets: Vec<&Target> = vec![];
+    pub fn unique_target_dependencies(&self) -> Vec<Uuid> {
+        let mut targets: Vec<Uuid> = vec![];
         match self {
             Self::Process(process) => {
                 for dependency in &process.dependencies {
@@ -245,16 +230,16 @@ impl<'a> Task<'a> {
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct Process<'a> {
+pub struct Process {
     pub id: Uuid,
     pub name: String,
-    pub primitives: Vec<Primitive<'a>>,
-    pub dependencies: Vec<Dependency<'a>>,
-    pub output: Vec<(&'a Target, usize)>,
-    pub pois: Vec<&'a PointOfInterest>,
+    pub primitives: Vec<Uuid>,
+    pub dependencies: Vec<Dependency>,
+    pub output: Vec<(Uuid, usize)>,
+    pub pois: Vec<Uuid>,
 }
 
-impl<'a> Process<'a> {
+impl Process {
     pub fn new() -> Self {
         Self {
             id: Uuid::new_v4(),
@@ -268,14 +253,14 @@ impl<'a> Process<'a> {
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct Spawn<'a> {
+pub struct Spawn {
     pub id: Uuid,
     pub name: String,
-    pub output: Option<(&'a Target, usize)>,
-    pub pois: Vec<&'a PointOfInterest>,
+    pub output: Option<(Uuid, usize)>,
+    pub pois: Vec<Uuid>,
 }
 
-impl<'a> Spawn<'a> {
+impl Spawn {
     pub fn new() -> Self {
         Self {
             id: Uuid::new_v4(),
@@ -287,14 +272,14 @@ impl<'a> Spawn<'a> {
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct Complete<'a> {
+pub struct Complete {
     pub id: Uuid,
     pub name: String,
-    pub dependencies: Vec<Dependency<'a>>,
-    pub pois: Vec<&'a PointOfInterest>,
+    pub dependencies: Vec<Dependency>,
+    pub pois: Vec<Uuid>,
 }
 
-impl<'a> Complete<'a> {
+impl Complete {
     pub fn new() -> Self {
         Self {
             id: Uuid::new_v4(),

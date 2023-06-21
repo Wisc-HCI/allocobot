@@ -1,11 +1,11 @@
-use crate::description::target::Target;
-use crate::description::poi::PointOfInterest;
+use uuid::Uuid;
 
 #[derive(Clone,Debug, PartialEq)]
-pub enum Primitive<'a> {
+pub enum Primitive {
     // A process by which a target is selected
     Selection {
-        target: &'a Target,
+        id: Uuid,
+        target: Uuid,
         // Rules
         /*
         pre(agent) -> !busy(agent)
@@ -19,7 +19,8 @@ pub enum Primitive<'a> {
     },
     // A process by which a target is grabbed
     Grasp {
-        target: &'a Target,
+        id: Uuid,
+        target: Uuid,
         // Features
         structure: f64,
         variability: f64,
@@ -29,7 +30,8 @@ pub enum Primitive<'a> {
     },
     // A process by which a target is released
     Release {
-        target: &'a Target,
+        id: Uuid,
+        target: Uuid,
         // Features
         structure: f64,
         variability: f64,
@@ -38,14 +40,16 @@ pub enum Primitive<'a> {
     },
     // A process by which a target is held
     Hold {
-        target: &'a Target,
+        id: Uuid,
+        target: Uuid,
         // Features
         manipulation: f64,
         alignment: f64
     },
     // A process by which the agent raises its arm, torso, or body part
     Travel {
-        poi: &'a PointOfInterest,
+        id: Uuid,
+        poi: Uuid,
         // Features
         structure: f64,
         variability: f64,
@@ -55,7 +59,8 @@ pub enum Primitive<'a> {
     },
     // A process by which the agent extends/retracts its arm(s)
     Reach {
-        poi: &'a PointOfInterest,
+        id: Uuid,
+        poi: Uuid,
         // Features
         structure: f64,
         variability: f64,
@@ -64,8 +69,9 @@ pub enum Primitive<'a> {
     },
     // A process by which the agent attaches one part to another
     Fasten {
-        base_target: &'a Target,
-        attach_target: &'a Target,
+        id: Uuid,
+        base_target: Uuid,
+        attach_target: Uuid,
         // Features
         structure: f64,
         variability: f64,
@@ -77,7 +83,8 @@ pub enum Primitive<'a> {
     },
     // A process by which the agent applies pressure on a target or surface
     Press {
-        target: &'a Target,
+        id: Uuid,
+        target: Uuid,
         // Features
         structure: f64,
         variability: f64,
@@ -87,8 +94,9 @@ pub enum Primitive<'a> {
     },
     // A process by which the agent inserts a target object into a target recepticle/base
     Insert {
-        base_target: &'a Target,
-        insert_target: &'a Target,
+        id: Uuid,
+        base_target: Uuid,
+        insert_target: Uuid,
         // Features
         structure: f64,
         variability: f64,
@@ -98,8 +106,9 @@ pub enum Primitive<'a> {
     },
     // A process by which the agent separates a target object from a target recepticle/base
     Separate {
-        base_target: &'a Target,
-        separate_target: &'a Target,
+        id: Uuid,
+        base_target: Uuid,
+        separate_target: Uuid,
         // Features
         structure: f64,
         variability: f64,
@@ -109,7 +118,8 @@ pub enum Primitive<'a> {
     },
     // A process by which a target is observed and asessed according to certain properties
     Inspect {
-        target: &'a Target,
+        id: Uuid,
+        target: Uuid,
         // Features
         structure: f64,
         variability: f64,
@@ -117,22 +127,46 @@ pub enum Primitive<'a> {
     },
     // A process by which an agent swaps one tool for another
     ToolSwap {
-        target: &'a Target,
+        id: Uuid,
+        target: Uuid,
         // Features
         manipulation: f64,
         alignment: f64
     },
     // A process by which an agent swaps one tool for another
     ToolStart {
-        target: &'a Target,
+        id: Uuid,
+        target: Uuid,
         // Features
         manipulation: f64,
         alignment: f64
     },
     ToolStop {
-        target: &'a Target,
+        id: Uuid,
+        target: Uuid,
         // Features
         manipulation: f64,
         alignment: f64
+    }
+}
+
+impl Primitive {
+    pub fn id(&self) -> Uuid {
+        match self {
+            Primitive::Selection { id, .. } => *id,
+            Primitive::Grasp { id, .. } => *id,
+            Primitive::Release { id, .. } => *id,
+            Primitive::Hold { id, .. } => *id,
+            Primitive::Travel { id, .. } => *id,
+            Primitive::Reach { id, .. } => *id,
+            Primitive::Fasten { id, .. } => *id,
+            Primitive::Press { id, .. } => *id,
+            Primitive::Insert { id, .. } => *id,
+            Primitive::Separate { id, .. } => *id,
+            Primitive::Inspect { id, .. } => *id,
+            Primitive::ToolSwap { id, .. } => *id,
+            Primitive::ToolStart { id, .. } => *id,
+            Primitive::ToolStop { id, .. } => *id
+        }
     }
 }

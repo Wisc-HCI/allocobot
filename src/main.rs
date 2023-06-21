@@ -1,16 +1,12 @@
-use allocobot::description::agent::Agent;
-// use allocobot::planner::Planner;
-use allocobot::description::poi::PointOfInterest;
-// use allocobot::description::primitive::Primitive;
-use allocobot::description::target::Target;
-use allocobot::description::task::Task;
-use allocobot::petri::nets::basic::BasicNet;
-use allocobot::petri::nets::agent::AgentNet;
-use allocobot::petri::nets::net::PetriNet;
+use uuid::Uuid;
+use allocobot::description::job::Job;
+// use allocobot::petri::nets::basic::BasicNet;
+// use allocobot::petri::nets::agent::AgentNet;
+// use allocobot::petri::net::PetriNet;
 // use plotly::common::color::Rgb;
 // use plotly::common::{Fill, Line};
 // use plotly::{Plot, Scatter};
-use std::collections::HashMap;
+// use std::collections::HashMap;
 use std::fs::File;
 use std::io::prelude::*;
 
@@ -21,117 +17,68 @@ fn main() -> std::io::Result<()> {
     //     Rgb::new(100, 100, 200),
     // ];
 
-    // define Human and Robot Agents
-    let agents: Vec<Agent> = vec![
-        Agent::new_human("Charlie".into()),
-        Agent::new_robot("Panda".into(), 0.855, 3.0, 0.7, 2.0, 0.0001, 0.7, false)
-    ];
-        
-    // let parts = vec![];
+    let mut job = Job::new("Job 1".into());
 
-    let pois: HashMap<String, PointOfInterest> = HashMap::from([
-        (
-            "p1".into(),
-            PointOfInterest::new("p1".into(), "Point 1".into(), 0.0, 1.0, 0.1),
-        ),
-        (
-            "p2".into(),
-            PointOfInterest::new("p2".into(), "Point 2".into(), 1.0, 1.1, 0.4),
-        ),
-        (
-            "p3".into(),
-            PointOfInterest::new("p3".into(), "Point 3".into(), 0.5, 4.0, 0.4),
-        ),
-    ]);
+    let _panda: Uuid = job.create_robot_agent("Panda".into(), 0.855, 3.0, 0.7, 2.0, 0.0001, 0.7, false);
+    let _charlie: Uuid = job.create_human_agent("Charlie".into());
 
-    let part1: Target = Target::new("Part1".into(), 5.0, 5.0);
-    let part2: Target = Target::new("Part2".into(), 1.0, 3.0);
-    let part3: Target = Target::new("Part3".into(), 6.0, 2.0);
-    let part4: Target = Target::new("Part4".into(), 14.0, 1.0);
-    let part5: Target = Target::new("Part5".into(), 4.0, 1.0);
-    let part6: Target = Target::new("Part6".into(), 10.0, 3.0);
+    let _p1: Uuid = job.create_hand_point_of_interest("Point 1".into(), 0.0, 1.0, 0.1);
+    let _p2: Uuid = job.create_hand_point_of_interest("Point 2".into(), 1.0, 1.0, 0.4);
+    let _p3: Uuid = job.create_hand_point_of_interest("Point 3".into(), 0.5, 4.0, 0.4);
 
-    let s1: Task = Task::new_spawn()
-        .with_name("s1".into())
-        .with_output(&part1, 1);
-    let s2: Task = Task::new_spawn()
-        .with_name("s2".into())
-        .with_output(&part2, 1);
-    let s3: Task = Task::new_spawn()
-        .with_name("s3".into())
-        .with_output(&part4, 1);
 
-    let t1: Task = Task::new_process()
-        .with_name("task1".into())
-        // .with_primitive(Primitive::Selection {
-        //     target: &part1,
-        //     structure: 0.0,
-        //     variability: 0.0,
-        //     displacement: 0.0,
-        // })
-        // .with_primitive(Primitive::Grasp {
-        //     target: &part1,
-        //     structure: 0.0,
-        //     variability: 0.0,
-        //     displacement: 0.0,
-        //     manipulation: 0.0,
-        //     alignment: 0.0,
-        // })
-        .with_dependency(&s1, &part1)
-        .with_dependency(&s2, &part2)
-        .with_output(&part3, 1);
+    let part1: Uuid = job.create_target("Part1".into(), 5.0, 5.0);
+    let part2: Uuid = job.create_target("Part2".into(), 1.0, 3.0);
+    let part3: Uuid = job.create_target("Part3".into(), 6.0, 2.0);
+    let part4: Uuid = job.create_target("Part4".into(), 14.0, 1.0);
+    let part5: Uuid = job.create_target("Part5".into(), 4.0, 1.0);
+    let part6: Uuid = job.create_target("Part6".into(), 10.0, 3.0);
+    
+    let s1: Uuid = job.create_spawn_task("spawn1".into());
+    let s2: Uuid = job.create_spawn_task("spawn2".into());
+    let s3: Uuid = job.create_spawn_task("spawn3".into());
 
-    let t2: Task = Task::new_process()
-        .with_name("task2".into())
-        // .with_primitive(Primitive::Release {
-        //     target: &part1,
-        //     structure: 0.0,
-        //     variability: 0.0,
-        //     manipulation: 0.0,
-        //     alignment: 0.0,
-        // })
-        .with_dependency(&t1, &part3)
-        .with_dependency(&s3, &part4)
-        .with_output(&part5, 1)
-        .with_output(&part6, 1)
-        .with_poi(&pois["p1"])
-        .with_poi(&pois["p2"]);
+    job.add_task_output(s1,part1,1);
+    job.add_task_output(s2,part2,1);
+    job.add_task_output(s3, part4, 1);
 
-    let c1: Task = Task::new_complete()
-        .with_name("c1".into())
-        .with_dependency(&t2, &part5);
+    let t1 = job.create_process_task("task1".into());
+    let t2 = job.create_process_task("task2".into());
+    
+    job.add_task_dependency(t1, s1, part1);
+    job.add_task_dependency(t1, s2, part2);
+    job.add_task_output(t1, part3, 1);
+    job.add_task_dependency(t2, t1, part3);
+    job.add_task_dependency(t2, s3, part4);
+    job.add_task_output(t2, part5, 1);
+    job.add_task_output(t2, part6, 1);
 
-    let c2: Task = Task::new_complete()
-        .with_name("c2".into())
-        .with_dependency(&t2, &part6);
+    let c1 = job.create_complete_task("complete1".into());
+    let c2 = job.create_complete_task("complete2".into());
 
-    let net_result = BasicNet::from_tasks(
-        "PRIME".into(), 
-        vec![
-            &s1, 
-            &s2, 
-            &s3, 
-            &t1, 
-            &t2, 
-            &c1, 
-            &c2
-        ]
-    );
+    job.add_task_dependency(c1, t2, part5);
+    job.add_task_dependency(c2, t2, part6);
 
-    match net_result {
-        Ok(basic_net) => {
+
+    // let net_result = BasicNet::from_job(job);
+    let result = job.create_agent_net();
+    // let pois: Vec<PointOfInterest> = vec![p1, p2, p3];
+
+    match job.agent_net {
+        Some(_) => {
             let mut basicfile = File::create("basic.dot")?;
             let mut agentfile = File::create("agent.dot")?;
-            
-            basicfile.write_all(basic_net.get_dot().as_bytes())?;
 
-            let agent_net = AgentNet::from((basic_net, agents));
-            agentfile.write_all(agent_net.get_dot().as_bytes())?;
+
+            basicfile.write_all(job.basic_net.unwrap().get_dot().as_bytes())?;
+
+            // let agent_net = AgentNet::from((basic_net, agents));
+            agentfile.write_all(job.agent_net.unwrap().get_dot().as_bytes())?;
             
             Ok(())
         }
-        Err(e) => {
-            eprintln!("{}", e);
+        None => {
+            eprintln!("{}",result.err().unwrap());
             Err(std::io::Error::new(std::io::ErrorKind::Other, "Error"))
         }
     }

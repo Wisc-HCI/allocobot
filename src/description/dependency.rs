@@ -1,17 +1,15 @@
 use uuid::Uuid;
-use crate::description::target::Target;
-use crate::description::task::Task;
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct Dependency<'a> {
+pub struct Dependency {
     pub id: Uuid,
-    pub target: &'a Target,
-    pub task: &'a Task<'a>,
+    pub target: Uuid,
+    pub task: Uuid,
     pub count: usize
 }
 
-impl <'a> Dependency<'a> {
-    pub fn new(task: &'a Task, target: &'a Target) -> Self {
+impl Dependency {
+    pub fn new(task: Uuid, target: Uuid) -> Self {
         Self {
             id: Uuid::new_v4(),
             target,

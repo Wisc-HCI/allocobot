@@ -7,7 +7,7 @@ pub enum Data {
     TaskPlace(Uuid),
     TaskTransition(Uuid),
     TargetPlace(Uuid),
-    AgentLock(Uuid),
+    AgentInitial(Uuid),
     AgentTransition(Uuid),
     NonAgentTranstion
 }
@@ -45,9 +45,9 @@ impl Data {
         }
     }
 
-    pub fn is_agent_lock(&self) -> bool {
+    pub fn is_agent_initial(&self) -> bool {
         match self {
-            Data::AgentLock(_) => true,
+            Data::AgentInitial(_) => true,
             _ => false
         }
     }
@@ -72,7 +72,7 @@ impl Data {
             Data::TaskPlace(id) => Some(*id),
             Data::TaskTransition(id) => Some(*id),
             Data::TargetPlace(id) => Some(*id),
-            Data::AgentLock(id) => Some(*id),
+            Data::AgentInitial(id) => Some(*id),
             Data::AgentTransition(id) => Some(*id),
             Data::NonAgentTranstion => None
         }
