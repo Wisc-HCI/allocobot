@@ -1,15 +1,24 @@
 use uuid::Uuid;
 use std::mem::discriminant;
+use enum_tag::EnumTag;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, EnumTag)]
 pub enum Data {
-    TaskLock(Uuid),
+    AgentTaskLockPlace(Uuid),
     TaskPlace(Uuid),
     TaskTransition(Uuid),
+    TaskAllocationTransition(Uuid),
+    AgentAllocationTransition(Uuid),
+    AllocatedTaskPlace(Uuid),
+    UnnallocatedTaskPlace(Uuid),
     TargetPlace(Uuid),
-    AgentInitial(Uuid),
+    AgentIndeterminitePlace(Uuid),
+    AgentAddTransition(Uuid),
+    AgentDiscardTransition(Uuid),
+    AgentInitialPlace(Uuid),
+    AgentDiscardPlace(Uuid),
     AgentTransition(Uuid),
-    NonAgentTranstion
+    NonAgentTransition
 }
 
 impl Data {
@@ -17,64 +26,23 @@ impl Data {
         discriminant(self) == discriminant(other)
     }
 
-    pub fn is_task_lock(&self) -> bool {
-        match self {
-            Data::TaskLock(_) => true,
-            _ => false
-        }
-    }
-
-    pub fn is_task_place(&self) -> bool {
-        match self {
-            Data::TaskPlace(_) => true,
-            _ => false
-        }
-    }
-
-    pub fn is_task_transition(&self) -> bool {
-        match self {
-            Data::TaskTransition(_) => true,
-            _ => false
-        }
-    }
-
-    pub fn is_target_place(&self) -> bool {
-        match self {
-            Data::TargetPlace(_) => true,
-            _ => false
-        }
-    }
-
-    pub fn is_agent_initial(&self) -> bool {
-        match self {
-            Data::AgentInitial(_) => true,
-            _ => false
-        }
-    }
-
-    pub fn is_agent_transition(&self) -> bool {
-        match self {
-            Data::AgentTransition(_) => true,
-            _ => false
-        }
-    }
-
-    pub fn is_non_agent_transition(&self) -> bool {
-        match self {
-            Data::NonAgentTranstion => true,
-            _ => false
-        }
-    }
-
     pub fn id(&self) -> Option<Uuid> {
         match self {
-            Data::TaskLock(id) => Some(*id),
+            Data::AgentTaskLockPlace(id) => Some(*id),
             Data::TaskPlace(id) => Some(*id),
             Data::TaskTransition(id) => Some(*id),
+            Data::TaskAllocationTransition(id) => Some(*id),
+            Data::AgentAllocationTransition(id) => Some(*id),
+            Data::AllocatedTaskPlace(id) => Some(*id),
+            Data::UnnallocatedTaskPlace(id) => Some(*id),
             Data::TargetPlace(id) => Some(*id),
-            Data::AgentInitial(id) => Some(*id),
+            Data::AgentIndeterminitePlace(id) => Some(*id),
+            Data::AgentInitialPlace(id) => Some(*id),
+            Data::AgentDiscardPlace(id) => Some(*id),
+            Data::AgentAddTransition(id) => Some(*id),
+            Data::AgentDiscardTransition(id) => Some(*id),
             Data::AgentTransition(id) => Some(*id),
-            Data::NonAgentTranstion => None
+            Data::NonAgentTransition => None
         }
     }
 }
@@ -85,3 +53,5 @@ pub fn data_subset(data: &Vec<Data>, subset: &Vec<Data>, fuzzy: bool) -> bool {
         true => subset.iter().all(|s| data.iter().any(|d| d.fuzzy_eq(s)))
     }
 }
+
+pub type DataTag = <Data as EnumTag>::Tag;

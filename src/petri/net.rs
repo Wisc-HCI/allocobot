@@ -1,35 +1,20 @@
 use std::collections::HashMap;
-// use std::error::Error;
 use crate::petri::data::Data;
-// use crate::description::target;
-// use crate::description::task::Task;
-// use crate::description::target::Target;
 use crate::petri::matrix::MatrixNet;
 use crate::petri::place::Place;
 use crate::petri::transition::Transition;
 use uuid::Uuid;
-// use std::fmt;
-use nalgebra::{Vector3, DMatrix};
-use rand::prelude::*;
+use nalgebra::{DMatrix};
+use colorous::CATEGORY10;
+use colorous::TABLEAU10;
+use colorous::Color;
 
-pub fn color_to_hex(color: (u8, u8, u8)) -> String {
-    format!("#{:02x}{:02x}{:02x}", color.0, color.1, color.2)
+pub fn random_agent_color(index: u8) -> Color {
+    TABLEAU10[index as usize % TABLEAU10.len()]
 }
 
-pub fn random_color() -> (u8, u8, u8) {
-    let mut rng = rand::thread_rng();
-    normalize_color((rng.gen(), rng.gen(), rng.gen()))
-}
-
-pub fn normalize_color(color: (u8, u8, u8)) -> (u8, u8, u8) {
-    let color_vec: Vector3<f32> = Vector3::new(color.0 as f32, color.1 as f32, color.2 as f32);
-    let normalized = color_vec.normalize();
-    // Bump up the brightness by multiplying by 280 instead of 255
-    (
-        (normalized.x * 280.0) as u8,
-        (normalized.y * 280.0) as u8,
-        (normalized.z * 280.0) as u8,
-    )
+pub fn random_task_color(index: u8) -> Color {
+    CATEGORY10[index as usize % CATEGORY10.len()]
 }
 
 pub struct PetriNet {
@@ -46,42 +31,61 @@ impl PetriNet {
     }
     
     pub fn get_dot(&self) -> String {
-        let mut colors: HashMap<Uuid, (u8, u8, u8)> = HashMap::new();
+        let mut colors: HashMap<Uuid, Color> = HashMap::new();
+        let mut agents: u8 = 0;
+        let mut tasks: u8 = 0;
 
         let mut dot = String::from(&format!("digraph {} {{\n", self.name.replace(" ","_")));
         for place in self.places.values() {
-            let mut background: (u8, u8, u8) = (255, 255, 255);
+            let mut background: Color = Color {r: 255, g: 255, b: 255};
             place.meta_data.iter().for_each(|meta| match meta {
-                Data::AgentInitial(id) => {
+                Data::AgentInitialPlace(id) => {
                     if !colors.contains_key(id) {
-                        colors.insert(*id, random_color());
+                        colors.insert(*id, random_agent_color(agents));
+                        agents+=1;
                     }
                     background = colors.get(id).unwrap().clone();
-                }
+                },
+                Data::AgentIndeterminitePlace(id) => {
+                    if !colors.contains_key(id) {
+                        colors.insert(*id, random_agent_color(agents));
+                        agents+=1;
+                    }
+                    background = colors.get(id).unwrap().clone();
+                },
+                Data::AgentTaskLockPlace(id) => {
+                    if !colors.contains_key(id) {
+                        colors.insert(*id, random_agent_color(agents));
+                        agents+=1;
+                    }
+                    background = colors.get(id).unwrap().clone();
+                },
                 _ => {}
             });
             dot.push_str(&format!("// Place {}\n", place.name));
             dot.push_str(&format!(
-                "\t{} [label=\"{}\",style=filled,fillcolor=\"{}\",penwidth=3];\n",
+                "\t{} [label=\"{}\",style=filled,fillcolor=\"#{:X}\",penwidth=3];\n",
                 place.id.as_u128(),
                 place.name,
-                color_to_hex(background)
+                background
             ));
         }
 
         for transition in self.transitions.values() {
-            let mut font_color: (u8, u8, u8) = (255, 255, 255);
-            let mut border_color: (u8, u8, u8) = (255, 255, 255);
+            let mut font_color: Color = Color {r: 255, g: 255, b: 255};
+            let mut border_color: Color = Color {r: 255, g: 255, b: 255};
             transition.meta_data.iter().for_each(|meta| match meta {
                 Data::AgentTransition(id) => {
                     if !colors.contains_key(id) {
-                        colors.insert(*id, random_color());
+                        colors.insert(*id, random_agent_color(agents));
+                        agents+=1;
                     }
                     font_color = colors.get(id).unwrap().clone();
                 }
                 Data::TaskTransition(id) => {
                     if !colors.contains_key(id) {
-                        colors.insert(*id, random_color());
+                        colors.insert(*id, random_task_color(tasks));
+                        tasks+=1;
                     }
                     border_color = colors.get(id).unwrap().clone();
                 }
@@ -89,51 +93,53 @@ impl PetriNet {
             });
             dot.push_str(&format!("// Transition {}\n", transition.name));
             dot.push_str(&format!(
-                "\t{} [label=\"{}\",shape=box,style=filled,fillcolor=\"#000000\",fontcolor=\"{}\",color=\"{}\",penwidth=3];\n",
+                "\t{} [label=\"{}\",shape=box,style=filled,fillcolor=\"#000000\",fontcolor=\"#{:X}\",color=\"#{:X}\",penwidth=3];\n",
                 transition.id.as_u128(),
                 transition.name,
-                color_to_hex(font_color),
-                color_to_hex(border_color)
+                font_color,
+                border_color
             ));
         }
         
         for (id, transition) in self.transitions.iter() {
             for (place_id, count) in transition.input.iter() {
-                let mut line_color: (u8, u8, u8) = (0, 0, 0);
+                let mut line_color: Color = Color {r: 0, g: 0, b: 0};
                 transition.meta_data.iter().for_each(|meta| match meta {
                     Data::AgentTransition(id) => {
                         if !colors.contains_key(id) {
-                            colors.insert(*id, random_color());
+                            colors.insert(*id, random_agent_color(agents));
+                            agents+=1;
                         }
                         line_color = colors.get(id).unwrap().clone();
                     }
                     _ => {}
                 });
                 dot.push_str(&format!(
-                    "\t{} -> {} [label=\"{}\",color=\"{}\",penwidth=3];\n",
+                    "\t{} -> {} [label=\"{}\",color=\"#{:X}\",penwidth=3];\n",
                     place_id.as_u128(),
                     id.as_u128(),
                     count,
-                    color_to_hex(line_color)
+                    line_color
                 ));
             }
             for (place_id, count) in transition.output.iter() {
-                let mut line_color: (u8, u8, u8) = (0, 0, 0);
+                let mut line_color: Color = Color {r: 0, g: 0, b: 0};
                 transition.meta_data.iter().for_each(|meta| match meta {
                     Data::AgentTransition(id) => {
                         if !colors.contains_key(id) {
-                            colors.insert(*id, random_color());
+                            colors.insert(*id, random_agent_color(agents));
+                            agents+=1;
                         }
                         line_color = colors.get(id).unwrap().clone();
                     }
                     _ => {}
                 });
                 dot.push_str(&format!(
-                    "\t{} -> {} [label=\"{}\",color=\"{}\",penwidth=3];\n",
+                    "\t{} -> {} [label=\"{}\",color=\"#{:X}\",penwidth=3];\n",
                     id.as_u128(),
                     place_id.as_u128(),
                     count,
-                    color_to_hex(line_color)
+                    line_color
                 ));
             }
         }

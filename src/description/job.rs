@@ -9,9 +9,8 @@ use crate::petri::net::PetriNet;
 use crate::petri::place::Place;
 use crate::petri::transition::Transition;
 use crate::petri::token::TokenSet;
-use crate::petri::data::Data;
-
-// use crate::description::dependency::Dependency;
+use crate::petri::data::{Data,DataTag};
+use enum_tag::EnumTag;
 
 pub struct Job {
     pub id: Uuid,
@@ -351,7 +350,7 @@ impl Job {
                         output,
                         meta_data: vec![
                             Data::TaskTransition(*task_id),
-                            Data::NonAgentTranstion
+                            Data::NonAgentTransition
                         ]
                     };
         
@@ -387,67 +386,215 @@ impl Job {
         let basic_net = self.basic_net.as_ref().unwrap();
         let mut net = PetriNet::new(basic_net.name.clone());
         net.places = basic_net.places.clone();
-        let mut non_agent_transitions: Vec<Uuid> = vec![];
         for (agent_id, agent) in self.agents.iter() {
-            // Add an "initialization" location for each agent, represented as a place
-            let place = Place::new(
+            // Add an "indeterminite" place for each agent, representing a limbo state where it hasn't been added. 
+            let indeterminite_place = Place::new(
+                format!("{} ❓",agent.name()),
+                TokenSet::Finite,
+                vec![Data::AgentIndeterminitePlace(*agent_id)],
+            );
+            let indeterminite_place_id: Uuid = indeterminite_place.id;
+            net.places.insert(indeterminite_place.id, indeterminite_place);
+
+            // Add an "initialization" place for each agent, representing where it starts, given that it was added
+            let init_place = Place::new(
                 agent.name(),
                 TokenSet::Finite,
-                vec![Data::AgentInitial(*agent_id)],
+                vec![Data::AgentInitialPlace(*agent_id)],
             );
-            let place_id: Uuid = place.id;
-            net.places.insert(place.id, place);
+            let init_place_id: Uuid = init_place.id;
+            net.places.insert(init_place.id, init_place);
 
-            // For each transition that isn't a non-agent transition, split the existing transitions into one for each agent.
-            for transition in basic_net.transitions.values() {
-                if transition.has_data(&vec![Data::NonAgentTranstion], true)
-                    && non_agent_transitions.contains(&transition.id)
-                {
-                    continue;
-                } else if transition.has_data(&vec![Data::NonAgentTranstion], true) {
-                    non_agent_transitions.push(transition.id);
-                    let mut t = transition.clone();
-                    t.id = Uuid::new_v4();
-                    net.transitions.insert(t.id, t);
-                } else {
+            // Add a "discard" place for each agent, representing the choice to not add it
+            let discard_place = Place::new(
+                format!("{} 🗑️",agent.name()),
+                TokenSet::Sink,
+                vec![Data::AgentDiscardPlace(*agent_id)],
+            );
+            let discard_place_id: Uuid = discard_place.id;
+            net.places.insert(discard_place.id, discard_place);
+
+            // Add transitions from the indeterminite place to the initialization place
+            let mut input: HashMap<Uuid, usize> = HashMap::new();
+            input.insert(indeterminite_place_id, 1);
+            let mut output: HashMap<Uuid, usize> = HashMap::new();
+            output.insert(init_place_id, 1);
+            let transition: Transition = Transition {
+                id: Uuid::new_v4(),
+                name: format!("Add {}", agent.name()),
+                input,
+                output,
+                meta_data: vec![
+                    Data::AgentTransition(*agent_id),
+                    Data::AgentAddTransition(*agent_id),
+                ],
+            };
+            net.transitions.insert(transition.id, transition);
+
+            let mut input: HashMap<Uuid, usize> = HashMap::new();
+            input.insert(indeterminite_place_id, 1);
+            let mut output: HashMap<Uuid, usize> = HashMap::new();
+            output.insert(discard_place_id, 1);
+            let transition: Transition = Transition {
+                id: Uuid::new_v4(),
+                name: format!("Discard {}", agent.name()),
+                input,
+                output,
+                meta_data: vec![
+                    Data::AgentTransition(*agent_id),
+                    Data::AgentDiscardTransition(*agent_id),
+                ],
+            };
+            net.transitions.insert(transition.id, transition);
+        }
+
+        for transition in basic_net.transitions.values() {
+            if transition.meta_data.iter().map(|d| d.tag()).collect::<Vec<DataTag>>().contains(&DataTag::NonAgentTransition) {
+                let mut t = transition.clone();
+                t.id = Uuid::new_v4();
+                net.transitions.insert(t.id, t);
+            } else {
+                let task_id = transition.meta_data.iter().find(|d| d.tag() == DataTag::TaskTransition).unwrap().id().unwrap();
+                let pre_allocation_place = Place::new(
+                    format!("{}-pre-alloc", transition.name),
+                    TokenSet::Finite,
+                    vec![Data::UnnallocatedTaskPlace(task_id)],
+                );
+                let pre_allocation_place_id: Uuid = pre_allocation_place.id;
+                net.places.insert(pre_allocation_place_id, pre_allocation_place);
+                for (agent_id, agent) in self.agents.iter() {
+
+                    let init_place_id = net.query_places(&vec![Data::AgentInitialPlace(*agent_id)], false).first().unwrap().id;
+
+                    let allocation_place = Place::new(
+                        format!("{}-alloc", transition.name),
+                        TokenSet::Finite,
+                        vec![
+                            Data::AllocatedTaskPlace(task_id),
+                            Data::AgentTaskLockPlace(*agent_id)],
+                    );
+                    let allocation_place_id = allocation_place.id;
+                    net.places.insert(allocation_place_id, allocation_place);
+
+
+                    // Add a transition from the pre-allocation place to the agent's allocation place
+                    let allocation_transition: Transition = Transition {
+                        id: Uuid::new_v4(),
+                        name: format!("{} decide {}", transition.name, agent.name()),
+                        input: vec![(pre_allocation_place_id, 1)].into_iter().collect(),
+                        output: vec![(allocation_place_id, 1)].into_iter().collect(),
+                        meta_data: vec![
+                            Data::AgentTransition(*agent_id),
+                            Data::AgentAllocationTransition(*agent_id),
+                        ],
+                    };
+                    net.transitions.insert(allocation_transition.id, allocation_transition);
+
+
+                    // Add an agent-specific variant of the transition
                     let mut t = transition.clone();
                     t.id = Uuid::new_v4();
                     t.name = format!("{}-{}", agent.name(), t.name);
-                    t.input.insert(place_id, 1);
-                    t.output.insert(place_id, 1);
+                    t.input.insert(init_place_id, 1);
+                    t.input.insert(allocation_place_id, 1);
+                    t.output.insert(init_place_id, 1);
+                    t.output.insert(allocation_place_id, 1);
                     t.meta_data.push(Data::AgentTransition(agent.id()));
                     net.transitions.insert(t.id, t);
-                }
+
+            }
             }
         }
 
+            // For each transition that isn't a non-agent transition, split the existing transitions into one for each agent.
+            // for transition in basic_net.transitions.values() {
+            //     if transition.has_data(&vec![Data::NonAgentTransition], true) {
+            //         if !non_agent_transitions.contains(&transition.id) {
+            //             // Add the non-agent transition to the new network, and add it to the list of non-agent transitions
+            //             non_agent_transitions.push(transition.id);
+            //             let mut t = transition.clone();
+            //             t.id = Uuid::new_v4();
+            //             net.transitions.insert(t.id, t);
+            //         }
+            //     } else {
+            //         let pre_allocation_place_id: Uuid;
+            //         let allocation_place_id: Uuid;
+            //         let task_id = transition.meta_data.iter().find(|d| d.tag() == DataTag::TaskTransition).unwrap().id().unwrap();
+            //         if !allocatable_transitions.contains(&transition.id) {
+            //             // Add the transition to the list of allocatable transitions
+            //             allocatable_transitions.push(transition.id);
+            //             let pre_allocation_place = Place::new(
+            //                 format!("{}-pre-alloc", transition.name),
+            //                 TokenSet::Finite,
+            //                 vec![Data::UnnallocatedTaskPlace(task_id)],
+            //             );
+            //             let allocation_place = Place::new(
+            //                 format!("{}-alloc", transition.name),
+            //                 TokenSet::Finite,
+            //                 vec![Data::AllocatedTaskPlace(task_id),Data::AgentTaskLockPlace(*agent_id)],
+            //             );
+            //             pre_allocation_place_id = pre_allocation_place.id;
+            //             allocation_place_id = allocation_place.id;
+            //             net.places.insert(pre_allocation_place.id,pre_allocation_place);
+            //             net.places.insert(allocation_place.id,allocation_place);
+            //         } else {
+            //             pre_allocation_place_id = net.query_places(&vec![Data::UnnallocatedTaskPlace(task_id)], false).first().unwrap().id;
+            //             allocation_place_id = net.query_places(&vec![Data::AllocatedTaskPlace(task_id),Data::AgentTaskLockPlace(*agent_id)], false).first().unwrap().id;
+            //         }
+
+            //         // Add a transition for each agent from the pre-allocation place
+            //         let agent_allocation_transition = Transition {
+            //             id: Uuid::new_v4(),
+            //             name: format!("{}-alloc-{}", transition.name, agent.name()),
+            //             input: vec![(pre_allocation_place_id, 1)].into_iter().collect(),
+            //             output: vec![(allocation_place_id, 1)].into_iter().collect(),
+            //             meta_data: vec![
+            //                 Data::AgentTransition(*agent_id),
+            //                 Data::AgentAllocationTransition(*agent_id)
+            //             ],
+            //         };
+            //         net.transitions.insert(agent_allocation_transition.id, agent_allocation_transition);
+
+            //         let mut t = transition.clone();
+            //         t.id = Uuid::new_v4();
+            //         t.name = format!("{}-{}", agent.name(), t.name);
+            //         t.input.insert(init_place_id, 1);
+            //         t.output.insert(init_place_id, 1);
+            //         t.meta_data.push(Data::AgentTransition(agent.id()));
+            //         net.transitions.insert(t.id, t);
+
+
+            //     }
+            // }
+        // }
+
         // For each existing non-agent transition, create a place to function as a lock, and a set of transitions for each agent. 
-        for transition in basic_net.transitions.values() {
-            if !transition.has_data(&vec![Data::NonAgentTranstion], true) {
-                let transition_lock_place = Place::new(
-                    format!("{}-lock", transition.name),
-                    TokenSet::Finite,
-                    vec![Data::TaskLock(transition.id)],
-                );
-                let lock_id: Uuid = transition_lock_place.id;
-                let transition_nodes = net.transitions_derived_from_task(
-                    transition
-                        .meta_data
-                        .iter()
-                        .find(|d| d.is_task_transition())
-                        .unwrap()
-                        .id()
-                        .unwrap(),
-                );
+        // for transition in basic_net.transitions.values() {
+        //     if !transition.has_data(&vec![Data::NonAgentTranstion], true) {
+        //         let transition_lock_place = Place::new(
+        //             format!("{}-lock", transition.name),
+        //             TokenSet::Finite,
+        //             vec![Data::TaskLock(transition.id)],
+        //         );
+        //         let lock_id: Uuid = transition_lock_place.id;
+        //         let transition_nodes = net.transitions_derived_from_task(
+        //             transition
+        //                 .meta_data
+        //                 .iter()
+        //                 .find(|d| d.is_task_transition())
+        //                 .unwrap()
+        //                 .id()
+        //                 .unwrap(),
+        //         );
     
-                for transition_node in transition_nodes {
-                    transition_node.input.insert(lock_id, 1);
-                    transition_node.output.insert(lock_id, 1);
-                }
-                net.places.insert(lock_id, transition_lock_place);
-            }
+        //         for transition_node in transition_nodes {
+        //             transition_node.input.insert(lock_id, 1);
+        //             transition_node.output.insert(lock_id, 1);
+        //         }
+        //         net.places.insert(lock_id, transition_lock_place);
+        //     }
             
-        }
+        // }
         net
     }
 
