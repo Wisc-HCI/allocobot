@@ -1,10 +1,10 @@
 use std::collections::HashMap;
 use uuid::Uuid;
+use serde::{Serialize, Deserialize};
 use crate::petri::data::{Data, data_subset};
-// use crate::petri::place::Place;
-// use crate::description::task::Task;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Transition {
     pub id: Uuid,
     pub name: String,

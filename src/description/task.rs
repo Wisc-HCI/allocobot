@@ -1,10 +1,9 @@
 use crate::description::dependency::Dependency;
-// use crate::description::poi::PointOfInterest;
-// use crate::description::primitive::Primitive;
-// use crate::description::target::Target;
+use serde::{Serialize, Deserialize};
 use uuid::Uuid;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type",rename_all = "camelCase")]
 pub enum Task {
     Process(Process),
     Spawn(Spawn),
@@ -228,8 +227,7 @@ impl Task {
         targets
     }
 }
-
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Process {
     pub id: Uuid,
     pub name: String,
@@ -251,8 +249,7 @@ impl Process {
         }
     }
 }
-
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Spawn {
     pub id: Uuid,
     pub name: String,
@@ -270,8 +267,7 @@ impl Spawn {
         }
     }
 }
-
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Complete {
     pub id: Uuid,
     pub name: String,

@@ -1,8 +1,10 @@
+use serde::{Serialize, Deserialize};
 use uuid::Uuid;
 use std::mem::discriminant;
 use enum_tag::EnumTag;
 
-#[derive(Clone, Debug, PartialEq, EnumTag)]
+#[derive(Clone, Debug, PartialEq, EnumTag, Serialize, Deserialize)]
+#[serde(tag = "type", content = "value", rename_all = "camelCase")]
 pub enum Data {
     AgentTaskLockPlace(Uuid),
     TaskPlace(Uuid),

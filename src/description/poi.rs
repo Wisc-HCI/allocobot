@@ -1,7 +1,9 @@
 use nalgebra::Vector3;
 use uuid::Uuid;
+use serde::{Serialize, Deserialize};
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type",rename_all = "camelCase")]
 pub enum PointOfInterest {
     Standing(Location),
     Hand(Location)
@@ -39,7 +41,7 @@ impl PointOfInterest {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Location {
     pub id: Uuid,
     pub name: String,

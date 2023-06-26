@@ -1,6 +1,8 @@
 use uuid::Uuid;
+use serde::{Serialize, Deserialize};
 
-#[derive(Clone,Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type",rename_all = "camelCase")]
 pub enum Primitive {
     // A process by which a target is selected
     Selection {

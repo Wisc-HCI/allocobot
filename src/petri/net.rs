@@ -4,6 +4,7 @@ use crate::petri::matrix::MatrixNet;
 use crate::petri::place::Place;
 use crate::petri::transition::Transition;
 use uuid::Uuid;
+use serde::{Serialize, Deserialize};
 use nalgebra::{DMatrix};
 use colorous::CATEGORY10;
 use colorous::TABLEAU10;
@@ -17,6 +18,7 @@ pub fn random_task_color(index: u8) -> Color {
     CATEGORY10[index as usize % CATEGORY10.len()]
 }
 
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct PetriNet {
     pub id: Uuid,
     pub name: String,

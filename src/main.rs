@@ -1,5 +1,5 @@
-use uuid::Uuid;
 use allocobot::description::job::Job;
+use uuid::Uuid;
 // use allocobot::petri::nets::basic::BasicNet;
 // use allocobot::petri::nets::agent::AgentNet;
 // use allocobot::petri::net::PetriNet;
@@ -9,6 +9,7 @@ use allocobot::description::job::Job;
 // use std::collections::HashMap;
 use std::fs::File;
 use std::io::prelude::*;
+use serde_json;
 
 fn main() -> std::io::Result<()> {
     // let colors: Vec<Rgb> = vec![
@@ -19,13 +20,13 @@ fn main() -> std::io::Result<()> {
 
     let mut job = Job::new("Job 1".into());
 
-    let _panda: Uuid = job.create_robot_agent("Panda".into(), 0.855, 3.0, 0.7, 2.0, 0.0001, 0.7, false);
+    let _panda: Uuid =
+        job.create_robot_agent("Panda".into(), 0.855, 3.0, 0.7, 2.0, 0.0001, 0.7, false);
     let _charlie: Uuid = job.create_human_agent("Charlie".into());
 
     let _p1: Uuid = job.create_hand_point_of_interest("Point 1".into(), 0.0, 1.0, 0.1);
     let _p2: Uuid = job.create_hand_point_of_interest("Point 2".into(), 1.0, 1.0, 0.4);
     let _p3: Uuid = job.create_hand_point_of_interest("Point 3".into(), 0.5, 4.0, 0.4);
-
 
     let part1: Uuid = job.create_target("Part1".into(), 5.0, 5.0);
     let part2: Uuid = job.create_target("Part2".into(), 1.0, 3.0);
@@ -33,18 +34,18 @@ fn main() -> std::io::Result<()> {
     let part4: Uuid = job.create_target("Part4".into(), 14.0, 1.0);
     let part5: Uuid = job.create_target("Part5".into(), 4.0, 1.0);
     let part6: Uuid = job.create_target("Part6".into(), 10.0, 3.0);
-    
+
     let s1: Uuid = job.create_spawn_task("spawn1".into());
     let s2: Uuid = job.create_spawn_task("spawn2".into());
     let s3: Uuid = job.create_spawn_task("spawn3".into());
 
-    job.add_task_output(s1,part1,1);
-    job.add_task_output(s2,part2,1);
+    job.add_task_output(s1, part1, 1);
+    job.add_task_output(s2, part2, 1);
     job.add_task_output(s3, part4, 1);
 
     let t1 = job.create_process_task("task1".into());
     let t2 = job.create_process_task("task2".into());
-    
+
     job.add_task_dependency(t1, s1, part1);
     job.add_task_dependency(t1, s2, part2);
     job.add_task_output(t1, part3, 1);
@@ -59,7 +60,6 @@ fn main() -> std::io::Result<()> {
     job.add_task_dependency(c1, t2, part5);
     job.add_task_dependency(c2, t2, part6);
 
-
     // let net_result = BasicNet::from_job(job);
     let result = job.create_agent_net();
     // let pois: Vec<PointOfInterest> = vec![p1, p2, p3];
@@ -68,17 +68,20 @@ fn main() -> std::io::Result<()> {
         Some(_) => {
             let mut basicfile = File::create("basic.dot")?;
             let mut agentfile = File::create("agent.dot")?;
+            let mut jobfile: File = File::create("job.json")?;
 
+            jobfile.write_all(serde_json::to_string_pretty(&job).unwrap().as_bytes())?;
 
             basicfile.write_all(job.basic_net.unwrap().get_dot().as_bytes())?;
 
             // let agent_net = AgentNet::from((basic_net, agents));
             agentfile.write_all(job.agent_net.unwrap().get_dot().as_bytes())?;
-            
+
+
             Ok(())
         }
         None => {
-            eprintln!("{}",result.err().unwrap());
+            eprintln!("{}", result.err().unwrap());
             Err(std::io::Error::new(std::io::ErrorKind::Other, "Error"))
         }
     }

@@ -1,9 +1,9 @@
-// use z3::ast;
-// use z3::{Context, Model};
-use uuid::Uuid;
 use crate::description::primitive::Primitive;
+use uuid::Uuid;
+use serde::{Serialize, Deserialize};
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type",rename_all = "camelCase")]
 pub enum Agent {
     Robot(RobotInfo),
     Human(HumanInfo),
@@ -63,7 +63,7 @@ impl Agent {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct RobotInfo {
     pub id: Uuid,
     pub name: String,
@@ -76,7 +76,7 @@ pub struct RobotInfo {
     pub mobile: bool
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct HumanInfo {
     pub id: Uuid,
     pub name: String,

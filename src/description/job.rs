@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use serde::{Serialize, Deserialize};
 use uuid::Uuid;
 use crate::description::task::Task;
 use crate::description::primitive::Primitive;
@@ -12,6 +13,9 @@ use crate::petri::token::TokenSet;
 use crate::petri::data::{Data,DataTag};
 use enum_tag::EnumTag;
 
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Job {
     pub id: Uuid,
     pub name: String,

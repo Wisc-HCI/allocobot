@@ -1,6 +1,7 @@
 use uuid::Uuid;
+use serde::{Serialize, Deserialize};
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Dependency {
     pub id: Uuid,
     pub target: Uuid,
