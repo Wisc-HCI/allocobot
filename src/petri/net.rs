@@ -219,7 +219,6 @@ impl PetriNet {
         
         // Fill in C and the top half of F and V
         for (p_key, p_val) in self.places.iter() {
-            
             // TODO: better way of getting the initial marking?
             // Mark the sources as having a token initially
             if p_val.tokens == TokenSet::Infinite {
@@ -282,10 +281,10 @@ impl PetriNet {
             return 0.0;
         } 
         let (rows, _cols) = new_state.shape();
-        let mut in_goal_state = true;
+        let mut in_goal_state = false;
         for i in 0..rows {
-            if new_state[(i, 0)] - previous_state[(i, 0)] != goal_state[(i, 0)] {
-                in_goal_state = false;
+            if new_state[(i, 0)] - previous_state[(i, 0)] == goal_state[(i, 0)] {
+                in_goal_state = true;
             }
         }
 
@@ -312,9 +311,9 @@ impl PetriNet {
 
         // TODO: better goal setup?
         let mut goal_state = DMatrix::from_element(marking_row, 1, 0 as i64);
+        
         let mut goal_row = 0;
         for (_p_key, p_val) in self.places.iter() {
-            
             // TODO: better way of getting the initial marking?
             // Mark the sources as having a token initially
             if p_val.tokens == TokenSet::Sink {
@@ -434,8 +433,6 @@ impl PetriNet {
                         },
                         None => ()
                     }
-                    // let current_value = q_matrix[&marking][action];
-                    // q_matrix[&marking][action] = (1.0 - alpha) * current_value + alpha * (reward + gamma * max_action);
                     if new_value > max_value {
                         max_value = new_value.clone();
                         max_options = Vec::new();
