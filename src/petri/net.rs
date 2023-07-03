@@ -3,19 +3,22 @@ use crate::petri::data::Data;
 use crate::petri::matrix::MatrixNet;
 use crate::petri::place::Place;
 use crate::petri::transition::Transition;
+use crate::petri::token::TokenSet;
 use uuid::Uuid;
 use serde::{Serialize, Deserialize};
 use nalgebra::{DMatrix};
-use colorous::CATEGORY10;
+use colorous::SET3;
 use colorous::TABLEAU10;
 use colorous::Color;
 
 pub fn random_agent_color(index: u8) -> Color {
+    // println!("Agent #{:X}",TABLEAU10[index as usize % TABLEAU10.len()]);
     TABLEAU10[index as usize % TABLEAU10.len()]
 }
 
 pub fn random_task_color(index: u8) -> Color {
-    CATEGORY10[index as usize % CATEGORY10.len()]
+    // println!("Task #{:X}",SET3[index as usize % SET3.len()]);
+    SET3[index as usize % SET3.len()]
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -23,13 +26,14 @@ pub struct PetriNet {
     pub id: Uuid,
     pub name: String,
     pub places: HashMap<Uuid, Place>,
-    pub transitions: HashMap<Uuid, Transition>
+    pub transitions: HashMap<Uuid, Transition>,
+    pub initial_marking: HashMap<Uuid, usize>,
 }
 
 impl PetriNet {
 
     pub fn new(name: String) -> Self {
-        Self {id:Uuid::new_v4(), name, places:HashMap::new(), transitions:HashMap::new()}
+        Self {id:Uuid::new_v4(), name, places:HashMap::new(), transitions:HashMap::new(), initial_marking:HashMap::new()}
     }
     
     pub fn get_dot(&self) -> String {
@@ -37,60 +41,62 @@ impl PetriNet {
         let mut agents: u8 = 0;
         let mut tasks: u8 = 0;
 
-        let mut dot = String::from(&format!("digraph {} {{\n", self.name.replace(" ","_")));
+        let mut dot = String::from(&format!("digraph {} {{\nbgcolor=\"transparent\"\n", self.name.replace(" ","_")));
         for place in self.places.values() {
             let mut background: Color = Color {r: 255, g: 255, b: 255};
+            let mut border_color: Color = Color {r: 0, g: 0, b: 0};
+            let mark: String;
+            match place.tokens {
+                TokenSet::Infinite => mark = "∞".to_string(),
+                TokenSet::Finite => mark = self.initial_marking.get(&place.id).unwrap_or(&0).to_string(),
+                TokenSet::Sink => mark = "sink".to_string(),
+            }
             place.meta_data.iter().for_each(|meta| match meta {
-                Data::AgentInitialPlace(id) => {
+                Data::Agent(id) => {
                     if !colors.contains_key(id) {
                         colors.insert(*id, random_agent_color(agents));
                         agents+=1;
                     }
                     background = colors.get(id).unwrap().clone();
-                },
-                Data::AgentIndeterminitePlace(id) => {
+                }
+                Data::Task(id) => {
                     if !colors.contains_key(id) {
-                        colors.insert(*id, random_agent_color(agents));
-                        agents+=1;
+                        colors.insert(*id, random_task_color(tasks));
+                        tasks+=1;
                     }
-                    background = colors.get(id).unwrap().clone();
-                },
-                Data::AgentTaskLockPlace(id) => {
-                    if !colors.contains_key(id) {
-                        colors.insert(*id, random_agent_color(agents));
-                        agents+=1;
-                    }
-                    background = colors.get(id).unwrap().clone();
+                    border_color = colors.get(id).unwrap().clone();
                 },
                 _ => {}
             });
             dot.push_str(&format!("// Place {}\n", place.name));
             dot.push_str(&format!(
-                "\t{} [label=\"{}\",style=filled,fillcolor=\"#{:X}\",penwidth=3];\n",
+                "\t{} [label=\"{}\\n({})\",style=filled,fillcolor=\"#{:X}\",color=\"#{:X}\",penwidth=3];\n",
                 place.id.as_u128(),
                 place.name,
-                background
+                mark,
+                background,
+                border_color,
             ));
         }
 
         for transition in self.transitions.values() {
             let mut font_color: Color = Color {r: 255, g: 255, b: 255};
-            let mut border_color: Color = Color {r: 255, g: 255, b: 255};
+            let mut border_color: Color = Color {r: 0, g: 0, b: 0};
             transition.meta_data.iter().for_each(|meta| match meta {
-                Data::AgentTransition(id) => {
+                Data::Agent(id) => {
                     if !colors.contains_key(id) {
                         colors.insert(*id, random_agent_color(agents));
                         agents+=1;
                     }
                     font_color = colors.get(id).unwrap().clone();
                 }
-                Data::TaskTransition(id) => {
+                Data::Task(id) => {
                     if !colors.contains_key(id) {
                         colors.insert(*id, random_task_color(tasks));
                         tasks+=1;
                     }
                     border_color = colors.get(id).unwrap().clone();
-                }
+                },
                 _ => {}
             });
             dot.push_str(&format!("// Transition {}\n", transition.name));
@@ -105,9 +111,9 @@ impl PetriNet {
         
         for (id, transition) in self.transitions.iter() {
             for (place_id, count) in transition.input.iter() {
-                let mut line_color: Color = Color {r: 0, g: 0, b: 0};
+                let mut line_color: Color = Color {r: 100, g: 100, b: 100};
                 transition.meta_data.iter().for_each(|meta| match meta {
-                    Data::AgentTransition(id) => {
+                    Data::Agent(id) => {
                         if !colors.contains_key(id) {
                             colors.insert(*id, random_agent_color(agents));
                             agents+=1;
@@ -117,17 +123,18 @@ impl PetriNet {
                     _ => {}
                 });
                 dot.push_str(&format!(
-                    "\t{} -> {} [label=\"{}\",color=\"#{:X}\",penwidth=3];\n",
+                    "\t{} -> {} [label=\"{}\",color=\"#{:X}\",fontcolor=\"#{:X}\",penwidth=3];\n",
                     place_id.as_u128(),
                     id.as_u128(),
                     count,
+                    line_color,
                     line_color
                 ));
             }
             for (place_id, count) in transition.output.iter() {
-                let mut line_color: Color = Color {r: 0, g: 0, b: 0};
+                let mut line_color: Color = Color {r: 100, g: 100, b: 100};
                 transition.meta_data.iter().for_each(|meta| match meta {
-                    Data::AgentTransition(id) => {
+                    Data::Agent(id) => {
                         if !colors.contains_key(id) {
                             colors.insert(*id, random_agent_color(agents));
                             agents+=1;
@@ -137,10 +144,11 @@ impl PetriNet {
                     _ => {}
                 });
                 dot.push_str(&format!(
-                    "\t{} -> {} [label=\"{}\",color=\"#{:X}\",penwidth=3];\n",
+                    "\t{} -> {} [label=\"{}\",color=\"#{:X}\",fontcolor=\"#{:X}\",penwidth=3];\n",
                     id.as_u128(),
                     place_id.as_u128(),
                     count,
+                    line_color,
                     line_color
                 ));
             }
@@ -169,7 +177,7 @@ impl PetriNet {
         self.transitions
             .values_mut()
             .into_iter()
-            .filter(|transition| transition.meta_data.contains(&Data::TaskTransition(task)))
+            .filter(|transition| transition.meta_data.contains(&Data::Task(task)))
             .collect()
     }
 
@@ -177,7 +185,7 @@ impl PetriNet {
         self.transitions
             .values_mut()
             .into_iter()
-            .filter(|transition| transition.meta_data.contains(&Data::AgentTransition(agent)))
+            .filter(|transition| transition.meta_data.contains(&Data::Agent(agent)))
             .collect()
     }
 

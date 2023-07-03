@@ -54,11 +54,11 @@ pub fn data_query_mismatched_inner_nonfuzzy() {
     let transition = Transition::new(
         "test".to_string(),
         vec![
-            Data::TaskTransition(uuid1),
-            Data::AgentTransition(uuid2)
+            Data::Task(uuid1),
+            Data::Agent(uuid2)
         ]
     );
-    assert_eq!(transition.has_data(&vec![Data::TaskTransition(uuid2)], false), false);
+    assert_eq!(transition.has_data(&vec![Data::Task(uuid2)], false), false);
 }
 
 #[test]
@@ -68,11 +68,11 @@ pub fn data_query_mismatched_inner_fuzzy() {
     let transition = Transition::new(
         "test".to_string(),
         vec![
-            Data::TaskTransition(uuid1),
-            Data::AgentTransition(uuid2)
+            Data::Task(uuid1),
+            Data::Agent(uuid2)
         ]
     );
-    assert_eq!(transition.has_data(&vec![Data::TaskTransition(uuid2)], true), true);
+    assert_eq!(transition.has_data(&vec![Data::Task(uuid2)], true), true);
 }
 
 #[test]
@@ -82,9 +82,9 @@ pub fn data_query_matched_inner_nonfuzzy() {
     let transition = Transition::new(
         "test".to_string(),
         vec![
-            Data::TaskTransition(uuid1),
-            Data::AgentTransition(uuid2)
+            Data::Task(uuid1),
+            Data::Agent(uuid2)
         ]
     );
-    assert_eq!(transition.has_data(&vec![Data::TaskTransition(uuid1)], false), true);
+    assert_eq!(transition.has_data(&vec![Data::Task(uuid1)], false), true);
 }

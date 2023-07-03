@@ -6,21 +6,27 @@ use enum_tag::EnumTag;
 #[derive(Clone, Debug, PartialEq, EnumTag, Serialize, Deserialize)]
 #[serde(tag = "type", content = "value", rename_all = "camelCase")]
 pub enum Data {
-    AgentTaskLockPlace(Uuid),
-    TaskPlace(Uuid),
-    TaskTransition(Uuid),
-    TaskAllocationTransition(Uuid),
-    AgentAllocationTransition(Uuid),
-    AllocatedTaskPlace(Uuid),
-    UnnallocatedTaskPlace(Uuid),
-    TargetPlace(Uuid),
-    AgentIndeterminitePlace(Uuid),
-    AgentAddTransition(Uuid),
-    AgentDiscardTransition(Uuid),
-    AgentInitialPlace(Uuid),
-    AgentDiscardPlace(Uuid),
-    AgentTransition(Uuid),
-    NonAgentTransition
+    // Contain Agent UUID
+    Agent(Uuid),
+        AgentSituated(Uuid),
+        AgentIndeterminite(Uuid),
+        AgentDiscard(Uuid),
+        AgentTaskLock(Uuid),
+        AgentAdd(Uuid),
+        
+    // Contain Task UUID
+    Task(Uuid),
+        UnnallocatedTask(Uuid),
+        AllocatedTask(Uuid),
+
+    // Contain Target UUID
+    Target(Uuid),
+
+    // Contain POI UUID
+    POI(Uuid),
+    
+    // Contain No UUID
+    AgentAgnostic
 }
 
 impl Data {
@@ -30,21 +36,35 @@ impl Data {
 
     pub fn id(&self) -> Option<Uuid> {
         match self {
-            Data::AgentTaskLockPlace(id) => Some(*id),
-            Data::TaskPlace(id) => Some(*id),
-            Data::TaskTransition(id) => Some(*id),
-            Data::TaskAllocationTransition(id) => Some(*id),
-            Data::AgentAllocationTransition(id) => Some(*id),
-            Data::AllocatedTaskPlace(id) => Some(*id),
-            Data::UnnallocatedTaskPlace(id) => Some(*id),
-            Data::TargetPlace(id) => Some(*id),
-            Data::AgentIndeterminitePlace(id) => Some(*id),
-            Data::AgentInitialPlace(id) => Some(*id),
-            Data::AgentDiscardPlace(id) => Some(*id),
-            Data::AgentAddTransition(id) => Some(*id),
-            Data::AgentDiscardTransition(id) => Some(*id),
-            Data::AgentTransition(id) => Some(*id),
-            Data::NonAgentTransition => None
+            Data::Agent(id) => Some(*id),
+            Data::AgentSituated(id) => Some(*id),
+            Data::AgentIndeterminite(id) => Some(*id),
+            Data::AgentDiscard(id) => Some(*id),
+            Data::AgentTaskLock(id) => Some(*id),
+            Data::AgentAdd(id) => Some(*id),
+            Data::Task(id) => Some(*id),
+            Data::UnnallocatedTask(id) => Some(*id),
+            Data::AllocatedTask(id) => Some(*id),
+            Data::Target(id) => Some(*id),
+            Data::POI(id) => Some(*id),
+            Data::AgentAgnostic => None
+
+            // Data::AgentTaskLockPlace(id) => Some(*id),
+            // Data::TaskPlace(id) => Some(*id),
+            // Data::TaskTransition(id) => Some(*id),
+            // Data::TaskAllocationTransition(id) => Some(*id),
+            // Data::AgentAllocationTransition(id) => Some(*id),
+            // Data::AllocatedTaskPlace(id) => Some(*id),
+            // Data::UnnallocatedTaskPlace(id) => Some(*id),
+            // Data::TargetPlace(id) => Some(*id),
+            // Data::AgentIndeterminitePlace(id) => Some(*id),
+            // Data::AgentInitialPlace(id) => Some(*id),
+            // Data::AgentDiscardPlace(id) => Some(*id),
+            // Data::AgentAddTransition(id) => Some(*id),
+            // Data::AgentDiscardTransition(id) => Some(*id),
+            // Data::AgentTransition(id) => Some(*id),
+            // Data::AtPOI(id) => Some(*id),
+            // Data::NonAgentTransition => None
         }
     }
 }

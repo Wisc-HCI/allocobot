@@ -1,0 +1,560 @@
+{
+  "id": "b13ce101-b3fe-4931-b44d-aacbb1ca0278",
+  "name": "Job 1",
+  "places": {
+    "193a4484-1a64-4ac1-8f57-86a22d5a635d": {
+      "id": "193a4484-1a64-4ac1-8f57-86a22d5a635d",
+      "name": "Target: Part2",
+      "tokens": "infinite",
+      "metaData": [
+        {
+          "type": "target",
+          "value": "779b394c-d9f4-41ff-bde3-a32e5c25c162"
+        }
+      ]
+    },
+    "48230a51-20f9-4dab-a5f6-cadcb1d6a2b3": {
+      "id": "48230a51-20f9-4dab-a5f6-cadcb1d6a2b3",
+      "name": "task1-pre-alloc",
+      "tokens": "finite",
+      "metaData": [
+        {
+          "type": "unnallocatedTask",
+          "value": "22b4f054-8b3e-4241-a543-60f15a7a6f70"
+        }
+      ]
+    },
+    "70e80e14-f2aa-4c37-a6d5-5bfb801eaa53": {
+      "id": "70e80e14-f2aa-4c37-a6d5-5bfb801eaa53",
+      "name": "Charlie 🗑️",
+      "tokens": "sink",
+      "metaData": [
+        {
+          "type": "agent",
+          "value": "661d3708-765b-4461-ab55-b3c1d04dfc3e"
+        },
+        {
+          "type": "agentDiscard",
+          "value": "661d3708-765b-4461-ab55-b3c1d04dfc3e"
+        }
+      ]
+    },
+    "a55051a3-7720-468e-b21c-dda0bef57a94": {
+      "id": "a55051a3-7720-468e-b21c-dda0bef57a94",
+      "name": "Panda",
+      "tokens": "finite",
+      "metaData": [
+        {
+          "type": "agent",
+          "value": "cedd7b84-acec-490c-b509-324e7be6306d"
+        },
+        {
+          "type": "agentSituated",
+          "value": "cedd7b84-acec-490c-b509-324e7be6306d"
+        }
+      ]
+    },
+    "b19c73ef-4465-4768-87d3-c1fdb3328e65": {
+      "id": "b19c73ef-4465-4768-87d3-c1fdb3328e65",
+      "name": "Panda ❓",
+      "tokens": "finite",
+      "metaData": [
+        {
+          "type": "agent",
+          "value": "cedd7b84-acec-490c-b509-324e7be6306d"
+        },
+        {
+          "type": "agentIndeterminite",
+          "value": "cedd7b84-acec-490c-b509-324e7be6306d"
+        }
+      ]
+    },
+    "7bcf8b3e-4c91-4a99-a4ae-4f5e74b34078": {
+      "id": "7bcf8b3e-4c91-4a99-a4ae-4f5e74b34078",
+      "name": "Panda 🗑️",
+      "tokens": "sink",
+      "metaData": [
+        {
+          "type": "agent",
+          "value": "cedd7b84-acec-490c-b509-324e7be6306d"
+        },
+        {
+          "type": "agentDiscard",
+          "value": "cedd7b84-acec-490c-b509-324e7be6306d"
+        }
+      ]
+    },
+    "74719952-4c69-4082-b4c6-7550156654e8": {
+      "id": "74719952-4c69-4082-b4c6-7550156654e8",
+      "name": "task1-alloc",
+      "tokens": "finite",
+      "metaData": [
+        {
+          "type": "allocatedTask",
+          "value": "22b4f054-8b3e-4241-a543-60f15a7a6f70"
+        },
+        {
+          "type": "agentTaskLock",
+          "value": "661d3708-765b-4461-ab55-b3c1d04dfc3e"
+        }
+      ]
+    },
+    "5844ce65-c4d9-47f6-80cd-ff999f03228b": {
+      "id": "5844ce65-c4d9-47f6-80cd-ff999f03228b",
+      "name": "Charlie",
+      "tokens": "finite",
+      "metaData": [
+        {
+          "type": "agent",
+          "value": "661d3708-765b-4461-ab55-b3c1d04dfc3e"
+        },
+        {
+          "type": "agentSituated",
+          "value": "661d3708-765b-4461-ab55-b3c1d04dfc3e"
+        }
+      ]
+    },
+    "54fbb799-7b25-4709-89b1-89f618215b71": {
+      "id": "54fbb799-7b25-4709-89b1-89f618215b71",
+      "name": "task2-alloc",
+      "tokens": "finite",
+      "metaData": [
+        {
+          "type": "allocatedTask",
+          "value": "94fba270-5ef2-4c64-bf34-68b82a4291ca"
+        },
+        {
+          "type": "agentTaskLock",
+          "value": "661d3708-765b-4461-ab55-b3c1d04dfc3e"
+        }
+      ]
+    },
+    "a0891a57-70a1-4eba-a254-2627e1142a1c": {
+      "id": "a0891a57-70a1-4eba-a254-2627e1142a1c",
+      "name": "Charlie ❓",
+      "tokens": "finite",
+      "metaData": [
+        {
+          "type": "agent",
+          "value": "661d3708-765b-4461-ab55-b3c1d04dfc3e"
+        },
+        {
+          "type": "agentIndeterminite",
+          "value": "661d3708-765b-4461-ab55-b3c1d04dfc3e"
+        }
+      ]
+    },
+    "6910b697-3154-4db7-b8cd-ffd1c7583964": {
+      "id": "6910b697-3154-4db7-b8cd-ffd1c7583964",
+      "name": "Target: Part5",
+      "tokens": "sink",
+      "metaData": [
+        {
+          "type": "target",
+          "value": "4ffc4913-0371-48b8-bbe5-6cd5a0a256c7"
+        }
+      ]
+    },
+    "54db3754-1e80-4c31-9283-ee262616acef": {
+      "id": "54db3754-1e80-4c31-9283-ee262616acef",
+      "name": "Target: Part3",
+      "tokens": "finite",
+      "metaData": [
+        {
+          "type": "target",
+          "value": "e0137183-9a37-4f56-835e-a99130b45ba7"
+        }
+      ]
+    },
+    "c42fb073-3256-490b-b4ca-1accf985d260": {
+      "id": "c42fb073-3256-490b-b4ca-1accf985d260",
+      "name": "Target: Part1",
+      "tokens": "infinite",
+      "metaData": [
+        {
+          "type": "target",
+          "value": "7da72eb3-81e9-4d06-87c2-50fb3c5949f4"
+        }
+      ]
+    },
+    "1cfb07b3-21f2-4a3d-a2a0-b8c2ef8af3a6": {
+      "id": "1cfb07b3-21f2-4a3d-a2a0-b8c2ef8af3a6",
+      "name": "task2-alloc",
+      "tokens": "finite",
+      "metaData": [
+        {
+          "type": "allocatedTask",
+          "value": "94fba270-5ef2-4c64-bf34-68b82a4291ca"
+        },
+        {
+          "type": "agentTaskLock",
+          "value": "cedd7b84-acec-490c-b509-324e7be6306d"
+        }
+      ]
+    },
+    "86d37991-cdea-41ec-a5ae-17337e5f03f6": {
+      "id": "86d37991-cdea-41ec-a5ae-17337e5f03f6",
+      "name": "Target: Tool0",
+      "tokens": "finite",
+      "metaData": [
+        {
+          "type": "target",
+          "value": "e1355091-85b2-469b-9650-fac302c0164c"
+        }
+      ]
+    },
+    "e46988d4-ac2a-4834-a897-2cd5404325c9": {
+      "id": "e46988d4-ac2a-4834-a897-2cd5404325c9",
+      "name": "Target: Part4",
+      "tokens": "infinite",
+      "metaData": [
+        {
+          "type": "target",
+          "value": "161db4fa-aad3-4551-ae56-659bba22a6c9"
+        }
+      ]
+    },
+    "a0aabcef-4c96-49c9-9f55-28aadfa7838d": {
+      "id": "a0aabcef-4c96-49c9-9f55-28aadfa7838d",
+      "name": "task1-alloc",
+      "tokens": "finite",
+      "metaData": [
+        {
+          "type": "allocatedTask",
+          "value": "22b4f054-8b3e-4241-a543-60f15a7a6f70"
+        },
+        {
+          "type": "agentTaskLock",
+          "value": "cedd7b84-acec-490c-b509-324e7be6306d"
+        }
+      ]
+    },
+    "c75d9667-afd6-4a93-b13a-573a77f6e1e2": {
+      "id": "c75d9667-afd6-4a93-b13a-573a77f6e1e2",
+      "name": "Target: Part6",
+      "tokens": "sink",
+      "metaData": [
+        {
+          "type": "target",
+          "value": "56fefff1-fb98-4982-92ce-ce3e6e6ae3de"
+        }
+      ]
+    },
+    "939766e8-c6d8-4bad-9fe2-8c62d78c4c7a": {
+      "id": "939766e8-c6d8-4bad-9fe2-8c62d78c4c7a",
+      "name": "task2-pre-alloc",
+      "tokens": "finite",
+      "metaData": [
+        {
+          "type": "unnallocatedTask",
+          "value": "94fba270-5ef2-4c64-bf34-68b82a4291ca"
+        }
+      ]
+    }
+  },
+  "transitions": {
+    "895fbc6f-6685-4571-a2a0-63d4e603c572": {
+      "id": "895fbc6f-6685-4571-a2a0-63d4e603c572",
+      "name": "Add Panda",
+      "input": {
+        "b19c73ef-4465-4768-87d3-c1fdb3328e65": 1
+      },
+      "output": {
+        "a55051a3-7720-468e-b21c-dda0bef57a94": 1
+      },
+      "metaData": [
+        {
+          "type": "agent",
+          "value": "cedd7b84-acec-490c-b509-324e7be6306d"
+        },
+        {
+          "type": "agentAdd",
+          "value": "cedd7b84-acec-490c-b509-324e7be6306d"
+        }
+      ]
+    },
+    "b5c68111-4242-4b89-b19b-291d53eec7fb": {
+      "id": "b5c68111-4242-4b89-b19b-291d53eec7fb",
+      "name": "Discard Panda",
+      "input": {
+        "b19c73ef-4465-4768-87d3-c1fdb3328e65": 1
+      },
+      "output": {
+        "7bcf8b3e-4c91-4a99-a4ae-4f5e74b34078": 1
+      },
+      "metaData": [
+        {
+          "type": "agent",
+          "value": "cedd7b84-acec-490c-b509-324e7be6306d"
+        },
+        {
+          "type": "agentDiscard",
+          "value": "cedd7b84-acec-490c-b509-324e7be6306d"
+        }
+      ]
+    },
+    "5c0b343f-6969-496f-9dae-7f1c5a97a55c": {
+      "id": "5c0b343f-6969-496f-9dae-7f1c5a97a55c",
+      "name": "Panda-task2",
+      "input": {
+        "e46988d4-ac2a-4834-a897-2cd5404325c9": 1,
+        "54db3754-1e80-4c31-9283-ee262616acef": 1,
+        "1cfb07b3-21f2-4a3d-a2a0-b8c2ef8af3a6": 1,
+        "a55051a3-7720-468e-b21c-dda0bef57a94": 1
+      },
+      "output": {
+        "c75d9667-afd6-4a93-b13a-573a77f6e1e2": 1,
+        "1cfb07b3-21f2-4a3d-a2a0-b8c2ef8af3a6": 1,
+        "a55051a3-7720-468e-b21c-dda0bef57a94": 1,
+        "6910b697-3154-4db7-b8cd-ffd1c7583964": 1
+      },
+      "metaData": [
+        {
+          "type": "task",
+          "value": "94fba270-5ef2-4c64-bf34-68b82a4291ca"
+        },
+        {
+          "type": "agent",
+          "value": "cedd7b84-acec-490c-b509-324e7be6306d"
+        }
+      ]
+    },
+    "2ae91494-fabc-4fa1-84b6-1d219c36b2b0": {
+      "id": "2ae91494-fabc-4fa1-84b6-1d219c36b2b0",
+      "name": "task1 decide Charlie",
+      "input": {
+        "48230a51-20f9-4dab-a5f6-cadcb1d6a2b3": 1
+      },
+      "output": {
+        "74719952-4c69-4082-b4c6-7550156654e8": 1
+      },
+      "metaData": [
+        {
+          "type": "task",
+          "value": "22b4f054-8b3e-4241-a543-60f15a7a6f70"
+        },
+        {
+          "type": "agent",
+          "value": "661d3708-765b-4461-ab55-b3c1d04dfc3e"
+        },
+        {
+          "type": "allocatedTask",
+          "value": "22b4f054-8b3e-4241-a543-60f15a7a6f70"
+        }
+      ]
+    },
+    "87f40f07-7ae1-4ac2-92be-b642eaf3bac2": {
+      "id": "87f40f07-7ae1-4ac2-92be-b642eaf3bac2",
+      "name": "Charlie-task2",
+      "input": {
+        "e46988d4-ac2a-4834-a897-2cd5404325c9": 1,
+        "5844ce65-c4d9-47f6-80cd-ff999f03228b": 1,
+        "54db3754-1e80-4c31-9283-ee262616acef": 1,
+        "54fbb799-7b25-4709-89b1-89f618215b71": 1
+      },
+      "output": {
+        "c75d9667-afd6-4a93-b13a-573a77f6e1e2": 1,
+        "5844ce65-c4d9-47f6-80cd-ff999f03228b": 1,
+        "6910b697-3154-4db7-b8cd-ffd1c7583964": 1,
+        "54fbb799-7b25-4709-89b1-89f618215b71": 1
+      },
+      "metaData": [
+        {
+          "type": "task",
+          "value": "94fba270-5ef2-4c64-bf34-68b82a4291ca"
+        },
+        {
+          "type": "agent",
+          "value": "661d3708-765b-4461-ab55-b3c1d04dfc3e"
+        }
+      ]
+    },
+    "4b840d9c-7126-47e5-b367-2edf69b15d8c": {
+      "id": "4b840d9c-7126-47e5-b367-2edf69b15d8c",
+      "name": "Add Charlie",
+      "input": {
+        "a0891a57-70a1-4eba-a254-2627e1142a1c": 1
+      },
+      "output": {
+        "5844ce65-c4d9-47f6-80cd-ff999f03228b": 1
+      },
+      "metaData": [
+        {
+          "type": "agent",
+          "value": "661d3708-765b-4461-ab55-b3c1d04dfc3e"
+        },
+        {
+          "type": "agentAdd",
+          "value": "661d3708-765b-4461-ab55-b3c1d04dfc3e"
+        }
+      ]
+    },
+    "678f5371-7409-43cd-b464-ab6f67f57883": {
+      "id": "678f5371-7409-43cd-b464-ab6f67f57883",
+      "name": "task2 decide Panda",
+      "input": {
+        "939766e8-c6d8-4bad-9fe2-8c62d78c4c7a": 1
+      },
+      "output": {
+        "1cfb07b3-21f2-4a3d-a2a0-b8c2ef8af3a6": 1
+      },
+      "metaData": [
+        {
+          "type": "task",
+          "value": "94fba270-5ef2-4c64-bf34-68b82a4291ca"
+        },
+        {
+          "type": "agent",
+          "value": "cedd7b84-acec-490c-b509-324e7be6306d"
+        },
+        {
+          "type": "allocatedTask",
+          "value": "94fba270-5ef2-4c64-bf34-68b82a4291ca"
+        }
+      ]
+    },
+    "27dc7a86-b9e5-4515-a6d3-bae2a24699aa": {
+      "id": "27dc7a86-b9e5-4515-a6d3-bae2a24699aa",
+      "name": "task2 decide Charlie",
+      "input": {
+        "939766e8-c6d8-4bad-9fe2-8c62d78c4c7a": 1
+      },
+      "output": {
+        "54fbb799-7b25-4709-89b1-89f618215b71": 1
+      },
+      "metaData": [
+        {
+          "type": "task",
+          "value": "94fba270-5ef2-4c64-bf34-68b82a4291ca"
+        },
+        {
+          "type": "agent",
+          "value": "661d3708-765b-4461-ab55-b3c1d04dfc3e"
+        },
+        {
+          "type": "allocatedTask",
+          "value": "94fba270-5ef2-4c64-bf34-68b82a4291ca"
+        }
+      ]
+    },
+    "fde1eb23-f5a8-4b79-86bc-1eb1a20b53e2": {
+      "id": "fde1eb23-f5a8-4b79-86bc-1eb1a20b53e2",
+      "name": "Discard Charlie",
+      "input": {
+        "a0891a57-70a1-4eba-a254-2627e1142a1c": 1
+      },
+      "output": {
+        "70e80e14-f2aa-4c37-a6d5-5bfb801eaa53": 1
+      },
+      "metaData": [
+        {
+          "type": "agent",
+          "value": "661d3708-765b-4461-ab55-b3c1d04dfc3e"
+        },
+        {
+          "type": "agentDiscard",
+          "value": "661d3708-765b-4461-ab55-b3c1d04dfc3e"
+        }
+      ]
+    },
+    "66c52219-e12d-4a89-a4dc-e145dfb7858f": {
+      "id": "66c52219-e12d-4a89-a4dc-e145dfb7858f",
+      "name": "Panda-task1",
+      "input": {
+        "193a4484-1a64-4ac1-8f57-86a22d5a635d": 1,
+        "86d37991-cdea-41ec-a5ae-17337e5f03f6": 1,
+        "a0aabcef-4c96-49c9-9f55-28aadfa7838d": 1,
+        "c42fb073-3256-490b-b4ca-1accf985d260": 1,
+        "a55051a3-7720-468e-b21c-dda0bef57a94": 1
+      },
+      "output": {
+        "a55051a3-7720-468e-b21c-dda0bef57a94": 1,
+        "a0aabcef-4c96-49c9-9f55-28aadfa7838d": 1,
+        "54db3754-1e80-4c31-9283-ee262616acef": 1,
+        "86d37991-cdea-41ec-a5ae-17337e5f03f6": 1
+      },
+      "metaData": [
+        {
+          "type": "task",
+          "value": "22b4f054-8b3e-4241-a543-60f15a7a6f70"
+        },
+        {
+          "type": "agent",
+          "value": "cedd7b84-acec-490c-b509-324e7be6306d"
+        }
+      ]
+    },
+    "3f92a640-b80e-44dc-af5f-8be1360e6525": {
+      "id": "3f92a640-b80e-44dc-af5f-8be1360e6525",
+      "name": "Charlie-task1",
+      "input": {
+        "193a4484-1a64-4ac1-8f57-86a22d5a635d": 1,
+        "86d37991-cdea-41ec-a5ae-17337e5f03f6": 1,
+        "5844ce65-c4d9-47f6-80cd-ff999f03228b": 1,
+        "74719952-4c69-4082-b4c6-7550156654e8": 1,
+        "c42fb073-3256-490b-b4ca-1accf985d260": 1
+      },
+      "output": {
+        "74719952-4c69-4082-b4c6-7550156654e8": 1,
+        "54db3754-1e80-4c31-9283-ee262616acef": 1,
+        "86d37991-cdea-41ec-a5ae-17337e5f03f6": 1,
+        "5844ce65-c4d9-47f6-80cd-ff999f03228b": 1
+      },
+      "metaData": [
+        {
+          "type": "task",
+          "value": "22b4f054-8b3e-4241-a543-60f15a7a6f70"
+        },
+        {
+          "type": "agent",
+          "value": "661d3708-765b-4461-ab55-b3c1d04dfc3e"
+        }
+      ]
+    },
+    "f86bada7-3e05-47b7-87f4-d0a906738cb8": {
+      "id": "f86bada7-3e05-47b7-87f4-d0a906738cb8",
+      "name": "task1 decide Panda",
+      "input": {
+        "48230a51-20f9-4dab-a5f6-cadcb1d6a2b3": 1
+      },
+      "output": {
+        "a0aabcef-4c96-49c9-9f55-28aadfa7838d": 1
+      },
+      "metaData": [
+        {
+          "type": "task",
+          "value": "22b4f054-8b3e-4241-a543-60f15a7a6f70"
+        },
+        {
+          "type": "agent",
+          "value": "cedd7b84-acec-490c-b509-324e7be6306d"
+        },
+        {
+          "type": "allocatedTask",
+          "value": "22b4f054-8b3e-4241-a543-60f15a7a6f70"
+        }
+      ]
+    }
+  },
+  "initial_marking": {
+    "a0891a57-70a1-4eba-a254-2627e1142a1c": 1,
+    "6910b697-3154-4db7-b8cd-ffd1c7583964": 0,
+    "54db3754-1e80-4c31-9283-ee262616acef": 0,
+    "193a4484-1a64-4ac1-8f57-86a22d5a635d": 0,
+    "b19c73ef-4465-4768-87d3-c1fdb3328e65": 1,
+    "74719952-4c69-4082-b4c6-7550156654e8": 0,
+    "939766e8-c6d8-4bad-9fe2-8c62d78c4c7a": 1,
+    "70e80e14-f2aa-4c37-a6d5-5bfb801eaa53": 0,
+    "7bcf8b3e-4c91-4a99-a4ae-4f5e74b34078": 0,
+    "c75d9667-afd6-4a93-b13a-573a77f6e1e2": 0,
+    "48230a51-20f9-4dab-a5f6-cadcb1d6a2b3": 1,
+    "1cfb07b3-21f2-4a3d-a2a0-b8c2ef8af3a6": 0,
+    "a55051a3-7720-468e-b21c-dda0bef57a94": 0,
+    "a0aabcef-4c96-49c9-9f55-28aadfa7838d": 0,
+    "c42fb073-3256-490b-b4ca-1accf985d260": 0,
+    "86d37991-cdea-41ec-a5ae-17337e5f03f6": 1,
+    "5844ce65-c4d9-47f6-80cd-ff999f03228b": 0,
+    "54fbb799-7b25-4709-89b1-89f618215b71": 0,
+    "e46988d4-ac2a-4834-a897-2cd5404325c9": 0
+  }
+}
