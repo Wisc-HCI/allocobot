@@ -7,3 +7,9 @@ pub enum TokenSet {
     Sink,
     Finite,
 }
+
+impl Default for TokenSet {
+    fn default() -> Self {
+        TokenSet::Finite
+    }
+}

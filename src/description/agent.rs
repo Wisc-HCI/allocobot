@@ -18,7 +18,7 @@ impl Agent {
         speed: f64,     // m/s
         precision: f64, // m (repeatability)
         sensing: f64,   // rating 0-1
-        mobile: bool    // true/false
+        mobile_speed: f64    // true/false
     ) -> Self {
         return Agent::Robot(RobotInfo {
             id: Uuid::new_v4(),
@@ -29,7 +29,7 @@ impl Agent {
             speed,
             precision,
             sensing,
-            mobile
+            mobile_speed
         });
     }
 
@@ -53,14 +53,6 @@ impl Agent {
             Agent::Human(human_info) => return human_info.name.clone(),
         }
     }
-
-    pub fn assess_cost(&self, _primitive: Primitive) -> f64 {
-        0.0
-    }
-
-    pub fn assess_time(&self, _primitive: Primitive) -> f64 {
-        0.0
-    }
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -73,7 +65,7 @@ pub struct RobotInfo {
     pub speed: f64,
     pub precision: f64,
     pub sensing: f64,
-    pub mobile: bool
+    pub mobile_speed: f64
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

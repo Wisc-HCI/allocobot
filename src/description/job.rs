@@ -92,16 +92,16 @@ impl Job {
     pub fn create_robot_agent(
         &mut self,
         name: String,
-        reach: f64,     // meters
-        payload: f64,   // kg
-        agility: f64,   // rating 0-1
-        speed: f64,     // m/s
-        precision: f64, // m (repeatability)
-        sensing: f64,   // rating 0-1
-        mobile: bool,   // true/false);
+        reach: f64,        // meters
+        payload: f64,      // kg
+        agility: f64,      // rating 0-1
+        speed: f64,        // m/s
+        precision: f64,    // m (repeatability)
+        sensing: f64,      // rating 0-1
+        mobile_speed: f64, // m/s (zero if not mobile)
     ) -> Uuid {
         let agent = Agent::new_robot(
-            name, reach, payload, agility, speed, precision, sensing, mobile,
+            name, reach, payload, agility, speed, precision, sensing, mobile_speed,
         );
         let uuid = agent.id();
         self.add_agent(agent);
@@ -232,8 +232,7 @@ impl Job {
             let mut input: HashMap<Uuid, usize> = HashMap::new();
             let mut output: HashMap<Uuid, usize> = HashMap::new();
             for (dependency_id, count) in &task.dependencies {
-                let target_places =
-                    net.query_places(&vec![Data::Target(*dependency_id)], false);
+                let target_places = net.query_places(&vec![Data::Target(*dependency_id)], false);
                 for target_place in target_places {
                     input.insert(target_place.id, *count);
                 }
@@ -276,7 +275,7 @@ impl Job {
             let indeterminite_place = Place::new(
                 format!("{} ❓", agent.name()),
                 TokenSet::Finite,
-                vec![Data::Agent(*agent_id),Data::AgentIndeterminite(*agent_id)],
+                vec![Data::Agent(*agent_id), Data::AgentIndeterminite(*agent_id)],
             );
             let indeterminite_place_id: Uuid = indeterminite_place.id;
             net.places
@@ -287,7 +286,7 @@ impl Job {
             let init_place = Place::new(
                 agent.name(),
                 TokenSet::Finite,
-                vec![Data::Agent(*agent_id),Data::AgentSituated(*agent_id)],
+                vec![Data::Agent(*agent_id), Data::AgentSituated(*agent_id)],
             );
             let init_place_id: Uuid = init_place.id;
             net.places.insert(init_place_id, init_place);
@@ -297,7 +296,7 @@ impl Job {
             let discard_place = Place::new(
                 format!("{} 🗑️", agent.name()),
                 TokenSet::Sink,
-                vec![Data::Agent(*agent_id),Data::AgentDiscard(*agent_id)],
+                vec![Data::Agent(*agent_id), Data::AgentDiscard(*agent_id)],
             );
             let discard_place_id: Uuid = discard_place.id;
             net.places.insert(discard_place_id, discard_place);
@@ -313,10 +312,7 @@ impl Job {
                 name: format!("Add {}", agent.name()),
                 input,
                 output,
-                meta_data: vec![
-                    Data::Agent(*agent_id),
-                    Data::AgentAdd(*agent_id),
-                ],
+                meta_data: vec![Data::Agent(*agent_id), Data::AgentAdd(*agent_id)],
             };
             net.transitions.insert(transition.id, transition);
 
@@ -329,10 +325,7 @@ impl Job {
                 name: format!("Discard {}", agent.name()),
                 input,
                 output,
-                meta_data: vec![
-                    Data::Agent(*agent_id),
-                    Data::AgentDiscard(*agent_id),
-                ],
+                meta_data: vec![Data::Agent(*agent_id), Data::AgentDiscard(*agent_id)],
             };
             net.transitions.insert(transition.id, transition);
         }
@@ -359,7 +352,7 @@ impl Job {
                 let pre_allocation_place = Place::new(
                     format!("{}-pre-alloc", transition.name),
                     TokenSet::Finite,
-                    vec![Data::UnnallocatedTask(task_id)],
+                    vec![Data::Task(task_id), Data::UnnallocatedTask(task_id)],
                 );
                 let pre_allocation_place_id: Uuid = pre_allocation_place.id;
                 net.places
@@ -367,7 +360,10 @@ impl Job {
                 net.initial_marking.insert(pre_allocation_place_id, 1);
                 for (agent_id, agent) in self.agents.iter() {
                     let init_place_id = net
-                        .query_places(&vec![Data::Agent(*agent_id),Data::AgentSituated(*agent_id)], false)
+                        .query_places(
+                            &vec![Data::Agent(*agent_id), Data::AgentSituated(*agent_id)],
+                            false,
+                        )
                         .first()
                         .unwrap()
                         .id;
@@ -376,6 +372,7 @@ impl Job {
                         format!("{}-alloc", transition.name),
                         TokenSet::Finite,
                         vec![
+                            Data::Task(task_id),
                             Data::AllocatedTask(task_id),
                             Data::AgentTaskLock(*agent_id),
                         ],
@@ -416,14 +413,23 @@ impl Job {
         net
     }
 
-    fn compute_poi_from_agent(&self) -> PetriNet {
+    pub fn compute_poi_from_agent(&self) -> PetriNet {
         let agent_net = self.agent_net.as_ref().unwrap();
         let mut net = PetriNet::new(agent_net.name.clone());
 
-        let mut handled_places: Vec<Uuid> = vec![];
-        // for (agent_id, agent) in self.agents.values() {
-        //     // let 
-        // }
+        let standing_pois: Vec<&PointOfInterest> = self.points_of_interest.values().filter(|poi| poi.is_standing()).collect::<Vec<&PointOfInterest>>();
+        let hand_pois: Vec<&PointOfInterest> = self.points_of_interest.values().filter(|poi| poi.is_hand()).collect::<Vec<&PointOfInterest>>();
+
+        // For each agent spawn location, create a standing place
+        for (agent_id, agent) in self.agents.iter() {
+            let agent_situated_places = agent_net.query_places(&vec![Data::AgentSituated(*agent_id)], false);
+            for agent_situated_place in agent_situated_places {
+                net.split_place(&agent_situated_place.id, standing_pois.iter().map(|poi| vec![Data::POI(poi.id())]).collect());
+                
+            }
+        }
+        
+
 
         net
     }

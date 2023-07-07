@@ -24,6 +24,8 @@ pub enum Data {
 
     // Contain POI UUID
     POI(Uuid),
+        FromPOI(Uuid),
+        ToPOI(Uuid),
     
     // Contain No UUID
     AgentAgnostic
@@ -47,24 +49,9 @@ impl Data {
             Data::AllocatedTask(id) => Some(*id),
             Data::Target(id) => Some(*id),
             Data::POI(id) => Some(*id),
+            Data::FromPOI(id) => Some(*id),
+            Data::ToPOI(id) => Some(*id),
             Data::AgentAgnostic => None
-
-            // Data::AgentTaskLockPlace(id) => Some(*id),
-            // Data::TaskPlace(id) => Some(*id),
-            // Data::TaskTransition(id) => Some(*id),
-            // Data::TaskAllocationTransition(id) => Some(*id),
-            // Data::AgentAllocationTransition(id) => Some(*id),
-            // Data::AllocatedTaskPlace(id) => Some(*id),
-            // Data::UnnallocatedTaskPlace(id) => Some(*id),
-            // Data::TargetPlace(id) => Some(*id),
-            // Data::AgentIndeterminitePlace(id) => Some(*id),
-            // Data::AgentInitialPlace(id) => Some(*id),
-            // Data::AgentDiscardPlace(id) => Some(*id),
-            // Data::AgentAddTransition(id) => Some(*id),
-            // Data::AgentDiscardTransition(id) => Some(*id),
-            // Data::AgentTransition(id) => Some(*id),
-            // Data::AtPOI(id) => Some(*id),
-            // Data::NonAgentTransition => None
         }
     }
 }

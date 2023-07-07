@@ -21,7 +21,7 @@ fn main() -> std::io::Result<()> {
     let mut job = Job::new("Job 1".into());
 
     let _panda: Uuid =
-        job.create_robot_agent("Panda".into(), 0.855, 3.0, 0.7, 2.0, 0.0001, 0.7, false);
+        job.create_robot_agent("Panda".into(), 0.855, 3.0, 0.7, 2.0, 0.0001, 0.7, 2.0);
     let _charlie: Uuid = job.create_human_agent("Charlie".into());
 
     let _p1: Uuid = job.create_hand_point_of_interest("Point 1".into(), 0.0, 1.0, 0.1);

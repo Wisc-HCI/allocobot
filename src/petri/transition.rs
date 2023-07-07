@@ -3,7 +3,7 @@ use uuid::Uuid;
 use serde::{Serialize, Deserialize};
 use crate::petri::data::{Data, data_subset};
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct Transition {
     pub id: Uuid,
@@ -14,12 +14,12 @@ pub struct Transition {
 }
 
 impl Transition {
-    pub fn new(name: String, meta_data: Vec<Data>) -> Self {
+    pub fn new(name: String, input: HashMap<Uuid,usize>, output: HashMap<Uuid,usize>, meta_data: Vec<Data>) -> Self {
         Self {
             id: Uuid::new_v4(),
             name,
-            input: HashMap::new(),
-            output: HashMap::new(),
+            input,
+            output,
             meta_data
         }
     }
@@ -53,6 +53,8 @@ pub fn data_query_mismatched_inner_nonfuzzy() {
     let uuid2 = Uuid::new_v4();
     let transition = Transition::new(
         "test".to_string(),
+        HashMap::new(),
+        HashMap::new(),
         vec![
             Data::Task(uuid1),
             Data::Agent(uuid2)
@@ -67,6 +69,8 @@ pub fn data_query_mismatched_inner_fuzzy() {
     let uuid2 = Uuid::new_v4();
     let transition = Transition::new(
         "test".to_string(),
+        HashMap::new(),
+        HashMap::new(),
         vec![
             Data::Task(uuid1),
             Data::Agent(uuid2)
@@ -81,6 +85,8 @@ pub fn data_query_matched_inner_nonfuzzy() {
     let uuid2 = Uuid::new_v4();
     let transition = Transition::new(
         "test".to_string(),
+        HashMap::new(),
+        HashMap::new(),
         vec![
             Data::Task(uuid1),
             Data::Agent(uuid2)

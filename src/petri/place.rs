@@ -3,7 +3,7 @@ use serde::{Serialize, Deserialize};
 use crate::petri::token::TokenSet;
 use crate::petri::data::{Data,data_subset};
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct Place {
     pub id: Uuid,
