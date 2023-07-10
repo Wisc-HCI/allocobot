@@ -3,12 +3,13 @@ use crate::description::poi::PointOfInterest;
 use crate::description::primitive::Primitive;
 use crate::description::target::Target;
 use crate::description::task::Task;
-use crate::petri::data::{Data, DataTag};
+use crate::petri::data::{Data, DataTag, Query};
 use crate::petri::net::PetriNet;
 use crate::petri::place::Place;
 use crate::petri::token::TokenSet;
 use crate::petri::transition::Transition;
 use enum_tag::EnumTag;
+use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use uuid::Uuid;
@@ -25,6 +26,7 @@ pub struct Job {
     pub targets: HashMap<Uuid, Target>,
     pub basic_net: Option<PetriNet>,
     pub agent_net: Option<PetriNet>,
+    pub poi_net: Option<PetriNet>,
 }
 
 impl Job {
@@ -39,6 +41,7 @@ impl Job {
             targets: HashMap::new(),
             basic_net: None,
             agent_net: None,
+            poi_net: None,
         }
     }
 
@@ -101,7 +104,14 @@ impl Job {
         mobile_speed: f64, // m/s (zero if not mobile)
     ) -> Uuid {
         let agent = Agent::new_robot(
-            name, reach, payload, agility, speed, precision, sensing, mobile_speed,
+            name,
+            reach,
+            payload,
+            agility,
+            speed,
+            precision,
+            sensing,
+            mobile_speed,
         );
         let uuid = agent.id();
         self.add_agent(agent);
@@ -177,6 +187,7 @@ impl Job {
     pub fn create_petri_nets(&mut self) {
         self.basic_net = Some(self.create_basic_net());
         self.agent_net = Some(self.create_agent_net());
+        self.poi_net = Some(self.create_poi_net());
     }
 
     pub fn create_basic_net(&mut self) -> PetriNet {
@@ -225,20 +236,23 @@ impl Job {
                     net.initial_marking.insert(place_id, 1);
                 }
             }
+            net.name_lookup.insert(*target_id, target.name());
         }
 
         // Add all dependencies as transitions to the net
         for (task_id, task) in self.tasks.iter() {
+            net.name_lookup.insert(*task_id, task.name.clone());
             let mut input: HashMap<Uuid, usize> = HashMap::new();
             let mut output: HashMap<Uuid, usize> = HashMap::new();
             for (dependency_id, count) in &task.dependencies {
-                let target_places = net.query_places(&vec![Data::Target(*dependency_id)], false);
+                let target_places =
+                    net.query_places(&vec![Query::Data(Data::Target(*dependency_id))]);
                 for target_place in target_places {
                     input.insert(target_place.id, *count);
                 }
             }
             for (output_id, count) in &task.output {
-                let target_places = net.query_places(&vec![Data::Target(*output_id)], false);
+                let target_places = net.query_places(&vec![Query::Data(Data::Target(*output_id))]);
                 for target_place in target_places {
                     output.insert(target_place.id, *count);
                 }
@@ -268,9 +282,13 @@ impl Job {
     fn compute_agent_from_basic(&self) -> PetriNet {
         let basic_net = self.basic_net.as_ref().unwrap();
         let mut net = PetriNet::new(basic_net.name.clone());
+        net.name_lookup = basic_net.name_lookup.clone();
         net.places = basic_net.places.clone();
         net.initial_marking = basic_net.initial_marking.clone();
         for (agent_id, agent) in self.agents.iter() {
+            // Add the agent name to the lookup
+            net.name_lookup.insert(*agent_id, agent.name());
+
             // Add an "indeterminite" place for each agent, representing a limbo state where it hasn't been added.
             let indeterminite_place = Place::new(
                 format!("{} ❓", agent.name()),
@@ -360,10 +378,10 @@ impl Job {
                 net.initial_marking.insert(pre_allocation_place_id, 1);
                 for (agent_id, agent) in self.agents.iter() {
                     let init_place_id = net
-                        .query_places(
-                            &vec![Data::Agent(*agent_id), Data::AgentSituated(*agent_id)],
-                            false,
-                        )
+                        .query_places(&vec![
+                            Query::Data(Data::Agent(*agent_id)),
+                            Query::Data(Data::AgentSituated(*agent_id)),
+                        ])
                         .first()
                         .unwrap()
                         .id;
@@ -413,23 +431,124 @@ impl Job {
         net
     }
 
+    pub fn create_poi_net(&mut self) -> PetriNet {
+        if !self.agent_net.is_some() {
+            self.agent_net = Some(self.create_agent_net());
+        }
+        self.compute_poi_from_agent()
+    }
+
     pub fn compute_poi_from_agent(&self) -> PetriNet {
         let agent_net = self.agent_net.as_ref().unwrap();
-        let mut net = PetriNet::new(agent_net.name.clone());
-
-        let standing_pois: Vec<&PointOfInterest> = self.points_of_interest.values().filter(|poi| poi.is_standing()).collect::<Vec<&PointOfInterest>>();
-        let hand_pois: Vec<&PointOfInterest> = self.points_of_interest.values().filter(|poi| poi.is_hand()).collect::<Vec<&PointOfInterest>>();
+        let mut net = agent_net.clone();
+        let mut standing_pois: Vec<&PointOfInterest> = vec![];
+        let mut hand_pois: Vec<&PointOfInterest> = vec![];
+        for (poi_id, poi) in self.points_of_interest.iter() {
+            match poi {
+                PointOfInterest::Standing(_) => standing_pois.push(poi),
+                PointOfInterest::Hand(_) => hand_pois.push(poi),
+            }
+            net.name_lookup.insert(poi_id.clone(), poi.name().clone());
+        }
+        // println!("Standing POIs: {:#?}", standing_pois);
+        // println!("Hand POIs: {:#?}", hand_pois);
 
         // For each agent spawn location, create a standing place
         for (agent_id, agent) in self.agents.iter() {
-            let agent_situated_places = agent_net.query_places(&vec![Data::AgentSituated(*agent_id)], false);
+            let mut new_transitions = vec![];
+            let agent_situated_places =
+                agent_net.query_places(&vec![Query::Data(Data::AgentSituated(*agent_id))]);
             for agent_situated_place in agent_situated_places {
-                net.split_place(&agent_situated_place.id, standing_pois.iter().map(|poi| vec![Data::POI(poi.id())]).collect());
-                
+                // println!(
+                //     "Agent {} is situated at {}, split by: ",
+                //     agent.name(),
+                //     agent_situated_place.name
+                // );
+                // println!(
+                //     "Splits: {:?}",
+                //     standing_pois
+                //         .iter()
+                //         .map(|poi| vec![Data::POI(poi.id())])
+                //         .collect::<Vec<Vec<Data>>>()
+                // );
+                net.split_place(
+                    &agent_situated_place.id,
+                    standing_pois
+                        .iter()
+                        .map(|poi| vec![Data::POI(poi.id())])
+                        .collect(),
+                );
+                net.query_places(&vec![
+                    Query::Tag(DataTag::POI),
+                    Query::Data(Data::AgentSituated(*agent_id)),
+                ])
+                .iter()
+                .tuple_combinations()
+                .for_each(|(place1, place2)| {
+                    let poi_id1: Uuid = place1
+                        .meta_data
+                        .iter()
+                        .find(|d| d.tag() == DataTag::POI)
+                        .unwrap()
+                        .id()
+                        .unwrap();
+                    let poi_id2: Uuid = place2
+                        .meta_data
+                        .iter()
+                        .find(|d| d.tag() == DataTag::POI)
+                        .unwrap()
+                        .id()
+                        .unwrap();
+                    let poi1 = self.points_of_interest.get(&poi_id1).unwrap();
+                    let poi2 = self.points_of_interest.get(&poi_id2).unwrap();
+                    if self
+                        .points_of_interest
+                        .get(&poi_id1)
+                        .unwrap()
+                        .travelability(self.points_of_interest.get(&poi_id2).unwrap(), agent)
+                    {
+                        let transition = Transition {
+                            id: Uuid::new_v4(),
+                            name: format!("{}:{}->{}", agent.name(), poi1.name(), poi2.name()),
+                            input: vec![(place1.id, 1)].into_iter().collect(),
+                            output: vec![(place2.id, 1)].into_iter().collect(),
+                            meta_data: vec![
+                                Data::Agent(*agent_id),
+                                Data::POI(poi_id1),
+                                Data::POI(poi_id2),
+                                Data::FromPOI(poi_id1),
+                                Data::ToPOI(poi_id2),
+                            ],
+                        };
+                        new_transitions.push(transition);
+                    }
+                    if self
+                        .points_of_interest
+                        .get(&poi_id2)
+                        .unwrap()
+                        .travelability(self.points_of_interest.get(&poi_id1).unwrap(), agent)
+                    {
+                        let transition = Transition {
+                            id: Uuid::new_v4(),
+                            name: format!("{}:{}->{}", agent.name(), poi2.name(), poi1.name()),
+                            input: vec![(place2.id, 1)].into_iter().collect(),
+                            output: vec![(place1.id, 1)].into_iter().collect(),
+                            meta_data: vec![
+                                Data::Agent(*agent_id),
+                                Data::POI(poi_id2),
+                                Data::POI(poi_id1),
+                                Data::FromPOI(poi_id2),
+                                Data::ToPOI(poi_id1),
+                            ],
+                        };
+                        new_transitions.push(transition);
+                    }
+                });
+            }
+            for transition in new_transitions {
+                net.transitions.insert(transition.id, transition);
             }
         }
-        
-
 
         net
     }

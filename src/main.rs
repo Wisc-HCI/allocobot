@@ -28,6 +28,9 @@ fn main() -> std::io::Result<()> {
     let _p2: Uuid = job.create_hand_point_of_interest("Point 2".into(), 1.0, 1.0, 0.4);
     let _p3: Uuid = job.create_hand_point_of_interest("Point 3".into(), 0.5, 4.0, 0.4);
 
+    let _p4: Uuid = job.create_standing_point_of_interest("Point 4".into(), 0.0, 0.0, 0.0);
+    let _p5: Uuid = job.create_standing_point_of_interest("Point 5".into(), 1.0, 0.0, 0.0);
+
     let part1: Uuid = job.create_precursor_target("Part1".into(), 5.0, 5.0);
     let part2: Uuid = job.create_precursor_target("Part2".into(), 1.0, 3.0);
     let part3: Uuid = job.create_intermediate_target("Part3".into(), 6.0, 2.0);
@@ -66,10 +69,12 @@ fn main() -> std::io::Result<()> {
     job.create_petri_nets();
     // let pois: Vec<PointOfInterest> = vec![p1, p2, p3];
 
+    let mut jobfile = File::create("job.json")?;
     let mut basicfile = File::create("basic.dot")?;
     let mut agentfile = File::create("agent.dot")?;
-    let mut jobfile: File = File::create("job.json")?;
+    let mut poifile: File = File::create("poi.dot")?;
     let mut agent_net_file = File::create("agent_net.json")?;
+    let mut poi_net_file = File::create("poi_net.json")?;
 
     jobfile.write_all(serde_json::to_string_pretty(&job).unwrap().as_bytes())?;
 
@@ -79,6 +84,10 @@ fn main() -> std::io::Result<()> {
     agentfile.write_all(job.agent_net.clone().unwrap().get_dot().as_bytes())?;
 
     agent_net_file.write_all(serde_json::to_string_pretty(&job.agent_net.clone().unwrap()).unwrap().as_bytes())?;
+
+    poifile.write_all(job.poi_net.clone().unwrap().get_dot().as_bytes())?;
+
+    poi_net_file.write_all(serde_json::to_string_pretty(&job.poi_net.clone().unwrap()).unwrap().as_bytes())?;
 
     Ok(())
 }

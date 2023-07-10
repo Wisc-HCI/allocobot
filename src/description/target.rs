@@ -8,7 +8,8 @@ pub enum Target {
         id: Uuid,
         name: String,
         size: f64,
-        weight: f64
+        weight: f64,
+        
     },
     Intermediate {
         id: Uuid,

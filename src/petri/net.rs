@@ -1,5 +1,4 @@
-use crate::description::agent::Agent;
-use crate::petri::data::Data;
+use crate::petri::data::{Data, Query};
 use crate::petri::matrix::MatrixNet;
 use crate::petri::place::Place;
 use crate::petri::token::TokenSet;
@@ -29,6 +28,7 @@ pub struct PetriNet {
     pub places: HashMap<Uuid, Place>,
     pub transitions: HashMap<Uuid, Transition>,
     pub initial_marking: HashMap<Uuid, usize>,
+    pub name_lookup: HashMap<Uuid, String>,
 }
 
 impl PetriNet {
@@ -39,6 +39,7 @@ impl PetriNet {
             places: HashMap::new(),
             transitions: HashMap::new(),
             initial_marking: HashMap::new(),
+            name_lookup: HashMap::new(),
         }
     }
 
@@ -89,10 +90,13 @@ impl PetriNet {
             });
             dot.push_str(&format!("// Place {}\n", place.name));
             dot.push_str(&format!(
-                "\t{} [label=\"{}\\n({})\",style=filled,fillcolor=\"#{:X}\",color=\"#{:X}\",penwidth=3];\n",
+                "\t{} [label=\"{}\\n({})\",tooltip=\"{}\",style=filled,fillcolor=\"#{:X}\",color=\"#{:X}\",penwidth=3];\n",
                 place.id.as_u128(),
                 place.name,
                 mark,
+                place.meta_data.iter().map(|meta| {
+                    self.data_to_label(meta)
+                }).collect::<Vec<String>>().join("\\n"),
                 background,
                 border_color,
             ));
@@ -124,9 +128,12 @@ impl PetriNet {
             });
             dot.push_str(&format!("// Transition {}\n", transition.name));
             dot.push_str(&format!(
-                "\t{} [label=\"{}\",shape=box,style=filled,fillcolor=\"#000000\",fontcolor=\"#{:X}\",color=\"#{:X}\",penwidth=3];\n",
+                "\t{} [label=\"{}\",tooltip=\"{}\",shape=box,style=filled,fillcolor=\"#000000\",fontcolor=\"#{:X}\",color=\"#{:X}\",penwidth=3];\n",
                 transition.id.as_u128(),
                 transition.name,
+                transition.meta_data.iter().map(|meta| {
+                    self.data_to_label(meta)
+                }).collect::<Vec<String>>().join("\\n"),
                 font_color,
                 border_color
             ));
@@ -190,17 +197,56 @@ impl PetriNet {
         dot
     }
 
-    pub fn query_transitions(&self, meta_data: &Vec<Data>, fuzzy: bool) -> Vec<&Transition> {
+    pub fn data_to_label(&self, data: &Data) -> String {
+        match data {
+            Data::Agent(id) => format!("Agent:{}", self.name_lookup.get(&id).unwrap().clone()),
+            Data::AgentSituated(id) => format!(
+                "AgentSituated:{}",
+                self.name_lookup.get(&id).unwrap().clone()
+            ),
+            Data::AgentIndeterminite(id) => format!(
+                "AgentIndeterminite:{}",
+                self.name_lookup.get(&id).unwrap().clone()
+            ),
+            Data::AgentDiscard(id) => format!(
+                "AgentDiscard:{}",
+                self.name_lookup.get(&id).unwrap().clone()
+            ),
+            Data::AgentTaskLock(id) => format!(
+                "AgentTaskLock:{}",
+                self.name_lookup.get(&id).unwrap().clone()
+            ),
+            Data::AgentAdd(id) => {
+                format!("AgentAdd:{}", self.name_lookup.get(&id).unwrap().clone())
+            }
+            Data::Task(id) => format!("Task:{}", self.name_lookup.get(&id).unwrap().clone()),
+            Data::UnnallocatedTask(id) => format!(
+                "UnallocatedTask:{}",
+                self.name_lookup.get(&id).unwrap().clone()
+            ),
+            Data::AllocatedTask(id) => format!(
+                "AllocatedTask:{}",
+                self.name_lookup.get(&id).unwrap().clone()
+            ),
+            Data::Target(id) => format!("Target:{}", self.name_lookup.get(&id).unwrap().clone()),
+            Data::POI(id) => format!("POI:{}", self.name_lookup.get(&id).unwrap().clone()),
+            Data::FromPOI(id) => format!("FromPOI:{}", self.name_lookup.get(&id).unwrap().clone()),
+            Data::ToPOI(id) => format!("ToPOI:{}", self.name_lookup.get(&id).unwrap().clone()),
+            Data::AgentAgnostic => "AgentAgnostic".to_string(),
+        }
+    }
+
+    pub fn query_transitions(&self, query_vec: &Vec<Query>) -> Vec<&Transition> {
         self.transitions
             .values()
-            .filter(|transition| transition.has_data(meta_data, fuzzy))
+            .filter(|transition| transition.has_data(query_vec))
             .collect()
     }
 
-    pub fn query_places(&self, meta_data: &Vec<Data>, fuzzy: bool) -> Vec<&Place> {
+    pub fn query_places(&self, query_vec: &Vec<Query>) -> Vec<&Place> {
         self.places
             .values()
-            .filter(|place| place.has_data(meta_data, fuzzy))
+            .filter(|place| place.has_data(query_vec))
             .collect()
     }
 
@@ -261,13 +307,16 @@ impl PetriNet {
     pub fn split_place(&mut self, id: &Uuid, splits: Vec<Vec<Data>>) {
         if self.places.contains_key(id) {
             let template_place = self.places.get(id).unwrap().clone();
-            let transition_neighbors: Vec<Uuid> = self.transitions
+            let transition_neighbors: Vec<Uuid> = self
+                .transitions
                 .iter()
-                .filter(|(_, transition)| transition.input.contains_key(id) || transition.output.contains_key(id))
+                .filter(|(_, transition)| {
+                    transition.input.contains_key(id) || transition.output.contains_key(id)
+                })
                 .map(|(id, _)| *id)
                 .collect();
             for split in splits {
-                println!("Splitting place {:?} for {:?}", id, split);
+                // println!("Splitting place {:?} for {:?}", id, split);
                 let mut new_place = template_place.clone();
                 let new_place_id = Uuid::new_v4();
                 new_place.id = new_place_id;
@@ -277,26 +326,26 @@ impl PetriNet {
                 self.places.insert(new_place_id, new_place);
 
                 for transition_id in transition_neighbors.iter() {
-                    
-                        let mut new_transition = self.transitions.get(transition_id).unwrap().clone();
-                        new_transition.id = Uuid::new_v4();
-                        if new_transition.input.contains_key(id) {
-                            new_transition.input.remove(id);
-                            new_transition.input.insert(new_place_id, 1);
-                        }
-                        if new_transition.output.contains_key(id) {
-                            new_transition.output.remove(id);
-                            new_transition.output.insert(new_place_id, 1);
-                        }
-                        for split_data in split.iter() {
-                            new_transition.meta_data.push(split_data.clone());
-                        }
-                        self.transitions.insert(new_transition.id, new_transition);
+                    let mut new_transition = self.transitions.get(transition_id).unwrap().clone();
+                    new_transition.id = Uuid::new_v4();
+                    if new_transition.input.contains_key(id) {
+                        new_transition.input.remove(id);
+                        new_transition.input.insert(new_place_id, 1);
+                    }
+                    if new_transition.output.contains_key(id) {
+                        new_transition.output.remove(id);
+                        new_transition.output.insert(new_place_id, 1);
+                    }
+                    for split_data in split.iter() {
+                        new_transition.meta_data.push(split_data.clone());
+                    }
+                    self.transitions.insert(new_transition.id, new_transition);
                 }
             }
             for transition_id in transition_neighbors.iter() {
                 self.transitions.remove(transition_id);
             }
+            self.places.remove(id);
         }
     }
 
@@ -626,12 +675,12 @@ fn add_transition_with_edge_conditions() {
         "Added Transition".into(),
         vec![Data::AgentAgnostic],
         |place: &Place| {
-            !place.has_data(&vec![Data::Agent(id1)], false)
-                && place.has_data(&vec![Data::Task(id2)], false)
+            !place.has_data(&vec![Query::Data(Data::Agent(id1))])
+                && place.has_data(&vec![Query::Data(Data::Task(id2))])
         },
         |place: &Place| {
-            !place.has_data(&vec![Data::Agent(id1)], false)
-                && place.has_data(&vec![Data::Task(id3)], false)
+            !place.has_data(&vec![Query::Data(Data::Agent(id1))])
+                && place.has_data(&vec![Query::Data(Data::Task(id3))])
         },
         1,
         2,
@@ -685,8 +734,36 @@ fn split_place() {
     net.places.insert(p3.id, p3);
     net.transitions.insert(t1.id, t1);
     net.transitions.insert(t2.id, t2);
-    net.split_place(&p2_id, vec![vec![Data::Agent(id4),Data::AgentSituated(id4)], vec![Data::Agent(id5)]]);
+    net.split_place(
+        &p2_id,
+        vec![
+            vec![Data::Agent(id4), Data::AgentSituated(id4)],
+            vec![Data::Agent(id5)],
+        ],
+    );
     println!("{:#?}", net);
-    assert_eq!(net.places.len(), 5);
+    assert_eq!(net.places.len(), 4);
     assert_eq!(net.transitions.len(), 4);
+    assert_eq!(
+        net.query_transitions(&vec![
+            Query::Data(Data::Agent(id4)),
+            Query::Data(Data::AgentSituated(id4))
+        ])
+        .first()
+        .unwrap()
+        .input
+        .len(),
+        1
+    );
+    assert_eq!(
+        net.query_transitions(&vec![
+            Query::Data(Data::Agent(id4)),
+            Query::Data(Data::AgentSituated(id4))
+        ])
+        .first()
+        .unwrap()
+        .output
+        .len(),
+        1
+    );
 }

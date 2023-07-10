@@ -48,6 +48,13 @@ impl PointOfInterest {
         }
     }
 
+    pub fn name(&self) -> String {
+        match self {
+            PointOfInterest::Standing(location) => location.name.clone(),
+            PointOfInterest::Hand(location) => location.name.clone()
+        }
+    }
+
     pub fn reachability(&self, other: &PointOfInterest, agent: &Agent) -> bool {
         if (self.is_standing() && other.is_standing()) || (self.is_hand() && other.is_hand()) {
             return false;

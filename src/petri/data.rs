@@ -56,11 +56,22 @@ impl Data {
     }
 }
 
-pub fn data_subset(data: &Vec<Data>, subset: &Vec<Data>, fuzzy: bool) -> bool {
-    match fuzzy {
-        false => subset.iter().all(|s| data.contains(s)),
-        true => subset.iter().all(|s| data.iter().any(|d| d.fuzzy_eq(s)))
-    }
+pub fn data_query(data: &Vec<Data>, query: &Vec<Query>) -> bool {
+    query.iter().all(|q| {
+        match q {
+            Query::Data(d) => data.contains(d),
+            Query::Tag(t) => data.iter().any(|d| d.tag() == *t)
+        }
+    })
+    // match fuzzy {
+    //     false => subset.iter().all(|s| data.contains(s)),
+    //     true => subset.iter().all(|s| data.iter().any(|d| d.fuzzy_eq(s)))
+    // }
 }
 
 pub type DataTag = <Data as EnumTag>::Tag;
+
+pub enum Query {
+    Data(Data),
+    Tag(DataTag)
+}

@@ -1,4 +1,3 @@
-use crate::description::primitive::Primitive;
 use uuid::Uuid;
 use serde::{Serialize, Deserialize};
 
