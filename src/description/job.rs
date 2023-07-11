@@ -167,6 +167,13 @@ impl Job {
         }
     }
 
+    pub fn add_task_point_of_interest(&mut self, task: Uuid, poi: Uuid) {
+        match self.tasks.get_mut(&task) {
+            Some(task_obj) => task_obj.add_point_of_interest(&poi),
+            None => {}
+        }
+    }
+
     pub fn add_task_reusable(&mut self, task: Uuid, target: Uuid, count: usize) {
         match self.tasks.get_mut(&task) {
             Some(task_obj) => task_obj.add_reusable(&target, count),
@@ -455,100 +462,179 @@ impl Job {
 
         // For each agent spawn location, create a standing place
         for (agent_id, agent) in self.agents.iter() {
-            let mut new_transitions = vec![];
+
+            // Determine the pairs of valid standing/hand poi pairs
+            let valid_pairs: Vec<(&PointOfInterest,&PointOfInterest)> = standing_pois
+                .iter()
+                .cartesian_product(&hand_pois)
+                .filter(
+                    |(standing_poi,hand_poi)| 
+                        standing_poi.reachability(hand_poi,agent)
+                )
+                .map(|(standing_poi,hand_poi)| (*standing_poi,*hand_poi))
+                .collect();
+
+            let mut new_transitions: Vec<Transition> = vec![];
             let agent_situated_places =
                 agent_net.query_places(&vec![Query::Data(Data::AgentSituated(*agent_id))]);
             for agent_situated_place in agent_situated_places {
-                // println!(
-                //     "Agent {} is situated at {}, split by: ",
-                //     agent.name(),
-                //     agent_situated_place.name
-                // );
-                // println!(
-                //     "Splits: {:?}",
-                //     standing_pois
-                //         .iter()
-                //         .map(|poi| vec![Data::POI(poi.id())])
-                //         .collect::<Vec<Vec<Data>>>()
-                // );
                 net.split_place(
                     &agent_situated_place.id,
-                    standing_pois
+                    valid_pairs
                         .iter()
-                        .map(|poi| vec![Data::POI(poi.id())])
+                        .map(|(standing_poi, hand_poi)| 
+                            vec![
+                                Data::POI(standing_poi.id()),
+                                Data::POI(hand_poi.id()),
+                                Data::Standing(standing_poi.id()),
+                                Data::Hand(hand_poi.id()),
+                            ])
                         .collect(),
                 );
                 net.query_places(&vec![
-                    Query::Tag(DataTag::POI),
+                    Query::Tag(DataTag::Standing),
+                    Query::Tag(DataTag::Hand),
                     Query::Data(Data::AgentSituated(*agent_id)),
                 ])
                 .iter()
                 .tuple_combinations()
                 .for_each(|(place1, place2)| {
-                    let poi_id1: Uuid = place1
+                    let standing_poi_id1: Uuid = place1
                         .meta_data
                         .iter()
-                        .find(|d| d.tag() == DataTag::POI)
+                        .find(|d| d.tag() == DataTag::Standing)
                         .unwrap()
                         .id()
                         .unwrap();
-                    let poi_id2: Uuid = place2
+                    let standing_poi_id2: Uuid = place2
                         .meta_data
                         .iter()
-                        .find(|d| d.tag() == DataTag::POI)
+                        .find(|d| d.tag() == DataTag::Standing)
                         .unwrap()
                         .id()
                         .unwrap();
-                    let poi1 = self.points_of_interest.get(&poi_id1).unwrap();
-                    let poi2 = self.points_of_interest.get(&poi_id2).unwrap();
-                    if self
-                        .points_of_interest
-                        .get(&poi_id1)
+                    let hand_poi_id1: Uuid = place1
+                        .meta_data
+                        .iter()
+                        .find(|d| d.tag() == DataTag::Hand)
                         .unwrap()
-                        .travelability(self.points_of_interest.get(&poi_id2).unwrap(), agent)
-                    {
-                        let transition = Transition {
-                            id: Uuid::new_v4(),
-                            name: format!("{}:{}->{}", agent.name(), poi1.name(), poi2.name()),
-                            input: vec![(place1.id, 1)].into_iter().collect(),
-                            output: vec![(place2.id, 1)].into_iter().collect(),
-                            meta_data: vec![
-                                Data::Agent(*agent_id),
-                                Data::POI(poi_id1),
-                                Data::POI(poi_id2),
-                                Data::FromPOI(poi_id1),
-                                Data::ToPOI(poi_id2),
-                            ],
-                        };
-                        new_transitions.push(transition);
-                    }
-                    if self
-                        .points_of_interest
-                        .get(&poi_id2)
+                        .id()
+                        .unwrap();
+                    let hand_poi_id2: Uuid = place2
+                        .meta_data
+                        .iter()
+                        .find(|d| d.tag() == DataTag::Hand)
                         .unwrap()
-                        .travelability(self.points_of_interest.get(&poi_id1).unwrap(), agent)
-                    {
-                        let transition = Transition {
-                            id: Uuid::new_v4(),
-                            name: format!("{}:{}->{}", agent.name(), poi2.name(), poi1.name()),
-                            input: vec![(place2.id, 1)].into_iter().collect(),
-                            output: vec![(place1.id, 1)].into_iter().collect(),
-                            meta_data: vec![
-                                Data::Agent(*agent_id),
-                                Data::POI(poi_id2),
-                                Data::POI(poi_id1),
-                                Data::FromPOI(poi_id2),
-                                Data::ToPOI(poi_id1),
-                            ],
-                        };
-                        new_transitions.push(transition);
+                        .id()
+                        .unwrap();
+                    let standing_poi1 = self.points_of_interest.get(&standing_poi_id1).unwrap();
+                    let standing_poi2 = self.points_of_interest.get(&standing_poi_id2).unwrap();
+                    let hand_poi1 = self.points_of_interest.get(&hand_poi_id1).unwrap();
+                    let hand_poi2 = self.points_of_interest.get(&hand_poi_id2).unwrap();
+                    if standing_poi1 == standing_poi2 {
+                        // This is strictly a hand reach
+                        if standing_poi1.reachability(hand_poi2, agent) {
+                            let transition1 = Transition {
+                                id: Uuid::new_v4(),
+                                name: format!("{}:Reach:{}->{}", agent.name(), hand_poi1.name(), hand_poi2.name()),
+                                input: vec![(place1.id, 1)].into_iter().collect(),
+                                output: vec![(place2.id, 1)].into_iter().collect(),
+                                meta_data: vec![
+                                    Data::Agent(*agent_id),
+                                    Data::POI(standing_poi_id1),
+                                    Data::POI(hand_poi_id1),
+                                    Data::POI(hand_poi_id2),
+                                    Data::Standing(standing_poi_id1),
+                                    Data::FromHandPOI(hand_poi_id1),
+                                    Data::ToHandPOI(hand_poi_id2),
+                                ],
+                            };
+                            new_transitions.push(transition1);
+                            let transition2 = Transition {
+                                id: Uuid::new_v4(),
+                                name: format!("{}:Reach:{}->{}", agent.name(), hand_poi2.name(), hand_poi1.name()),
+                                input: vec![(place2.id, 1)].into_iter().collect(),
+                                output: vec![(place1.id, 1)].into_iter().collect(),
+                                meta_data: vec![
+                                    Data::Agent(*agent_id),
+                                    Data::POI(standing_poi_id1),
+                                    Data::POI(hand_poi_id1),
+                                    Data::POI(hand_poi_id2),
+                                    Data::Standing(standing_poi_id1),
+                                    Data::FromHandPOI(hand_poi_id2),
+                                    Data::ToHandPOI(hand_poi_id1),
+                                ],
+                            };
+                            new_transitions.push(transition2);
+                        }
+                    } else if hand_poi1 == hand_poi2 {
+                        // This is strictly a travel
+                        if standing_poi1.reachability(hand_poi2, agent) {
+                            let transition1 = Transition {
+                                id: Uuid::new_v4(),
+                                name: format!("{}:Travel:{}->{}", agent.name(), standing_poi1.name(), standing_poi2.name()),
+                                input: vec![(place1.id, 1)].into_iter().collect(),
+                                output: vec![(place2.id, 1)].into_iter().collect(),
+                                meta_data: vec![
+                                    Data::Agent(*agent_id),
+                                    Data::POI(standing_poi_id1),
+                                    Data::POI(standing_poi_id2),
+                                    Data::POI(hand_poi_id1),
+                                    Data::Hand(hand_poi_id1),
+                                    Data::FromStandingPOI(standing_poi_id1),
+                                    Data::ToStandingPOI(standing_poi_id2),
+                                ],
+                            };
+                            new_transitions.push(transition1);
+                            let transition2 = Transition {
+                                id: Uuid::new_v4(),
+                                name: format!("{}:Travel:{}->{}", agent.name(), standing_poi2.name(), standing_poi1.name()),
+                                input: vec![(place2.id, 1)].into_iter().collect(),
+                                output: vec![(place1.id, 1)].into_iter().collect(),
+                                meta_data: vec![
+                                    Data::Agent(*agent_id),
+                                    Data::POI(standing_poi_id1),
+                                    Data::POI(standing_poi_id2),
+                                    Data::POI(hand_poi_id1),
+                                    Data::Hand(hand_poi_id1),
+                                    Data::FromStandingPOI(standing_poi_id2),
+                                    Data::ToStandingPOI(standing_poi_id1),
+                                ],
+                            };
+                            new_transitions.push(transition2);
+                        }
                     }
+                    
                 });
             }
+
+
             for transition in new_transitions {
                 net.transitions.insert(transition.id, transition);
             }
         }
+
+        // Refine the task transitions to include only those POIs defined in the task (if applicable)
+        net.transitions.retain(|_, transition| {
+            if transition.meta_data.iter().any(|d| d.tag() == DataTag::Task) && transition.meta_data.iter().any(|d| d.tag() == DataTag::Hand) {
+                let task_id = transition.meta_data.iter().find(|d| d.tag() == DataTag::Task).unwrap().id().unwrap();
+                let task = self.tasks.get(&task_id).unwrap();
+                // println!("Transition Meta Data: {:?}", transition.meta_data);
+                let transition_hand_pois: Vec<Uuid> = transition
+                    .meta_data
+                    .iter()
+                    .filter(|d| d.tag() == DataTag::Hand)
+                    .map(|d| d.id().unwrap())
+                    .collect::<Vec<Uuid>>();
+
+                let transition_hand_poi = transition_hand_pois.first().unwrap();
+                
+                if !task.pois.is_empty() && !task.pois.contains(&transition_hand_poi) {
+                    return false;
+                }
+            }
+            true
+        });
 
         net
     }

@@ -26,10 +26,10 @@ fn main() -> std::io::Result<()> {
 
     let _p1: Uuid = job.create_hand_point_of_interest("Point 1".into(), 0.0, 1.0, 0.1);
     let _p2: Uuid = job.create_hand_point_of_interest("Point 2".into(), 1.0, 1.0, 0.4);
-    let _p3: Uuid = job.create_hand_point_of_interest("Point 3".into(), 0.5, 4.0, 0.4);
+    let p3: Uuid = job.create_hand_point_of_interest("Point 3".into(), 0.5, 0.0, 0.4);
 
     let _p4: Uuid = job.create_standing_point_of_interest("Point 4".into(), 0.0, 0.0, 0.0);
-    let _p5: Uuid = job.create_standing_point_of_interest("Point 5".into(), 1.0, 0.0, 0.0);
+    let _p5: Uuid = job.create_standing_point_of_interest("Point 5".into(), 0.2, 0.2, 0.0);
 
     let part1: Uuid = job.create_precursor_target("Part1".into(), 5.0, 5.0);
     let part2: Uuid = job.create_precursor_target("Part2".into(), 1.0, 3.0);
@@ -58,6 +58,8 @@ fn main() -> std::io::Result<()> {
     job.add_task_output(t2, part5, 1);
     job.add_task_output(t2, part6, 1);
     job.add_task_reusable(t1, tool0, 1);
+
+    job.add_task_point_of_interest(t1, p3);
 
     // let c1 = job.create_complete_task("complete1".into());
     // let c2 = job.create_complete_task("complete2".into());

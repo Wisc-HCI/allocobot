@@ -24,8 +24,12 @@ pub enum Data {
 
     // Contain POI UUID
     POI(Uuid),
-        FromPOI(Uuid),
-        ToPOI(Uuid),
+        Standing(Uuid),
+        Hand(Uuid),
+        FromStandingPOI(Uuid),
+        ToStandingPOI(Uuid),
+        FromHandPOI(Uuid),
+        ToHandPOI(Uuid),
     
     // Contain No UUID
     AgentAgnostic
@@ -49,8 +53,12 @@ impl Data {
             Data::AllocatedTask(id) => Some(*id),
             Data::Target(id) => Some(*id),
             Data::POI(id) => Some(*id),
-            Data::FromPOI(id) => Some(*id),
-            Data::ToPOI(id) => Some(*id),
+            Data::Standing(id) => Some(*id),
+            Data::Hand(id) => Some(*id),
+            Data::FromStandingPOI(id) => Some(*id),
+            Data::ToStandingPOI(id) => Some(*id),
+            Data::FromHandPOI(id) => Some(*id),
+            Data::ToHandPOI(id) => Some(*id),
             Data::AgentAgnostic => None
         }
     }

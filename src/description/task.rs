@@ -70,7 +70,7 @@ impl Task {
         self.add_output(target, count);
     }
 
-    pub fn add_poi(&mut self, poi: &Uuid) {
+    pub fn add_point_of_interest(&mut self, poi: &Uuid) {
         self.pois.push(*poi);
     }
 

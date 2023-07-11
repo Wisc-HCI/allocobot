@@ -230,8 +230,12 @@ impl PetriNet {
             ),
             Data::Target(id) => format!("Target:{}", self.name_lookup.get(&id).unwrap().clone()),
             Data::POI(id) => format!("POI:{}", self.name_lookup.get(&id).unwrap().clone()),
-            Data::FromPOI(id) => format!("FromPOI:{}", self.name_lookup.get(&id).unwrap().clone()),
-            Data::ToPOI(id) => format!("ToPOI:{}", self.name_lookup.get(&id).unwrap().clone()),
+            Data::Hand(id) => format!("Hand:{}", self.name_lookup.get(&id).unwrap().clone()),
+            Data::Standing(id) => format!("Standing:{}", self.name_lookup.get(&id).unwrap().clone()),
+            Data::FromStandingPOI(id) => format!("FromStandingPOI:{}", self.name_lookup.get(&id).unwrap().clone()),
+            Data::ToStandingPOI(id) => format!("ToStandingPOI:{}", self.name_lookup.get(&id).unwrap().clone()),
+            Data::FromHandPOI(id) => format!("FromHandPOI:{}", self.name_lookup.get(&id).unwrap().clone()),
+            Data::ToHandPOI(id) => format!("ToHandPOI:{}", self.name_lookup.get(&id).unwrap().clone()),
             Data::AgentAgnostic => "AgentAgnostic".to_string(),
         }
     }
