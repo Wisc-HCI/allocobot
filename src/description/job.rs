@@ -1,7 +1,7 @@
 use crate::description::agent::Agent;
 use crate::description::poi::PointOfInterest;
 use crate::description::primitive::Primitive;
-use crate::description::target::Target;
+use crate::description::target::{Target,TargetTag};
 use crate::description::task::Task;
 use crate::petri::data::{Data, DataTag, Query};
 use crate::petri::net::PetriNet;
@@ -206,7 +206,7 @@ impl Job {
                     let place = Place::new(
                         format!("Target: {}", name),
                         TokenSet::Sink,
-                        vec![Data::Target(*target_id)],
+                        vec![Data::Target(*target_id),Data::TargetSituated(*target_id)],
                     );
                     let place_id = place.id;
                     net.places.insert(place_id, place);
@@ -216,7 +216,7 @@ impl Job {
                     let place = Place::new(
                         format!("Target: {}", name),
                         TokenSet::Finite,
-                        vec![Data::Target(*target_id)],
+                        vec![Data::Target(*target_id),Data::TargetSituated(*target_id)],
                     );
                     let place_id = place.id;
                     net.places.insert(place_id, place);
@@ -226,21 +226,35 @@ impl Job {
                     let place = Place::new(
                         format!("Target: {}", name),
                         TokenSet::Infinite,
-                        vec![Data::Target(*target_id)],
+                        vec![Data::Target(*target_id),Data::TargetSituated(*target_id)],
                     );
                     let place_id = place.id;
                     net.places.insert(place_id, place);
                     net.initial_marking.insert(place_id, 0);
                 }
                 Target::Reusable { name, .. } => {
+                    let pre_place = Place::new(
+                        format!("Target: {} (pre)", name),
+                        TokenSet::Finite,
+                        vec![Data::Target(*target_id), Data::TargetUnplaced(*target_id)],
+                    );
                     let place = Place::new(
                         format!("Target: {}", name),
                         TokenSet::Finite,
-                        vec![Data::Target(*target_id)],
+                        vec![Data::Target(*target_id), Data::TargetSituated(*target_id)],
                     );
                     let place_id = place.id;
+                    let pre_place_id = pre_place.id;
                     net.places.insert(place_id, place);
-                    net.initial_marking.insert(place_id, 1);
+                    net.places.insert(pre_place_id, pre_place);
+                    net.initial_marking.insert(pre_place_id, 1);
+                    let situate_transition = Transition::new(
+                        format!("Situate: {}", name),
+                        vec![(pre_place_id, 1)].into_iter().collect(),
+                        vec![(place_id, 1)].into_iter().collect(),
+                        vec![Data::Target(*target_id), Data::TargetSituated(*target_id),Data::AgentAgnostic],
+                    );
+                    net.transitions.insert(situate_transition.id, situate_transition);
                 }
             }
             net.name_lookup.insert(*target_id, target.name());
@@ -253,13 +267,13 @@ impl Job {
             let mut output: HashMap<Uuid, usize> = HashMap::new();
             for (dependency_id, count) in &task.dependencies {
                 let target_places =
-                    net.query_places(&vec![Query::Data(Data::Target(*dependency_id))]);
+                    net.query_places(&vec![Query::Data(Data::Target(*dependency_id)),Query::Data(Data::TargetSituated(*dependency_id))]);
                 for target_place in target_places {
                     input.insert(target_place.id, *count);
                 }
             }
             for (output_id, count) in &task.output {
-                let target_places = net.query_places(&vec![Query::Data(Data::Target(*output_id))]);
+                let target_places = net.query_places(&vec![Query::Data(Data::Target(*output_id)),Query::Data(Data::TargetSituated(*output_id))]);
                 for target_place in target_places {
                     output.insert(target_place.id, *count);
                 }
@@ -367,6 +381,7 @@ impl Job {
                 t.id = Uuid::new_v4();
                 net.transitions.insert(t.id, t);
             } else {
+                // println!("Transition Meta Data: {:?}",transition.meta_data);
                 let task_id = transition
                     .meta_data
                     .iter()
@@ -484,12 +499,11 @@ impl Job {
                         .iter()
                         .map(|(standing_poi, hand_poi)| 
                             vec![
-                                Data::POI(standing_poi.id()),
-                                Data::POI(hand_poi.id()),
                                 Data::Standing(standing_poi.id()),
                                 Data::Hand(hand_poi.id()),
                             ])
                         .collect(),
+                    |_transition,_split_data| true
                 );
                 net.query_places(&vec![
                     Query::Tag(DataTag::Standing),
@@ -541,9 +555,6 @@ impl Job {
                                 output: vec![(place2.id, 1)].into_iter().collect(),
                                 meta_data: vec![
                                     Data::Agent(*agent_id),
-                                    Data::POI(standing_poi_id1),
-                                    Data::POI(hand_poi_id1),
-                                    Data::POI(hand_poi_id2),
                                     Data::Standing(standing_poi_id1),
                                     Data::FromHandPOI(hand_poi_id1),
                                     Data::ToHandPOI(hand_poi_id2),
@@ -557,9 +568,6 @@ impl Job {
                                 output: vec![(place1.id, 1)].into_iter().collect(),
                                 meta_data: vec![
                                     Data::Agent(*agent_id),
-                                    Data::POI(standing_poi_id1),
-                                    Data::POI(hand_poi_id1),
-                                    Data::POI(hand_poi_id2),
                                     Data::Standing(standing_poi_id1),
                                     Data::FromHandPOI(hand_poi_id2),
                                     Data::ToHandPOI(hand_poi_id1),
@@ -577,9 +585,6 @@ impl Job {
                                 output: vec![(place2.id, 1)].into_iter().collect(),
                                 meta_data: vec![
                                     Data::Agent(*agent_id),
-                                    Data::POI(standing_poi_id1),
-                                    Data::POI(standing_poi_id2),
-                                    Data::POI(hand_poi_id1),
                                     Data::Hand(hand_poi_id1),
                                     Data::FromStandingPOI(standing_poi_id1),
                                     Data::ToStandingPOI(standing_poi_id2),
@@ -593,9 +598,6 @@ impl Job {
                                 output: vec![(place1.id, 1)].into_iter().collect(),
                                 meta_data: vec![
                                     Data::Agent(*agent_id),
-                                    Data::POI(standing_poi_id1),
-                                    Data::POI(standing_poi_id2),
-                                    Data::POI(hand_poi_id1),
                                     Data::Hand(hand_poi_id1),
                                     Data::FromStandingPOI(standing_poi_id2),
                                     Data::ToStandingPOI(standing_poi_id1),
@@ -635,6 +637,107 @@ impl Job {
             }
             true
         });
+
+        let mut new_transitions:Vec<Transition> = vec![];
+        for (target_id, target) in self.targets.iter() {
+            // Find the current target situated place. There should be only one, so query for it.
+            let target_place_id = net.places
+                .values()
+                .find(
+                    |place| place.meta_data
+                        .iter()
+                        .any(
+                            |d| *d == Data::TargetSituated(*target_id)
+                        )
+                )
+                .unwrap().id;
+            
+            // Split that node by all the hand locations.
+            let (new_places, _) = net.split_place(
+                &target_place_id, 
+                hand_pois.iter().map(|hand_poi| vec![Data::Hand(hand_poi.id())]).collect::<Vec<Vec<Data>>>(),
+                |transition,split_data| {
+                    // println!("Transition: {:?}", transition.meta_data);
+                    if transition.has_data(&vec![
+                        Query::Data(Data::TargetSituated(*target_id))
+                    ]) {
+                        // println!("Transition matches");
+                        return true
+                    }
+                    let hand_poi_id = split_data.iter().find(|d| d.tag() == DataTag::Hand).unwrap().id().unwrap();
+                    return 
+                        transition.has_data(&vec![
+                            Query::Data(Data::Hand(hand_poi_id))
+                        ])
+                }
+            );
+
+            
+
+            new_places.iter().tuple_combinations().for_each(|(place1_id, place2_id)| {
+                let place1 = net.places.get(place1_id).unwrap();
+                let place2 = net.places.get(place2_id).unwrap();
+                let hand_id_1 = place1.meta_data.iter().find(|d| d.tag() == DataTag::Hand).unwrap().id().unwrap();
+                let hand_id_2 = place2.meta_data.iter().find(|d| d.tag() == DataTag::Hand).unwrap().id().unwrap();
+                let hand_poi1 = self.points_of_interest.get(&hand_id_1).unwrap();
+                let hand_poi2 = self.points_of_interest.get(&hand_id_2).unwrap();
+
+                let existing_reach_transitions = net.query_transitions(&vec![
+                    Query::Tag(DataTag::Agent),
+                    Query::Tag(DataTag::Standing),
+                    Query::Data(Data::FromHandPOI(hand_id_1)),
+                    Query::Data(Data::ToHandPOI(hand_id_2)),
+                ]);
+                
+                for existing_reach_transition in existing_reach_transitions {
+                    let agent_id = existing_reach_transition.meta_data.iter().find(|d| d.tag() == DataTag::Agent).unwrap().id().unwrap();
+                    let standing_poi_id = existing_reach_transition.meta_data.iter().find(|d| d.tag() == DataTag::Standing).unwrap().id().unwrap();
+                    let agent_name = self.agents.get(&agent_id).unwrap().name();
+                    let mut input1 = existing_reach_transition.input.clone();
+                    let mut output1 = existing_reach_transition.output.clone();
+                    input1.insert(*place1_id, 1);
+                    output1.insert(*place2_id, 1);
+                    let transition1 = Transition {
+                        id: Uuid::new_v4(),
+                        name: format!("Transport:{}:{}:{}->{}", agent_name, target.name(), hand_poi1.name(), hand_poi2.name()),
+                        input: input1,
+                        output: output1,
+                        meta_data: vec![
+                            Data::Agent(agent_id),
+                            Data::Target(*target_id),
+                            Data::Standing(standing_poi_id),
+                            Data::FromHandPOI(hand_id_1),
+                            Data::ToHandPOI(hand_id_2),
+                        ],
+                    };
+                    new_transitions.push(transition1);
+                    let mut input2 = existing_reach_transition.output.clone();
+                    let mut output2 = existing_reach_transition.input.clone();
+                    input2.insert(*place2_id, 1);
+                    output2.insert(*place1_id, 1);
+                    let transition2 = Transition {
+                        id: Uuid::new_v4(),
+                        name: format!("Transport:{}:{}:{}->{}", agent_name, target.name(), hand_poi2.name(), hand_poi1.name()),
+                        input: input2,
+                        output: output2,
+                        meta_data: vec![
+                            Data::Agent(agent_id),
+                            Data::Target(*target_id),
+                            Data::Standing(standing_poi_id),
+                            Data::FromHandPOI(hand_id_2),
+                            Data::ToHandPOI(hand_id_1),
+                        ],
+                    };
+                    new_transitions.push(transition2);
+                }
+            });
+        }
+
+        for new_transition in new_transitions {
+            net.transitions.insert(new_transition.id, new_transition);
+        }
+
+        println!("Net: Places {:?}, Transitions {:?}", net.places.len(), net.transitions.len());
 
         net
     }

@@ -163,11 +163,27 @@ impl PointOfInterest {
 pub struct Location {
     pub id: Uuid,
     pub name: String,
-    pub position: Vector3<f64>
+    pub position: Vector3<f64>,
+    pub shape: Shape,
+    pub displacement: Vector3<f64>,
+    pub variability: f64,
+    pub structure: f64,
+
 }
 
 impl Location {
     pub fn new(name: String, x: f64, y: f64, z: f64) -> Self {
-        Self { id: Uuid::new_v4(), name, position: Vector3::new(x, y, z)}
+        Self { 
+            id: Uuid::new_v4(), name, position: Vector3::new(x, y, z),
+            shape: Shape::Ellipsoid, displacement: Vector3::new(0.0, 0.0, 0.0),
+            variability: 0.0, structure: 0.0
+        }
     }
+}
+
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub enum Shape {
+    Ellipsoid,
+    Cuboid
 }

@@ -1,4 +1,6 @@
 use crate::petri::data::{Data, Query};
+#[cfg(test)]
+use crate::petri::data::DataTag;
 use crate::petri::matrix::MatrixNet;
 use crate::petri::place::Place;
 use crate::petri::token::TokenSet;
@@ -12,6 +14,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::f64::MIN;
 use uuid::Uuid;
+use enum_tag::EnumTag;
 
 pub fn random_agent_color(index: u8) -> Color {
     TABLEAU10[index as usize % TABLEAU10.len()]
@@ -198,45 +201,9 @@ impl PetriNet {
     }
 
     pub fn data_to_label(&self, data: &Data) -> String {
-        match data {
-            Data::Agent(id) => format!("Agent:{}", self.name_lookup.get(&id).unwrap().clone()),
-            Data::AgentSituated(id) => format!(
-                "AgentSituated:{}",
-                self.name_lookup.get(&id).unwrap().clone()
-            ),
-            Data::AgentIndeterminite(id) => format!(
-                "AgentIndeterminite:{}",
-                self.name_lookup.get(&id).unwrap().clone()
-            ),
-            Data::AgentDiscard(id) => format!(
-                "AgentDiscard:{}",
-                self.name_lookup.get(&id).unwrap().clone()
-            ),
-            Data::AgentTaskLock(id) => format!(
-                "AgentTaskLock:{}",
-                self.name_lookup.get(&id).unwrap().clone()
-            ),
-            Data::AgentAdd(id) => {
-                format!("AgentAdd:{}", self.name_lookup.get(&id).unwrap().clone())
-            }
-            Data::Task(id) => format!("Task:{}", self.name_lookup.get(&id).unwrap().clone()),
-            Data::UnnallocatedTask(id) => format!(
-                "UnallocatedTask:{}",
-                self.name_lookup.get(&id).unwrap().clone()
-            ),
-            Data::AllocatedTask(id) => format!(
-                "AllocatedTask:{}",
-                self.name_lookup.get(&id).unwrap().clone()
-            ),
-            Data::Target(id) => format!("Target:{}", self.name_lookup.get(&id).unwrap().clone()),
-            Data::POI(id) => format!("POI:{}", self.name_lookup.get(&id).unwrap().clone()),
-            Data::Hand(id) => format!("Hand:{}", self.name_lookup.get(&id).unwrap().clone()),
-            Data::Standing(id) => format!("Standing:{}", self.name_lookup.get(&id).unwrap().clone()),
-            Data::FromStandingPOI(id) => format!("FromStandingPOI:{}", self.name_lookup.get(&id).unwrap().clone()),
-            Data::ToStandingPOI(id) => format!("ToStandingPOI:{}", self.name_lookup.get(&id).unwrap().clone()),
-            Data::FromHandPOI(id) => format!("FromHandPOI:{}", self.name_lookup.get(&id).unwrap().clone()),
-            Data::ToHandPOI(id) => format!("ToHandPOI:{}", self.name_lookup.get(&id).unwrap().clone()),
-            Data::AgentAgnostic => "AgentAgnostic".to_string(),
+        match data.id() {
+            None => return format!("{:?}",data.tag()),
+            Some(id) => return format!("{:?}:{}",data.tag(),self.name_lookup.get(&id).unwrap_or(&"Unknown".to_string()))
         }
     }
 
@@ -308,7 +275,16 @@ impl PetriNet {
         self.transitions.insert(transition.id, transition);
     }
 
-    pub fn split_place(&mut self, id: &Uuid, splits: Vec<Vec<Data>>) {
+    pub fn split_place<EvalFn>(
+        &mut self, 
+        id: &Uuid, 
+        splits: Vec<Vec<Data>>, 
+        eval_fn: EvalFn
+    ) -> (Vec<Uuid>,Vec<Uuid>) where 
+        EvalFn: Fn(&Transition,&Vec<Data>) -> bool 
+    {
+        let mut new_places: Vec<Uuid> = Vec::new();
+        let mut new_transitions: Vec<Uuid> = Vec::new();
         if self.places.contains_key(id) {
             let template_place = self.places.get(id).unwrap().clone();
             let transition_neighbors: Vec<Uuid> = self
@@ -319,6 +295,7 @@ impl PetriNet {
                 })
                 .map(|(id, _)| *id)
                 .collect();
+            let mut removed_transitions: Vec<Uuid> = Vec::new(); 
             for split in splits {
                 // println!("Splitting place {:?} for {:?}", id, split);
                 let mut new_place = template_place.clone();
@@ -328,29 +305,47 @@ impl PetriNet {
                     new_place.meta_data.push(split_data.clone());
                 }
                 self.places.insert(new_place_id, new_place);
+                new_places.push(new_place_id);
 
                 for transition_id in transition_neighbors.iter() {
-                    let mut new_transition = self.transitions.get(transition_id).unwrap().clone();
-                    new_transition.id = Uuid::new_v4();
-                    if new_transition.input.contains_key(id) {
-                        new_transition.input.remove(id);
-                        new_transition.input.insert(new_place_id, 1);
+                    let existing_transition = self.transitions.get(transition_id).unwrap();
+                    // println!("Checking transition {:?}", existing_transition);
+                    // println!("Eval fn: {:?}", eval_fn(existing_transition,&split));
+                    if eval_fn(existing_transition,&split) {
+                        let mut new_transition = existing_transition.clone();
+                        new_transition.id = Uuid::new_v4();
+                        let new_transition_id = new_transition.id.clone();
+                        if new_transition.input.contains_key(id) {
+                            new_transition.input.remove(id);
+                            new_transition.input.insert(new_place_id, 1);
+                        }
+                        if new_transition.output.contains_key(id) {
+                            new_transition.output.remove(id);
+                            new_transition.output.insert(new_place_id, 1);
+                        }
+                        for split_data in split.iter() {
+                            if !new_transition.meta_data.contains(split_data) {
+                                new_transition.meta_data.push(split_data.clone());
+                            }
+                        }
+                        self.transitions.insert(new_transition.id, new_transition);
+                        new_transitions.push(new_transition_id);
+                        if !removed_transitions.contains(transition_id) {
+                            removed_transitions.push(*transition_id);
+                        }
+                    } 
+                    if !removed_transitions.contains(transition_id) {
+                        removed_transitions.push(*transition_id);
                     }
-                    if new_transition.output.contains_key(id) {
-                        new_transition.output.remove(id);
-                        new_transition.output.insert(new_place_id, 1);
-                    }
-                    for split_data in split.iter() {
-                        new_transition.meta_data.push(split_data.clone());
-                    }
-                    self.transitions.insert(new_transition.id, new_transition);
                 }
             }
-            for transition_id in transition_neighbors.iter() {
+            for transition_id in removed_transitions.iter() {
                 self.transitions.remove(transition_id);
             }
             self.places.remove(id);
         }
+
+        (new_places,new_transitions)
     }
 
     pub fn transitions_derived_from_task(&mut self, task: Uuid) -> Vec<&mut Transition> {
@@ -744,6 +739,7 @@ fn split_place() {
             vec![Data::Agent(id4), Data::AgentSituated(id4)],
             vec![Data::Agent(id5)],
         ],
+        |_transition,_split_data| true
     );
     println!("{:#?}", net);
     assert_eq!(net.places.len(), 4);
@@ -770,4 +766,126 @@ fn split_place() {
         .len(),
         1
     );
+}
+
+#[test]
+fn filtered_split_place() {
+    let mut net = PetriNet::new("Test".into());
+    let id1 = Uuid::new_v4();
+    let id2 = Uuid::new_v4();
+    let id3 = Uuid::new_v4();
+    let id4 = Uuid::new_v4();
+    let initial = Place::new("Initial".into(), TokenSet::Finite, vec![]);
+    let center = Place::new("center".into(), TokenSet::Finite, vec![Data::Target(id1)]);
+    let p1 = Place::new("P1".into(), TokenSet::Finite, vec![Data::Hand(id2)]);
+    let p2 = Place::new("P2".into(), TokenSet::Finite, vec![Data::Hand(id3)]);
+    let p3 = Place::new("P3".into(), TokenSet::Finite, vec![Data::Hand(id4)]);
+
+    let center_id = center.id;
+
+    let t0 = Transition {
+        id: Uuid::new_v4(),
+        name: "T0".into(),
+        input: HashMap::from([(initial.id, 1)]),
+        output: HashMap::from([(center.id, 1)]),
+        meta_data: vec![],
+    };
+
+    let t1 = Transition {
+        id: Uuid::new_v4(),
+        name: "T1".into(),
+        input: HashMap::from([(center.id, 1)]),
+        output: HashMap::from([(p1.id, 1)]),
+        meta_data: vec![Data::Hand(id2)],
+    };
+
+    let t2 = Transition {
+        id: Uuid::new_v4(),
+        name: "T2".into(),
+        input: HashMap::from([(center.id, 1)]),
+        output: HashMap::from([(p2.id, 1)]),
+        meta_data: vec![Data::Hand(id3)],
+    };
+
+    let t3 = Transition {
+        id: Uuid::new_v4(),
+        name: "T3".into(),
+        input: HashMap::from([(center.id, 1)]),
+        output: HashMap::from([(p3.id, 1)]),
+        meta_data: vec![Data::Hand(id4)],
+    };
+
+    let t4 = Transition {
+        id: Uuid::new_v4(),
+        name: "T4".into(),
+        input: HashMap::from([(p1.id, 1)]),
+        output: HashMap::from([(center.id, 1)]),
+        meta_data: vec![Data::Hand(id2)],
+    };
+
+    let t5 = Transition {
+        id: Uuid::new_v4(),
+        name: "T5".into(),
+        input: HashMap::from([(p2.id, 1)]),
+        output: HashMap::from([(center.id, 1)]),
+        meta_data: vec![Data::Hand(id3)],
+    };
+
+    let t6 = Transition {
+        id: Uuid::new_v4(),
+        name: "T6".into(),
+        input: HashMap::from([(p3.id, 1)]),
+        output: HashMap::from([(center.id, 1)]),
+        meta_data: vec![Data::Hand(id4)],
+    };
+
+    net.places.insert(initial.id, initial);
+    net.places.insert(center.id, center);
+    net.places.insert(p1.id, p1);
+    net.places.insert(p2.id, p2);
+    net.places.insert(p3.id, p3);
+    net.transitions.insert(t0.id, t0);
+    net.transitions.insert(t1.id, t1);
+    net.transitions.insert(t2.id, t2);
+    net.transitions.insert(t3.id, t3);
+    net.transitions.insert(t4.id, t4);
+    net.transitions.insert(t5.id, t5);
+    net.transitions.insert(t6.id, t6);
+
+    net.name_lookup.insert(id1, "Target".into());
+    net.name_lookup.insert(id2, "Hand1".into());
+    net.name_lookup.insert(id3, "Hand2".into());
+    net.name_lookup.insert(id4, "Hand3".into());
+
+    // println!("{:#?}", net);
+
+    net.split_place(
+        &center_id,
+        vec![
+            vec![Data::Standing(id2)],
+            vec![Data::Standing(id3)],
+        ],
+        |transition, split_data| {
+            if transition.meta_data.len() == 0 {
+                return true
+            }
+            let poi = split_data.iter().find(|data| data.tag() == DataTag::Standing).unwrap();
+            let hand = transition.meta_data.iter().find(|data| data.tag() == DataTag::Hand).unwrap();
+            poi.id() == hand.id()
+        });
+
+    // println!("{:#?}", net);
+    
+    assert_eq!(net.places.len(),6);
+    assert_eq!(net.transitions.len(),6);
+    assert_eq!(net.query_places(&vec![Query::Data(Data::Standing(id2))]).len(),1);
+    assert_eq!(net.query_places(&vec![Query::Data(Data::Hand(id2))]).len(),1);
+    assert_eq!(net.query_places(&vec![Query::Data(Data::Standing(id3))]).len(),1);
+    assert_eq!(net.query_places(&vec![Query::Data(Data::Hand(id3))]).len(),1);
+    assert_eq!(net.query_transitions(&vec![Query::Data(Data::Hand(id2))]).len(),2);
+    assert_eq!(net.query_transitions(&vec![Query::Data(Data::Hand(id3))]).len(),2);
+    assert_eq!(net.query_transitions(&vec![Query::Data(Data::Standing(id2))]).len(),3);
+    assert_eq!(net.query_transitions(&vec![Query::Data(Data::Standing(id3))]).len(),3);
+    assert_eq!(net.query_transitions(&vec![Query::Data(Data::Hand(id4))]).len(),0);
+
 }

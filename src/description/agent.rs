@@ -11,13 +11,13 @@ pub enum Agent {
 impl Agent {
     pub fn new_robot(
         name: String,
-        reach: f64,     // meters
-        payload: f64,   // kg
-        agility: f64,   // rating 0-1
-        speed: f64,     // m/s
-        precision: f64, // m (repeatability)
-        sensing: f64,   // rating 0-1
-        mobile_speed: f64    // true/false
+        reach: f64,        // meters
+        payload: f64,      // kg
+        agility: f64,      // rating 0-1
+        speed: f64,        // m/s
+        precision: f64,    // m (repeatability)
+        sensing: f64,      // rating 0-1
+        mobile_speed: f64  // m/s
     ) -> Self {
         return Agent::Robot(RobotInfo {
             id: Uuid::new_v4(),

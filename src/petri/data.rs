@@ -1,6 +1,5 @@
 use serde::{Serialize, Deserialize};
 use uuid::Uuid;
-use std::mem::discriminant;
 use enum_tag::EnumTag;
 
 #[derive(Clone, Debug, PartialEq, EnumTag, Serialize, Deserialize)]
@@ -21,15 +20,16 @@ pub enum Data {
 
     // Contain Target UUID
     Target(Uuid),
+        TargetUnplaced(Uuid),
+        TargetSituated(Uuid),
 
     // Contain POI UUID
-    POI(Uuid),
-        Standing(Uuid),
-        Hand(Uuid),
-        FromStandingPOI(Uuid),
-        ToStandingPOI(Uuid),
-        FromHandPOI(Uuid),
-        ToHandPOI(Uuid),
+    Standing(Uuid),
+    Hand(Uuid),
+    FromStandingPOI(Uuid),
+    ToStandingPOI(Uuid),
+    FromHandPOI(Uuid),
+    ToHandPOI(Uuid),
     
     // Contain No UUID
     AgentAgnostic
@@ -37,7 +37,7 @@ pub enum Data {
 
 impl Data {
     pub fn fuzzy_eq(&self, other: &Data) -> bool {
-        discriminant(self) == discriminant(other)
+        self.tag() == other.tag()
     }
 
     pub fn id(&self) -> Option<Uuid> {
@@ -52,7 +52,8 @@ impl Data {
             Data::UnnallocatedTask(id) => Some(*id),
             Data::AllocatedTask(id) => Some(*id),
             Data::Target(id) => Some(*id),
-            Data::POI(id) => Some(*id),
+            Data::TargetUnplaced(id) => Some(*id),
+            Data::TargetSituated(id) => Some(*id),
             Data::Standing(id) => Some(*id),
             Data::Hand(id) => Some(*id),
             Data::FromStandingPOI(id) => Some(*id),

@@ -1,31 +1,37 @@
 digraph Job_1 {
 bgcolor="transparent"
-// Place Target: Part2
-	229796830994320086550841309018528025723 [label="Target: Part2\n(∞)",tooltip="Target:Part2",style=filled,fillcolor="#FFFFFF",color="#000000",penwidth=3];
 // Place Target: Part3
-	111207074528930920974023996637798907682 [label="Target: Part3\n(0)",tooltip="Target:Part3",style=filled,fillcolor="#FFFFFF",color="#000000",penwidth=3];
-// Place Target: Part6
-	223904012590262649490106335439222087609 [label="Target: Part6\n(sink)",tooltip="Target:Part6",style=filled,fillcolor="#FFFFFF",color="#000000",penwidth=3];
+	51458442459762781523499098293274758173 [label="Target: Part3\n(0)",tooltip="Target:Part3\nTargetSituated:Part3",style=filled,fillcolor="#FFFFFF",color="#000000",penwidth=3];
 // Place Target: Part4
-	46542626004616670144962385505130569823 [label="Target: Part4\n(∞)",tooltip="Target:Part4",style=filled,fillcolor="#FFFFFF",color="#000000",penwidth=3];
-// Place Target: Tool0
-	333527955037345707140191695102878057628 [label="Target: Tool0\n(1)",tooltip="Target:Tool0",style=filled,fillcolor="#FFFFFF",color="#000000",penwidth=3];
-// Place Target: Part1
-	35962894677121355045917134238595414877 [label="Target: Part1\n(∞)",tooltip="Target:Part1",style=filled,fillcolor="#FFFFFF",color="#000000",penwidth=3];
+	291858316721107522964210166504376799675 [label="Target: Part4\n(∞)",tooltip="Target:Part4\nTargetSituated:Part4",style=filled,fillcolor="#FFFFFF",color="#000000",penwidth=3];
 // Place Target: Part5
-	289780229631635489750083816345446531483 [label="Target: Part5\n(sink)",tooltip="Target:Part5",style=filled,fillcolor="#FFFFFF",color="#000000",penwidth=3];
-// Transition task2
-	96125577654285215117336544733486040147 [label="task2",tooltip="Task:task2",shape=box,style=filled,fillcolor="#000000",fontcolor="#FFFFFF",color="#8DD3C7",penwidth=3];
+	321324079621855493870637528222233443919 [label="Target: Part5\n(sink)",tooltip="Target:Part5\nTargetSituated:Part5",style=filled,fillcolor="#FFFFFF",color="#000000",penwidth=3];
+// Place Target: Part1
+	206566233708689047294751286284038067272 [label="Target: Part1\n(∞)",tooltip="Target:Part1\nTargetSituated:Part1",style=filled,fillcolor="#FFFFFF",color="#000000",penwidth=3];
+// Place Target: Tool0 (pre)
+	114896067931484102137083225494674447644 [label="Target: Tool0 (pre)\n(1)",tooltip="Target:Tool0\nTargetUnplaced:Tool0",style=filled,fillcolor="#FFFFFF",color="#000000",penwidth=3];
+// Place Target: Part2
+	144997823394495210451223452539949641752 [label="Target: Part2\n(∞)",tooltip="Target:Part2\nTargetSituated:Part2",style=filled,fillcolor="#FFFFFF",color="#000000",penwidth=3];
+// Place Target: Part6
+	176503851995585389558154199426002221230 [label="Target: Part6\n(sink)",tooltip="Target:Part6\nTargetSituated:Part6",style=filled,fillcolor="#FFFFFF",color="#000000",penwidth=3];
+// Place Target: Tool0
+	312803515184105042338609438611473133540 [label="Target: Tool0\n(0)",tooltip="Target:Tool0\nTargetSituated:Tool0",style=filled,fillcolor="#FFFFFF",color="#000000",penwidth=3];
+// Transition Situate: Tool0
+	269295504741548991069626650007202406912 [label="Situate: Tool0",tooltip="Target:Tool0\nTargetSituated:Tool0\nAgentAgnostic",shape=box,style=filled,fillcolor="#000000",fontcolor="#FFFFFF",color="#000000",penwidth=3];
 // Transition task1
-	247540908381885874707202673811351352180 [label="task1",tooltip="Task:task1",shape=box,style=filled,fillcolor="#000000",fontcolor="#FFFFFF",color="#FFFFB3",penwidth=3];
-	111207074528930920974023996637798907682 -> 96125577654285215117336544733486040147 [label="1",color="#646464",fontcolor="#646464",penwidth=3];
-	46542626004616670144962385505130569823 -> 96125577654285215117336544733486040147 [label="1",color="#646464",fontcolor="#646464",penwidth=3];
-	96125577654285215117336544733486040147 -> 289780229631635489750083816345446531483 [label="1",color="#646464",fontcolor="#646464",penwidth=3];
-	96125577654285215117336544733486040147 -> 223904012590262649490106335439222087609 [label="1",color="#646464",fontcolor="#646464",penwidth=3];
-	229796830994320086550841309018528025723 -> 247540908381885874707202673811351352180 [label="1",color="#646464",fontcolor="#646464",penwidth=3];
-	333527955037345707140191695102878057628 -> 247540908381885874707202673811351352180 [label="1",color="#646464",fontcolor="#646464",penwidth=3];
-	35962894677121355045917134238595414877 -> 247540908381885874707202673811351352180 [label="1",color="#646464",fontcolor="#646464",penwidth=3];
-	247540908381885874707202673811351352180 -> 111207074528930920974023996637798907682 [label="1",color="#646464",fontcolor="#646464",penwidth=3];
-	247540908381885874707202673811351352180 -> 333527955037345707140191695102878057628 [label="1",color="#646464",fontcolor="#646464",penwidth=3];
+	227300663176116271873107439035244261677 [label="task1",tooltip="Task:task1",shape=box,style=filled,fillcolor="#000000",fontcolor="#FFFFFF",color="#8DD3C7",penwidth=3];
+// Transition task2
+	18645727782993144547385201669311364164 [label="task2",tooltip="Task:task2",shape=box,style=filled,fillcolor="#000000",fontcolor="#FFFFFF",color="#FFFFB3",penwidth=3];
+	114896067931484102137083225494674447644 -> 269295504741548991069626650007202406912 [label="1",color="#646464",fontcolor="#646464",penwidth=3];
+	269295504741548991069626650007202406912 -> 312803515184105042338609438611473133540 [label="1",color="#646464",fontcolor="#646464",penwidth=3];
+	144997823394495210451223452539949641752 -> 227300663176116271873107439035244261677 [label="1",color="#646464",fontcolor="#646464",penwidth=3];
+	312803515184105042338609438611473133540 -> 227300663176116271873107439035244261677 [label="1",color="#646464",fontcolor="#646464",penwidth=3];
+	206566233708689047294751286284038067272 -> 227300663176116271873107439035244261677 [label="1",color="#646464",fontcolor="#646464",penwidth=3];
+	227300663176116271873107439035244261677 -> 312803515184105042338609438611473133540 [label="1",color="#646464",fontcolor="#646464",penwidth=3];
+	227300663176116271873107439035244261677 -> 51458442459762781523499098293274758173 [label="1",color="#646464",fontcolor="#646464",penwidth=3];
+	291858316721107522964210166504376799675 -> 18645727782993144547385201669311364164 [label="1",color="#646464",fontcolor="#646464",penwidth=3];
+	51458442459762781523499098293274758173 -> 18645727782993144547385201669311364164 [label="1",color="#646464",fontcolor="#646464",penwidth=3];
+	18645727782993144547385201669311364164 -> 176503851995585389558154199426002221230 [label="1",color="#646464",fontcolor="#646464",penwidth=3];
+	18645727782993144547385201669311364164 -> 321324079621855493870637528222233443919 [label="1",color="#646464",fontcolor="#646464",penwidth=3];
 overlap=false
 }

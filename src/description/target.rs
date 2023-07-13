@@ -1,7 +1,9 @@
 use uuid::Uuid;
 use serde::{Serialize, Deserialize};
+use enum_tag::EnumTag;
+use crate::description::agent::Agent;
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, EnumTag, Serialize, Deserialize)]
 #[serde(tag = "type",rename_all = "camelCase")]
 pub enum Target {
     Precursor {
@@ -68,6 +70,20 @@ impl Target  {
         }
     }
 
+    pub fn carryable(&self, agent: &Agent) -> bool {
+        match agent {
+            Agent::Human(_) => true,
+            Agent::Robot(robot_info) => {
+                match self {
+                    Target::Precursor { weight, .. } => robot_info.payload >= *weight,
+                    Target::Intermediate { weight, .. } => robot_info.payload >= *weight,
+                    Target::Product { weight, .. } => robot_info.payload >= *weight,
+                    Target::Reusable { weight, .. } => robot_info.payload >= *weight
+                }
+            }
+        }
+    }
+
     pub fn id(&self) -> Uuid {
         match self {
             Target::Precursor { id, .. } => id.clone(),
@@ -85,5 +101,8 @@ impl Target  {
             Target::Reusable { name, .. } => name.clone()
         }
     }
+
+    
 }
 
+pub type TargetTag = <Target as EnumTag>::Tag;
