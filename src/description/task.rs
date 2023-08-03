@@ -1,5 +1,8 @@
 use serde::{Serialize, Deserialize};
+use std::collections::HashMap;
 use uuid::Uuid;
+
+use crate::{description::primitive::Primitive, util::split_primitives};
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "type",rename_all = "camelCase")]
@@ -80,5 +83,12 @@ impl Task {
                 .iter()
                 .filter_map(|(target, count)| if target == id { Some(count) } else { None })
                 .sum()
+    }
+
+    pub fn get_split(&self, splits: usize, primitives: &HashMap<Uuid,Primitive>) -> Vec<Vec<Uuid>> {
+        // let mut split: Vec<Vec<Uuid>> = Vec::new();
+        split_primitives(
+            &self.primitives.iter().map(|p| primitives.get(p).unwrap()).collect(), splits
+        )
     }
 }

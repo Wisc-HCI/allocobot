@@ -1,27 +1,29 @@
-use serde::{Serialize, Deserialize};
-use uuid::Uuid;
 use enum_tag::EnumTag;
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 #[derive(Clone, Debug, PartialEq, EnumTag, Serialize, Deserialize)]
 #[serde(tag = "type", content = "value", rename_all = "camelCase")]
 pub enum Data {
     // Contain Agent UUID
     Agent(Uuid),
-        AgentSituated(Uuid),
-        AgentIndeterminite(Uuid),
-        AgentDiscard(Uuid),
-        AgentTaskLock(Uuid),
-        AgentAdd(Uuid),
-        
+    AgentPresent(Uuid),
+    AgentSituated(Uuid),
+    AgentIndeterminite(Uuid),
+    AgentDiscard(Uuid),
+    AgentTaskLock(Uuid),
+    AgentAdd(Uuid),
+    AgentJoint,
+
     // Contain Task UUID
     Task(Uuid),
-        UnnallocatedTask(Uuid),
-        AllocatedTask(Uuid),
+    UnnallocatedTask(Uuid),
+    AllocatedTask(Uuid),
 
     // Contain Target UUID
     Target(Uuid),
-        TargetUnplaced(Uuid),
-        TargetSituated(Uuid),
+    TargetUnplaced(Uuid),
+    TargetSituated(Uuid),
 
     // Contain POI UUID
     Standing(Uuid),
@@ -30,9 +32,13 @@ pub enum Data {
     ToStandingPOI(Uuid),
     FromHandPOI(Uuid),
     ToHandPOI(Uuid),
-    
+
+    // Primitive Assignments
+    // Encoded as Agent UUID, Primitive UUID
+    PrimitiveAssignment(Uuid, Uuid),
+
     // Contain No UUID
-    AgentAgnostic
+    AgentAgnostic,
 }
 
 impl Data {
@@ -43,6 +49,7 @@ impl Data {
     pub fn id(&self) -> Option<Uuid> {
         match self {
             Data::Agent(id) => Some(*id),
+            Data::AgentPresent(id) => Some(*id),
             Data::AgentSituated(id) => Some(*id),
             Data::AgentIndeterminite(id) => Some(*id),
             Data::AgentDiscard(id) => Some(*id),
@@ -60,27 +67,25 @@ impl Data {
             Data::ToStandingPOI(id) => Some(*id),
             Data::FromHandPOI(id) => Some(*id),
             Data::ToHandPOI(id) => Some(*id),
-            Data::AgentAgnostic => None
+            // PrimitiveAssignment returns the Agent UUID
+            Data::PrimitiveAssignment(id, _) => Some(*id),
+            Data::AgentAgnostic => None,
+            Data::AgentJoint => None,
         }
     }
 }
 
 pub fn data_query(data: &Vec<Data>, query: &Vec<Query>) -> bool {
-    query.iter().all(|q| {
-        match q {
-            Query::Data(d) => data.contains(d),
-            Query::Tag(t) => data.iter().any(|d| d.tag() == *t)
-        }
+    query.iter().all(|q| match q {
+        Query::Data(d) => data.contains(d),
+        Query::Tag(t) => data.iter().any(|d| d.tag() == *t),
     })
-    // match fuzzy {
-    //     false => subset.iter().all(|s| data.contains(s)),
-    //     true => subset.iter().all(|s| data.iter().any(|d| d.fuzzy_eq(s)))
-    // }
 }
 
 pub type DataTag = <Data as EnumTag>::Tag;
 
 pub enum Query {
     Data(Data),
-    Tag(DataTag)
+    Tag(DataTag),
 }
+

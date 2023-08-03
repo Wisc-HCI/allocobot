@@ -32,10 +32,13 @@ impl Agent {
         });
     }
 
-    pub fn new_human(name: String) -> Self {
+    pub fn new_human(name: String, assumption_age: f64, assumption_acromial_height: f64, assumption_reach: f64) -> Self {
         return Agent::Human(HumanInfo {
             id: Uuid::new_v4(),
             name,
+            assumption_age,
+            assumption_acromial_height,
+            assumption_reach
         });
     }
 
@@ -71,4 +74,16 @@ pub struct RobotInfo {
 pub struct HumanInfo {
     pub id: Uuid,
     pub name: String,
+    // NOTE: This is not currently used, need to check with Rob
+    // pub assumption_gender: Gender,
+    pub assumption_age: f64,
+    pub assumption_acromial_height: f64,
+    pub assumption_reach: f64,
 }
+
+// #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+// pub enum Gender {
+//     Male,
+//     Female,
+//     // Other?
+// }

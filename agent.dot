@@ -1,122 +1,226 @@
 digraph Job_1 {
 bgcolor="transparent"
-// Place Panda
-	145426785606672618503989066198820359501 [label="Panda\n(0)",tooltip="Agent:Panda\nAgentSituated:Panda",style=filled,fillcolor="#4E79A7",color="#000000",penwidth=3];
-// Place task1-alloc
-	301739754503946022388648935433804640311 [label="task1-alloc\n(0)",tooltip="Task:task1\nAllocatedTask:task1\nAgentTaskLock:Panda",style=filled,fillcolor="#FFFFFF",color="#8DD3C7",penwidth=3];
-// Place Charlie
-	331218072502503845146936396908039202122 [label="Charlie\n(0)",tooltip="Agent:Charlie\nAgentSituated:Charlie",style=filled,fillcolor="#F28E2C",color="#000000",penwidth=3];
-// Place task2-alloc
-	266661075547008010733211205759056987872 [label="task2-alloc\n(0)",tooltip="Task:task2\nAllocatedTask:task2\nAgentTaskLock:Panda",style=filled,fillcolor="#FFFFFF",color="#FFFFB3",penwidth=3];
-// Place task2-alloc
-	276487612935000706881433467327270372882 [label="task2-alloc\n(0)",tooltip="Task:task2\nAllocatedTask:task2\nAgentTaskLock:Charlie",style=filled,fillcolor="#FFFFFF",color="#FFFFB3",penwidth=3];
-// Place Target: Part2
-	144997823394495210451223452539949641752 [label="Target: Part2\n(∞)",tooltip="Target:Part2\nTargetSituated:Part2",style=filled,fillcolor="#FFFFFF",color="#000000",penwidth=3];
-// Place Charlie ❓
-	133607850936147747142446112354126166043 [label="Charlie ❓\n(1)",tooltip="Agent:Charlie\nAgentIndeterminite:Charlie",style=filled,fillcolor="#F28E2C",color="#000000",penwidth=3];
-// Place Target: Part6
-	176503851995585389558154199426002221230 [label="Target: Part6\n(sink)",tooltip="Target:Part6\nTargetSituated:Part6",style=filled,fillcolor="#FFFFFF",color="#000000",penwidth=3];
-// Place Target: Tool0
-	312803515184105042338609438611473133540 [label="Target: Tool0\n(0)",tooltip="Target:Tool0\nTargetSituated:Tool0",style=filled,fillcolor="#FFFFFF",color="#000000",penwidth=3];
-// Place task1-pre-alloc
-	155814731429542282818203331063535635531 [label="task1-pre-alloc\n(1)",tooltip="Task:task1\nUnnallocatedTask:task1",style=filled,fillcolor="#FFFFFF",color="#8DD3C7",penwidth=3];
-// Place task1-alloc
-	66147548931242212867166021601550131017 [label="task1-alloc\n(0)",tooltip="Task:task1\nAllocatedTask:task1\nAgentTaskLock:Charlie",style=filled,fillcolor="#FFFFFF",color="#8DD3C7",penwidth=3];
-// Place Target: Part4
-	291858316721107522964210166504376799675 [label="Target: Part4\n(∞)",tooltip="Target:Part4\nTargetSituated:Part4",style=filled,fillcolor="#FFFFFF",color="#000000",penwidth=3];
-// Place Panda 🗑️
-	335873979174906779688792683712236658330 [label="Panda 🗑️\n(sink)",tooltip="Agent:Panda\nAgentDiscard:Panda",style=filled,fillcolor="#4E79A7",color="#000000",penwidth=3];
-// Place Charlie 🗑️
-	273824720975483432031542627430797001421 [label="Charlie 🗑️\n(sink)",tooltip="Agent:Charlie\nAgentDiscard:Charlie",style=filled,fillcolor="#F28E2C",color="#000000",penwidth=3];
-// Place Target: Part5
-	321324079621855493870637528222233443919 [label="Target: Part5\n(sink)",tooltip="Target:Part5\nTargetSituated:Part5",style=filled,fillcolor="#FFFFFF",color="#000000",penwidth=3];
-// Place Target: Part1
-	206566233708689047294751286284038067272 [label="Target: Part1\n(∞)",tooltip="Target:Part1\nTargetSituated:Part1",style=filled,fillcolor="#FFFFFF",color="#000000",penwidth=3];
-// Place Target: Tool0 (pre)
-	114896067931484102137083225494674447644 [label="Target: Tool0 (pre)\n(1)",tooltip="Target:Tool0\nTargetUnplaced:Tool0",style=filled,fillcolor="#FFFFFF",color="#000000",penwidth=3];
-// Place task2-pre-alloc
-	98829232338025352417038173007684956560 [label="task2-pre-alloc\n(1)",tooltip="Task:task2\nUnnallocatedTask:task2",style=filled,fillcolor="#FFFFFF",color="#FFFFB3",penwidth=3];
-// Place Panda ❓
-	200821197534566462338827865265161351292 [label="Panda ❓\n(1)",tooltip="Agent:Panda\nAgentIndeterminite:Panda",style=filled,fillcolor="#4E79A7",color="#000000",penwidth=3];
 // Place Target: Part3
-	51458442459762781523499098293274758173 [label="Target: Part3\n(0)",tooltip="Target:Part3\nTargetSituated:Part3",style=filled,fillcolor="#FFFFFF",color="#000000",penwidth=3];
-// Transition Add Charlie
-	118921020008464235524894307751402566137 [label="Add Charlie",tooltip="Agent:Charlie\nAgentAdd:Charlie",shape=box,style=filled,fillcolor="#000000",fontcolor="#F28E2C",color="#000000",penwidth=3];
-// Transition Situate: Tool0
-	308706964878331522762231312647956428967 [label="Situate: Tool0",tooltip="Target:Tool0\nTargetSituated:Tool0\nAgentAgnostic",shape=box,style=filled,fillcolor="#000000",fontcolor="#FFFFFF",color="#000000",penwidth=3];
-// Transition Panda-task1
-	251890656723490472297779067980065416877 [label="Panda-task1",tooltip="Task:task1\nAgent:Panda",shape=box,style=filled,fillcolor="#000000",fontcolor="#4E79A7",color="#8DD3C7",penwidth=3];
-// Transition task1 decide Charlie
-	240609436433713957898626309073183634636 [label="task1 decide Charlie",tooltip="Task:task1\nAgent:Charlie\nAllocatedTask:task1",shape=box,style=filled,fillcolor="#000000",fontcolor="#F28E2C",color="#8DD3C7",penwidth=3];
-// Transition task1 decide Panda
-	53868200253144567004570645117610290248 [label="task1 decide Panda",tooltip="Task:task1\nAgent:Panda\nAllocatedTask:task1",shape=box,style=filled,fillcolor="#000000",fontcolor="#4E79A7",color="#8DD3C7",penwidth=3];
-// Transition task2 decide Charlie
-	121939812440080713093141661469878406460 [label="task2 decide Charlie",tooltip="Task:task2\nAgent:Charlie\nAllocatedTask:task2",shape=box,style=filled,fillcolor="#000000",fontcolor="#F28E2C",color="#FFFFB3",penwidth=3];
-// Transition Discard Charlie
-	170592126964863029480567206368425278501 [label="Discard Charlie",tooltip="Agent:Charlie\nAgentDiscard:Charlie",shape=box,style=filled,fillcolor="#000000",fontcolor="#F28E2C",color="#000000",penwidth=3];
+	98501890677482419496533068529305100140 [label="Target: Part3\n(0)",tooltip="Target:Part3\nTargetSituated:Part3",style=filled,fillcolor="#FFFFFF",color="#000000",penwidth=3];
+// Place Charlie 🗑️
+	147913391014985594168750433977793611354 [label="Charlie 🗑️\n(sink)",tooltip="Agent:Charlie\nAgentDiscard:Charlie",style=filled,fillcolor="#4E79A7",color="#000000",penwidth=3];
+// Place Panda 🗑️
+	322816656643436557714711619795407617975 [label="Panda 🗑️\n(sink)",tooltip="Agent:Panda\nAgentDiscard:Panda",style=filled,fillcolor="#F28E2C",color="#000000",penwidth=3];
+// Place Target: Tool0 (pre)
+	18768335330799385918040082128003468290 [label="Target: Tool0 (pre)\n(1)",tooltip="Target:Tool0\nTargetUnplaced:Tool0",style=filled,fillcolor="#FFFFFF",color="#000000",penwidth=3];
+// Place task2-alloc
+	306088402150832711235011441770391641691 [label="task2-alloc\n(0)",tooltip="Task:task2\nAllocatedTask:task2\nAgentTaskLock:Panda\nAgentTaskLock:Charlie",style=filled,fillcolor="#FFFFFF",color="#8DD3C7",penwidth=3];
+// Place Panda ✅
+	218645800069460679057650494168764453399 [label="Panda ✅\n(0)",tooltip="Agent:Panda\nAgentPresent:Panda",style=filled,fillcolor="#F28E2C",color="#000000",penwidth=3];
+// Place task1-alloc
+	122621243478884099302830294735326713286 [label="task1-alloc\n(0)",tooltip="Task:task1\nAllocatedTask:task1\nAgentTaskLock:Charlie",style=filled,fillcolor="#FFFFFF",color="#FFFFB3",penwidth=3];
+// Place Panda ❓
+	337862240666384370370970496984032788958 [label="Panda ❓\n(1)",tooltip="Agent:Panda\nAgentIndeterminite:Panda",style=filled,fillcolor="#F28E2C",color="#000000",penwidth=3];
+// Place task1-alloc
+	292479192354094033127366723201025489547 [label="task1-alloc\n(0)",tooltip="Task:task1\nAllocatedTask:task1\nAgentTaskLock:Charlie\nAgentTaskLock:Panda",style=filled,fillcolor="#FFFFFF",color="#FFFFB3",penwidth=3];
+// Place Target: Tool0
+	123845945909793671893419224666080821832 [label="Target: Tool0\n(0)",tooltip="Target:Tool0\nTargetSituated:Tool0",style=filled,fillcolor="#FFFFFF",color="#000000",penwidth=3];
+// Place Charlie ❓
+	206726484207539422679524193380938380892 [label="Charlie ❓\n(1)",tooltip="Agent:Charlie\nAgentIndeterminite:Charlie",style=filled,fillcolor="#4E79A7",color="#000000",penwidth=3];
+// Place Target: Part4
+	19435216894921677462939328822324111262 [label="Target: Part4\n(∞)",tooltip="Target:Part4\nTargetSituated:Part4",style=filled,fillcolor="#FFFFFF",color="#000000",penwidth=3];
+// Place task2-alloc
+	277024598602624152518313306228532254268 [label="task2-alloc\n(0)",tooltip="Task:task2\nAllocatedTask:task2\nAgentTaskLock:Panda",style=filled,fillcolor="#FFFFFF",color="#8DD3C7",penwidth=3];
+// Place Charlie ✅
+	5842810935895140816251873674182949057 [label="Charlie ✅\n(0)",tooltip="Agent:Charlie\nAgentPresent:Charlie",style=filled,fillcolor="#4E79A7",color="#000000",penwidth=3];
+// Place task1-alloc
+	109883566192070824999266648051223188983 [label="task1-alloc\n(0)",tooltip="Task:task1\nAllocatedTask:task1\nAgentTaskLock:Panda",style=filled,fillcolor="#FFFFFF",color="#FFFFB3",penwidth=3];
+// Place Target: Part2
+	272419595683725582094956830714749862259 [label="Target: Part2\n(∞)",tooltip="Target:Part2\nTargetSituated:Part2",style=filled,fillcolor="#FFFFFF",color="#000000",penwidth=3];
+// Place Panda
+	151741990659436245309222600912566060373 [label="Panda\n(0)",tooltip="Agent:Panda\nAgentSituated:Panda",style=filled,fillcolor="#F28E2C",color="#000000",penwidth=3];
+// Place Target: Part5
+	104698970875974591698877514371575835481 [label="Target: Part5\n(sink)",tooltip="Target:Part5\nTargetSituated:Part5",style=filled,fillcolor="#FFFFFF",color="#000000",penwidth=3];
+// Place Target: Part6
+	303753438186339175908875318780723127541 [label="Target: Part6\n(sink)",tooltip="Target:Part6\nTargetSituated:Part6",style=filled,fillcolor="#FFFFFF",color="#000000",penwidth=3];
+// Place Charlie
+	306080170756391550662189621314360279446 [label="Charlie\n(0)",tooltip="Agent:Charlie\nAgentSituated:Charlie",style=filled,fillcolor="#4E79A7",color="#000000",penwidth=3];
+// Place task2-alloc
+	36245332419364793865863357453758273327 [label="task2-alloc\n(0)",tooltip="Task:task2\nAllocatedTask:task2\nAgentTaskLock:Charlie",style=filled,fillcolor="#FFFFFF",color="#8DD3C7",penwidth=3];
+// Place task2-pre-alloc
+	250950023594278781690156958526788582835 [label="task2-pre-alloc\n(1)",tooltip="Task:task2\nUnnallocatedTask:task2",style=filled,fillcolor="#FFFFFF",color="#8DD3C7",penwidth=3];
+// Place task2-alloc
+	240164271434211059191500237125031716392 [label="task2-alloc\n(0)",tooltip="Task:task2\nAllocatedTask:task2\nAgentTaskLock:Charlie\nAgentTaskLock:Panda",style=filled,fillcolor="#FFFFFF",color="#8DD3C7",penwidth=3];
+// Place Target: Part1
+	146271097330057280137622087321248912495 [label="Target: Part1\n(∞)",tooltip="Target:Part1\nTargetSituated:Part1",style=filled,fillcolor="#FFFFFF",color="#000000",penwidth=3];
+// Place task1-pre-alloc
+	2119721829886207813980257306973053705 [label="task1-pre-alloc\n(1)",tooltip="Task:task1\nUnnallocatedTask:task1",style=filled,fillcolor="#FFFFFF",color="#FFFFB3",penwidth=3];
+// Place task1-alloc
+	268807845900667807526576943384065641923 [label="task1-alloc\n(0)",tooltip="Task:task1\nAllocatedTask:task1\nAgentTaskLock:Charlie\nAgentTaskLock:Panda",style=filled,fillcolor="#FFFFFF",color="#FFFFB3",penwidth=3];
+// Transition task1 decide Charlie+Panda
+	56841149254721142832020339766819378482 [label="task1 decide Charlie+Panda",tooltip="Task:task1\nAllocatedTask:task1\nAgent:Charlie\nAgent:Panda",shape=box,style=filled,fillcolor="#000000",fontcolor="#F28E2C",color="#FFFFB3",penwidth=3];
 // Transition Add Panda
-	215730130932463831916700138170488400774 [label="Add Panda",tooltip="Agent:Panda\nAgentAdd:Panda",shape=box,style=filled,fillcolor="#000000",fontcolor="#4E79A7",color="#000000",penwidth=3];
-// Transition Charlie-task1
-	317236138095549201115172130494603553890 [label="Charlie-task1",tooltip="Task:task1\nAgent:Charlie",shape=box,style=filled,fillcolor="#000000",fontcolor="#F28E2C",color="#8DD3C7",penwidth=3];
-// Transition Discard Panda
-	179768295015013552756935678436893176372 [label="Discard Panda",tooltip="Agent:Panda\nAgentDiscard:Panda",shape=box,style=filled,fillcolor="#000000",fontcolor="#4E79A7",color="#000000",penwidth=3];
-// Transition Charlie-task2
-	14309280924522969502267895297916090518 [label="Charlie-task2",tooltip="Task:task2\nAgent:Charlie",shape=box,style=filled,fillcolor="#000000",fontcolor="#F28E2C",color="#FFFFB3",penwidth=3];
+	63243339526642524332238133024481043833 [label="Add Panda",tooltip="Agent:Panda\nAgentAdd:Panda",shape=box,style=filled,fillcolor="#000000",fontcolor="#F28E2C",color="#000000",penwidth=3];
 // Transition task2 decide Panda
-	187696699796323081296090337942170773356 [label="task2 decide Panda",tooltip="Task:task2\nAgent:Panda\nAllocatedTask:task2",shape=box,style=filled,fillcolor="#000000",fontcolor="#4E79A7",color="#FFFFB3",penwidth=3];
+	200556251146584100415836478069669599891 [label="task2 decide Panda",tooltip="Task:task2\nAllocatedTask:task2\nAgent:Panda",shape=box,style=filled,fillcolor="#000000",fontcolor="#F28E2C",color="#8DD3C7",penwidth=3];
+// Transition Panda+Charlie-task2
+	12940505063112877239419253090472664970 [label="Panda+Charlie-task2",tooltip="Task:task2\nAgent:Panda\nPrimitiveAssignment:Panda\nPrimitiveAssignment:Panda\nAgent:Charlie\nPrimitiveAssignment:Charlie",shape=box,style=filled,fillcolor="#000000",fontcolor="#4E79A7",color="#8DD3C7",penwidth=3];
+// Transition Discard Panda
+	274204153502738021211026125649863493295 [label="Discard Panda",tooltip="Agent:Panda\nAgentDiscard:Panda",shape=box,style=filled,fillcolor="#000000",fontcolor="#F28E2C",color="#000000",penwidth=3];
+// Transition Add Charlie
+	223097775664894348624315164050968033262 [label="Add Charlie",tooltip="Agent:Charlie\nAgentAdd:Charlie",shape=box,style=filled,fillcolor="#000000",fontcolor="#4E79A7",color="#000000",penwidth=3];
+// Transition task2 decide Charlie+Panda
+	281719270595638372426883913737840666877 [label="task2 decide Charlie+Panda",tooltip="Task:task2\nAllocatedTask:task2\nAgent:Charlie\nAgent:Panda",shape=box,style=filled,fillcolor="#000000",fontcolor="#F28E2C",color="#8DD3C7",penwidth=3];
+// Transition Discard Charlie
+	269201642091250255819948827015896752477 [label="Discard Charlie",tooltip="Agent:Charlie\nAgentDiscard:Charlie",shape=box,style=filled,fillcolor="#000000",fontcolor="#4E79A7",color="#000000",penwidth=3];
+// Transition Charlie+Panda-task1
+	119095008729296021966353790001638749245 [label="Charlie+Panda-task1",tooltip="Task:task1\nAgent:Charlie\nPrimitiveAssignment:Charlie\nAgent:Panda\nPrimitiveAssignment:Panda\nPrimitiveAssignment:Panda\nPrimitiveAssignment:Panda\nPrimitiveAssignment:Panda",shape=box,style=filled,fillcolor="#000000",fontcolor="#F28E2C",color="#FFFFB3",penwidth=3];
+// Transition task2 decide Panda+Charlie
+	20027340814079179420897549286343096993 [label="task2 decide Panda+Charlie",tooltip="Task:task2\nAllocatedTask:task2\nAgent:Panda\nAgent:Charlie",shape=box,style=filled,fillcolor="#000000",fontcolor="#4E79A7",color="#8DD3C7",penwidth=3];
+// Transition Charlie-task2
+	295400139932312450659445835441919622381 [label="Charlie-task2",tooltip="Task:task2\nAgent:Charlie\nPrimitiveAssignment:Charlie\nPrimitiveAssignment:Charlie\nPrimitiveAssignment:Charlie",shape=box,style=filled,fillcolor="#000000",fontcolor="#4E79A7",color="#8DD3C7",penwidth=3];
+// Transition Situate: Tool0
+	310003301968708231282279973032387673547 [label="Situate: Tool0",tooltip="Target:Tool0\nTargetSituated:Tool0\nAgentAgnostic",shape=box,style=filled,fillcolor="#000000",fontcolor="#FFFFFF",color="#000000",penwidth=3];
+// Transition task2 decide Charlie
+	166226504744085360429147620322910218298 [label="task2 decide Charlie",tooltip="Task:task2\nAllocatedTask:task2\nAgent:Charlie",shape=box,style=filled,fillcolor="#000000",fontcolor="#4E79A7",color="#8DD3C7",penwidth=3];
 // Transition Panda-task2
-	91639817008050160171342400917547365775 [label="Panda-task2",tooltip="Task:task2\nAgent:Panda",shape=box,style=filled,fillcolor="#000000",fontcolor="#4E79A7",color="#FFFFB3",penwidth=3];
-	133607850936147747142446112354126166043 -> 118921020008464235524894307751402566137 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
-	118921020008464235524894307751402566137 -> 331218072502503845146936396908039202122 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
-	114896067931484102137083225494674447644 -> 308706964878331522762231312647956428967 [label="1",color="#646464",fontcolor="#646464",penwidth=3];
-	308706964878331522762231312647956428967 -> 312803515184105042338609438611473133540 [label="1",color="#646464",fontcolor="#646464",penwidth=3];
-	301739754503946022388648935433804640311 -> 251890656723490472297779067980065416877 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
-	144997823394495210451223452539949641752 -> 251890656723490472297779067980065416877 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
-	145426785606672618503989066198820359501 -> 251890656723490472297779067980065416877 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
-	312803515184105042338609438611473133540 -> 251890656723490472297779067980065416877 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
-	206566233708689047294751286284038067272 -> 251890656723490472297779067980065416877 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
-	251890656723490472297779067980065416877 -> 51458442459762781523499098293274758173 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
-	251890656723490472297779067980065416877 -> 301739754503946022388648935433804640311 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
-	251890656723490472297779067980065416877 -> 312803515184105042338609438611473133540 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
-	251890656723490472297779067980065416877 -> 145426785606672618503989066198820359501 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
-	155814731429542282818203331063535635531 -> 240609436433713957898626309073183634636 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
-	240609436433713957898626309073183634636 -> 66147548931242212867166021601550131017 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
-	155814731429542282818203331063535635531 -> 53868200253144567004570645117610290248 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
-	53868200253144567004570645117610290248 -> 301739754503946022388648935433804640311 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
-	98829232338025352417038173007684956560 -> 121939812440080713093141661469878406460 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
-	121939812440080713093141661469878406460 -> 276487612935000706881433467327270372882 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
-	133607850936147747142446112354126166043 -> 170592126964863029480567206368425278501 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
-	170592126964863029480567206368425278501 -> 273824720975483432031542627430797001421 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
-	200821197534566462338827865265161351292 -> 215730130932463831916700138170488400774 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
-	215730130932463831916700138170488400774 -> 145426785606672618503989066198820359501 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
-	66147548931242212867166021601550131017 -> 317236138095549201115172130494603553890 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
-	331218072502503845146936396908039202122 -> 317236138095549201115172130494603553890 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
-	144997823394495210451223452539949641752 -> 317236138095549201115172130494603553890 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
-	312803515184105042338609438611473133540 -> 317236138095549201115172130494603553890 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
-	206566233708689047294751286284038067272 -> 317236138095549201115172130494603553890 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
-	317236138095549201115172130494603553890 -> 51458442459762781523499098293274758173 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
-	317236138095549201115172130494603553890 -> 66147548931242212867166021601550131017 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
-	317236138095549201115172130494603553890 -> 312803515184105042338609438611473133540 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
-	317236138095549201115172130494603553890 -> 331218072502503845146936396908039202122 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
-	200821197534566462338827865265161351292 -> 179768295015013552756935678436893176372 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
-	179768295015013552756935678436893176372 -> 335873979174906779688792683712236658330 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
-	331218072502503845146936396908039202122 -> 14309280924522969502267895297916090518 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
-	291858316721107522964210166504376799675 -> 14309280924522969502267895297916090518 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
-	276487612935000706881433467327270372882 -> 14309280924522969502267895297916090518 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
-	51458442459762781523499098293274758173 -> 14309280924522969502267895297916090518 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
-	14309280924522969502267895297916090518 -> 176503851995585389558154199426002221230 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
-	14309280924522969502267895297916090518 -> 321324079621855493870637528222233443919 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
-	14309280924522969502267895297916090518 -> 276487612935000706881433467327270372882 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
-	14309280924522969502267895297916090518 -> 331218072502503845146936396908039202122 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
-	98829232338025352417038173007684956560 -> 187696699796323081296090337942170773356 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
-	187696699796323081296090337942170773356 -> 266661075547008010733211205759056987872 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
-	291858316721107522964210166504376799675 -> 91639817008050160171342400917547365775 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
-	145426785606672618503989066198820359501 -> 91639817008050160171342400917547365775 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
-	266661075547008010733211205759056987872 -> 91639817008050160171342400917547365775 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
-	51458442459762781523499098293274758173 -> 91639817008050160171342400917547365775 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
-	91639817008050160171342400917547365775 -> 145426785606672618503989066198820359501 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
-	91639817008050160171342400917547365775 -> 176503851995585389558154199426002221230 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
-	91639817008050160171342400917547365775 -> 321324079621855493870637528222233443919 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
-	91639817008050160171342400917547365775 -> 266661075547008010733211205759056987872 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	96012871552557037316196135806591756529 [label="Panda-task2",tooltip="Task:task2\nAgent:Panda\nPrimitiveAssignment:Panda\nPrimitiveAssignment:Panda\nPrimitiveAssignment:Panda",shape=box,style=filled,fillcolor="#000000",fontcolor="#F28E2C",color="#8DD3C7",penwidth=3];
+// Transition task1 decide Charlie
+	126933275597643835220983512112475952249 [label="task1 decide Charlie",tooltip="Task:task1\nAllocatedTask:task1\nAgent:Charlie",shape=box,style=filled,fillcolor="#000000",fontcolor="#4E79A7",color="#FFFFB3",penwidth=3];
+// Transition Panda-task1
+	18410837386213534486262381051760179928 [label="Panda-task1",tooltip="Task:task1\nAgent:Panda\nPrimitiveAssignment:Panda\nPrimitiveAssignment:Panda\nPrimitiveAssignment:Panda\nPrimitiveAssignment:Panda\nPrimitiveAssignment:Panda",shape=box,style=filled,fillcolor="#000000",fontcolor="#F28E2C",color="#FFFFB3",penwidth=3];
+// Transition Charlie+Panda-task2
+	61723963588537580650246066302904149334 [label="Charlie+Panda-task2",tooltip="Task:task2\nAgent:Charlie\nPrimitiveAssignment:Charlie\nPrimitiveAssignment:Charlie\nAgent:Panda\nPrimitiveAssignment:Panda",shape=box,style=filled,fillcolor="#000000",fontcolor="#F28E2C",color="#8DD3C7",penwidth=3];
+// Transition Charlie-task1
+	210766598329714657315370401205545909306 [label="Charlie-task1",tooltip="Task:task1\nAgent:Charlie\nPrimitiveAssignment:Charlie\nPrimitiveAssignment:Charlie\nPrimitiveAssignment:Charlie\nPrimitiveAssignment:Charlie\nPrimitiveAssignment:Charlie",shape=box,style=filled,fillcolor="#000000",fontcolor="#4E79A7",color="#FFFFB3",penwidth=3];
+// Transition task1 decide Charlie+Panda
+	162394461469529278705998655026631416014 [label="task1 decide Charlie+Panda",tooltip="Task:task1\nAllocatedTask:task1\nAgent:Charlie\nAgent:Panda",shape=box,style=filled,fillcolor="#000000",fontcolor="#F28E2C",color="#FFFFB3",penwidth=3];
+// Transition task1 decide Panda
+	84564724015067516320248422494625839547 [label="task1 decide Panda",tooltip="Task:task1\nAllocatedTask:task1\nAgent:Panda",shape=box,style=filled,fillcolor="#000000",fontcolor="#F28E2C",color="#FFFFB3",penwidth=3];
+// Transition Charlie+Panda-task1
+	173655193015535978298629327094872926230 [label="Charlie+Panda-task1",tooltip="Task:task1\nAgent:Charlie\nPrimitiveAssignment:Charlie\nPrimitiveAssignment:Charlie\nPrimitiveAssignment:Charlie\nPrimitiveAssignment:Charlie\nAgent:Panda\nPrimitiveAssignment:Panda",shape=box,style=filled,fillcolor="#000000",fontcolor="#F28E2C",color="#FFFFB3",penwidth=3];
+	218645800069460679057650494168764453399 -> 56841149254721142832020339766819378482 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	2119721829886207813980257306973053705 -> 56841149254721142832020339766819378482 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	5842810935895140816251873674182949057 -> 56841149254721142832020339766819378482 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	56841149254721142832020339766819378482 -> 218645800069460679057650494168764453399 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	56841149254721142832020339766819378482 -> 292479192354094033127366723201025489547 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	56841149254721142832020339766819378482 -> 5842810935895140816251873674182949057 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	337862240666384370370970496984032788958 -> 63243339526642524332238133024481043833 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	63243339526642524332238133024481043833 -> 218645800069460679057650494168764453399 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	63243339526642524332238133024481043833 -> 151741990659436245309222600912566060373 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	250950023594278781690156958526788582835 -> 200556251146584100415836478069669599891 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	218645800069460679057650494168764453399 -> 200556251146584100415836478069669599891 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	200556251146584100415836478069669599891 -> 218645800069460679057650494168764453399 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	200556251146584100415836478069669599891 -> 277024598602624152518313306228532254268 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	306080170756391550662189621314360279446 -> 12940505063112877239419253090472664970 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	98501890677482419496533068529305100140 -> 12940505063112877239419253090472664970 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	19435216894921677462939328822324111262 -> 12940505063112877239419253090472664970 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	151741990659436245309222600912566060373 -> 12940505063112877239419253090472664970 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	306088402150832711235011441770391641691 -> 12940505063112877239419253090472664970 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	12940505063112877239419253090472664970 -> 306080170756391550662189621314360279446 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	12940505063112877239419253090472664970 -> 306088402150832711235011441770391641691 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	12940505063112877239419253090472664970 -> 303753438186339175908875318780723127541 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	12940505063112877239419253090472664970 -> 151741990659436245309222600912566060373 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	12940505063112877239419253090472664970 -> 104698970875974591698877514371575835481 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	337862240666384370370970496984032788958 -> 274204153502738021211026125649863493295 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	274204153502738021211026125649863493295 -> 322816656643436557714711619795407617975 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	206726484207539422679524193380938380892 -> 223097775664894348624315164050968033262 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	223097775664894348624315164050968033262 -> 306080170756391550662189621314360279446 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	223097775664894348624315164050968033262 -> 5842810935895140816251873674182949057 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	5842810935895140816251873674182949057 -> 281719270595638372426883913737840666877 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	218645800069460679057650494168764453399 -> 281719270595638372426883913737840666877 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	250950023594278781690156958526788582835 -> 281719270595638372426883913737840666877 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	281719270595638372426883913737840666877 -> 218645800069460679057650494168764453399 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	281719270595638372426883913737840666877 -> 240164271434211059191500237125031716392 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	281719270595638372426883913737840666877 -> 5842810935895140816251873674182949057 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	206726484207539422679524193380938380892 -> 269201642091250255819948827015896752477 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	269201642091250255819948827015896752477 -> 147913391014985594168750433977793611354 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	306080170756391550662189621314360279446 -> 119095008729296021966353790001638749245 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	146271097330057280137622087321248912495 -> 119095008729296021966353790001638749245 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	123845945909793671893419224666080821832 -> 119095008729296021966353790001638749245 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	272419595683725582094956830714749862259 -> 119095008729296021966353790001638749245 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	151741990659436245309222600912566060373 -> 119095008729296021966353790001638749245 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	268807845900667807526576943384065641923 -> 119095008729296021966353790001638749245 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	119095008729296021966353790001638749245 -> 306080170756391550662189621314360279446 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	119095008729296021966353790001638749245 -> 151741990659436245309222600912566060373 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	119095008729296021966353790001638749245 -> 123845945909793671893419224666080821832 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	119095008729296021966353790001638749245 -> 268807845900667807526576943384065641923 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	119095008729296021966353790001638749245 -> 98501890677482419496533068529305100140 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	250950023594278781690156958526788582835 -> 20027340814079179420897549286343096993 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	218645800069460679057650494168764453399 -> 20027340814079179420897549286343096993 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	5842810935895140816251873674182949057 -> 20027340814079179420897549286343096993 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	20027340814079179420897549286343096993 -> 5842810935895140816251873674182949057 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	20027340814079179420897549286343096993 -> 306088402150832711235011441770391641691 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	20027340814079179420897549286343096993 -> 218645800069460679057650494168764453399 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	306080170756391550662189621314360279446 -> 295400139932312450659445835441919622381 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	98501890677482419496533068529305100140 -> 295400139932312450659445835441919622381 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	19435216894921677462939328822324111262 -> 295400139932312450659445835441919622381 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	36245332419364793865863357453758273327 -> 295400139932312450659445835441919622381 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	295400139932312450659445835441919622381 -> 306080170756391550662189621314360279446 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	295400139932312450659445835441919622381 -> 303753438186339175908875318780723127541 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	295400139932312450659445835441919622381 -> 104698970875974591698877514371575835481 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	295400139932312450659445835441919622381 -> 36245332419364793865863357453758273327 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	18768335330799385918040082128003468290 -> 310003301968708231282279973032387673547 [label="1",color="#646464",fontcolor="#646464",penwidth=3];
+	310003301968708231282279973032387673547 -> 123845945909793671893419224666080821832 [label="1",color="#646464",fontcolor="#646464",penwidth=3];
+	250950023594278781690156958526788582835 -> 166226504744085360429147620322910218298 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	5842810935895140816251873674182949057 -> 166226504744085360429147620322910218298 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	166226504744085360429147620322910218298 -> 36245332419364793865863357453758273327 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	166226504744085360429147620322910218298 -> 5842810935895140816251873674182949057 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	98501890677482419496533068529305100140 -> 96012871552557037316196135806591756529 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	19435216894921677462939328822324111262 -> 96012871552557037316196135806591756529 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	151741990659436245309222600912566060373 -> 96012871552557037316196135806591756529 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	277024598602624152518313306228532254268 -> 96012871552557037316196135806591756529 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	96012871552557037316196135806591756529 -> 277024598602624152518313306228532254268 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	96012871552557037316196135806591756529 -> 303753438186339175908875318780723127541 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	96012871552557037316196135806591756529 -> 151741990659436245309222600912566060373 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	96012871552557037316196135806591756529 -> 104698970875974591698877514371575835481 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	2119721829886207813980257306973053705 -> 126933275597643835220983512112475952249 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	5842810935895140816251873674182949057 -> 126933275597643835220983512112475952249 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	126933275597643835220983512112475952249 -> 5842810935895140816251873674182949057 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	126933275597643835220983512112475952249 -> 122621243478884099302830294735326713286 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	109883566192070824999266648051223188983 -> 18410837386213534486262381051760179928 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	146271097330057280137622087321248912495 -> 18410837386213534486262381051760179928 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	123845945909793671893419224666080821832 -> 18410837386213534486262381051760179928 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	272419595683725582094956830714749862259 -> 18410837386213534486262381051760179928 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	151741990659436245309222600912566060373 -> 18410837386213534486262381051760179928 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	18410837386213534486262381051760179928 -> 151741990659436245309222600912566060373 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	18410837386213534486262381051760179928 -> 123845945909793671893419224666080821832 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	18410837386213534486262381051760179928 -> 98501890677482419496533068529305100140 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	18410837386213534486262381051760179928 -> 109883566192070824999266648051223188983 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	306080170756391550662189621314360279446 -> 61723963588537580650246066302904149334 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	98501890677482419496533068529305100140 -> 61723963588537580650246066302904149334 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	19435216894921677462939328822324111262 -> 61723963588537580650246066302904149334 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	151741990659436245309222600912566060373 -> 61723963588537580650246066302904149334 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	240164271434211059191500237125031716392 -> 61723963588537580650246066302904149334 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	61723963588537580650246066302904149334 -> 306080170756391550662189621314360279446 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	61723963588537580650246066302904149334 -> 303753438186339175908875318780723127541 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	61723963588537580650246066302904149334 -> 151741990659436245309222600912566060373 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	61723963588537580650246066302904149334 -> 104698970875974591698877514371575835481 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	61723963588537580650246066302904149334 -> 240164271434211059191500237125031716392 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	306080170756391550662189621314360279446 -> 210766598329714657315370401205545909306 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	146271097330057280137622087321248912495 -> 210766598329714657315370401205545909306 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	123845945909793671893419224666080821832 -> 210766598329714657315370401205545909306 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	272419595683725582094956830714749862259 -> 210766598329714657315370401205545909306 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	122621243478884099302830294735326713286 -> 210766598329714657315370401205545909306 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	210766598329714657315370401205545909306 -> 306080170756391550662189621314360279446 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	210766598329714657315370401205545909306 -> 123845945909793671893419224666080821832 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	210766598329714657315370401205545909306 -> 98501890677482419496533068529305100140 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	210766598329714657315370401205545909306 -> 122621243478884099302830294735326713286 [label="1",color="#4E79A7",fontcolor="#4E79A7",penwidth=3];
+	5842810935895140816251873674182949057 -> 162394461469529278705998655026631416014 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	2119721829886207813980257306973053705 -> 162394461469529278705998655026631416014 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	218645800069460679057650494168764453399 -> 162394461469529278705998655026631416014 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	162394461469529278705998655026631416014 -> 218645800069460679057650494168764453399 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	162394461469529278705998655026631416014 -> 268807845900667807526576943384065641923 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	162394461469529278705998655026631416014 -> 5842810935895140816251873674182949057 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	2119721829886207813980257306973053705 -> 84564724015067516320248422494625839547 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	218645800069460679057650494168764453399 -> 84564724015067516320248422494625839547 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	84564724015067516320248422494625839547 -> 218645800069460679057650494168764453399 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	84564724015067516320248422494625839547 -> 109883566192070824999266648051223188983 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	306080170756391550662189621314360279446 -> 173655193015535978298629327094872926230 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	146271097330057280137622087321248912495 -> 173655193015535978298629327094872926230 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	123845945909793671893419224666080821832 -> 173655193015535978298629327094872926230 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	272419595683725582094956830714749862259 -> 173655193015535978298629327094872926230 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	151741990659436245309222600912566060373 -> 173655193015535978298629327094872926230 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	292479192354094033127366723201025489547 -> 173655193015535978298629327094872926230 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	173655193015535978298629327094872926230 -> 306080170756391550662189621314360279446 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	173655193015535978298629327094872926230 -> 151741990659436245309222600912566060373 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	173655193015535978298629327094872926230 -> 123845945909793671893419224666080821832 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	173655193015535978298629327094872926230 -> 292479192354094033127366723201025489547 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
+	173655193015535978298629327094872926230 -> 98501890677482419496533068529305100140 [label="1",color="#F28E2C",fontcolor="#F28E2C",penwidth=3];
 overlap=false
 }

@@ -1,174 +1,208 @@
 use uuid::Uuid;
+use std::collections::HashMap;
 use serde::{Serialize, Deserialize};
+use crate::description::{poi::PointOfInterest, agent::Agent, target::Target, rating::Rating};
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "type",rename_all = "camelCase")]
 pub enum Primitive {
+    // -- Cognitive Primitives --
+
     // A process by which a target is selected
     Selection {
         id: Uuid,
         target: Uuid,
-        // Rules
-        /*
-        pre(agent) -> !busy(agent)
-        during(agent) -> busy(agent)
-        post(agent) -> !busy(agent)
-        */
         // Features
-        structure: f64,
-        variability: f64,
-        displacement: f64
-    },
-    // A process by which a target is grabbed
-    Grasp {
-        id: Uuid,
-        target: Uuid,
-        // Features
-        structure: f64,
-        variability: f64,
-        displacement: f64,
-        manipulation: f64,
-        alignment: f64
-    },
-    // A process by which a target is released
-    Release {
-        id: Uuid,
-        target: Uuid,
-        // Features
-        structure: f64,
-        variability: f64,
-        manipulation: f64,
-        alignment: f64
-    },
-    // A process by which a target is held
-    Hold {
-        id: Uuid,
-        target: Uuid,
-        // Features
-        manipulation: f64,
-        alignment: f64
-    },
-    // A process by which the agent raises its arm, torso, or body part
-    Travel {
-        id: Uuid,
-        poi: Uuid,
-        // Features
-        structure: f64,
-        variability: f64,
-        accessibility: f64,
-        displacement: f64,
-        alignment: f64
-    },
-    // A process by which the agent extends/retracts its arm(s)
-    Reach {
-        id: Uuid,
-        poi: Uuid,
-        // Features
-        structure: f64,
-        variability: f64,
-        accessibility: f64,
-        alignment: f64
-    },
-    // A process by which the agent attaches one part to another
-    Fasten {
-        id: Uuid,
-        base_target: Uuid,
-        attach_target: Uuid,
-        // Features
-        structure: f64,
-        variability: f64,
-        accessibility: f64,
-        displacement: f64,
-        manipulation: f64,
-        alignment: f64,
-        forces: f64
-    },
-    // A process by which the agent applies pressure on a target or surface
-    Press {
-        id: Uuid,
-        target: Uuid,
-        // Features
-        structure: f64,
-        variability: f64,
-        accessibility: f64,
-        alignment: f64,
-        forces: f64
-    },
-    // A process by which the agent inserts a target object into a target recepticle/base
-    Insert {
-        id: Uuid,
-        base_target: Uuid,
-        insert_target: Uuid,
-        // Features
-        structure: f64,
-        variability: f64,
-        accessibility: f64,
-        alignment: f64,
-        forces: f64
-    },
-    // A process by which the agent separates a target object from a target recepticle/base
-    Separate {
-        id: Uuid,
-        base_target: Uuid,
-        separate_target: Uuid,
-        // Features
-        structure: f64,
-        variability: f64,
-        accessibility: f64,
-        alignment: f64,
-        forces: f64
+        skill: Rating
     },
     // A process by which a target is observed and asessed according to certain properties
     Inspect {
         id: Uuid,
         target: Uuid,
         // Features
-        structure: f64,
-        variability: f64,
-        displacement: f64
+        skill: Rating
     },
-    // A process by which an agent swaps one tool for another
-    ToolSwap {
+
+    // -- Physical Primitives --
+
+    // A process by which a target is held
+    Hold {
+        id: Uuid,
+        target: Uuid
+    },
+    // A process by which a hand is repositioned on/about a target
+    Position {
+        id: Uuid,
+        target: Uuid
+    },
+    // A process by which a tool is used
+    Use {
+        id: Uuid,
+        target: Uuid
+    },
+
+    // -- Descriptive Primitives --
+
+    // A process by which force is applied
+    Force {
         id: Uuid,
         target: Uuid,
-        // Features
-        manipulation: f64,
-        alignment: f64
+        magnitude: f64
     },
-    // A process by which an agent swaps one tool for another
-    ToolStart {
-        id: Uuid,
-        target: Uuid,
-        // Features
-        manipulation: f64,
-        alignment: f64
-    },
-    ToolStop {
-        id: Uuid,
-        target: Uuid,
-        // Features
-        manipulation: f64,
-        alignment: f64
-    }
+    
 }
 
 impl Primitive {
     pub fn id(&self) -> Uuid {
         match self {
             Primitive::Selection { id, .. } => *id,
-            Primitive::Grasp { id, .. } => *id,
-            Primitive::Release { id, .. } => *id,
-            Primitive::Hold { id, .. } => *id,
-            Primitive::Travel { id, .. } => *id,
-            Primitive::Reach { id, .. } => *id,
-            Primitive::Fasten { id, .. } => *id,
-            Primitive::Press { id, .. } => *id,
-            Primitive::Insert { id, .. } => *id,
-            Primitive::Separate { id, .. } => *id,
             Primitive::Inspect { id, .. } => *id,
-            Primitive::ToolSwap { id, .. } => *id,
-            Primitive::ToolStart { id, .. } => *id,
-            Primitive::ToolStop { id, .. } => *id
+            Primitive::Hold { id, .. } => *id,
+            Primitive::Position { id, .. } => *id,
+            Primitive::Use { id, .. } => *id,
+            Primitive::Force { id, .. } => *id
+        }
+    }
+
+    pub fn new_selection(target: Uuid, skill:Rating) -> Self {
+        Primitive::Selection {
+            id: Uuid::new_v4(),
+            target,
+            skill
+        }
+    }
+
+    pub fn new_inspect(target: Uuid, skill:Rating) -> Self {
+        Primitive::Inspect {
+            id: Uuid::new_v4(),
+            target,
+            skill
+        }
+    }
+
+    pub fn new_hold(target: Uuid) -> Self {
+        Primitive::Hold {
+            id: Uuid::new_v4(),
+            target
+        }
+    }
+
+    pub fn new_position(target: Uuid) -> Self {
+        Primitive::Position {
+            id: Uuid::new_v4(),
+            target
+        }
+    }
+
+    pub fn new_use(target: Uuid) -> Self {
+        Primitive::Use {
+            id: Uuid::new_v4(),
+            target
+        }
+    }
+
+    pub fn new_force(target: Uuid, magnitude:f64) -> Self {
+        Primitive::Force {
+            id: Uuid::new_v4(),
+            target,
+            magnitude
+        }
+    }
+
+    pub fn target(&self) -> Uuid {
+        match self {
+            Primitive::Selection { target, .. } => *target,
+            Primitive::Inspect { target, .. } => *target,
+            Primitive::Hold { target, .. } => *target,
+            Primitive::Position { target, .. } => *target,
+            Primitive::Use { target, .. } => *target,
+            Primitive::Force { target, .. } => *target
+        }
+    }
+
+    pub fn estimate_cost(&self, _target_lookup: HashMap<Uuid,Target>,_hand_poi: PointOfInterest,_agent:Agent) -> f64 {
+        0.0
+    }
+
+    /// Returns the affiliation of this primitive with another primitive
+    /// 
+    /// For very low affiliation, produce a weight of 1
+    /// For low affiliation, produce a weight of 2
+    /// For medium affiliation, produce a weight of 3
+    /// For high affiliation, produce a weight of 4
+    /// For very high affiliation, produce a weight of 5
+    pub fn affiliation(&self,other:&Self) -> usize {
+        match (self,other) {
+            // Self and other are the same
+            (Primitive::Selection { target: target1, .. },Primitive::Selection { target: target2, .. }) => if target1 == target2 { 5 } else { 1 },
+            (Primitive::Inspect { target: target1, .. },Primitive::Inspect { target: target2, .. }) => if target1 == target2 { 5 } else { 1 },
+            (Primitive::Hold { target: target1, .. },Primitive::Hold { target: target2, .. }) =>  if target1 == target2 { 5 } else { 1 },
+            (Primitive::Position { target: target1, .. },Primitive::Position { target: target2, .. }) =>  if target1 == target2 { 5 } else { 1 },
+            (Primitive::Use { target: target1, .. },Primitive::Use { target: target2, .. }) =>  if target1 == target2 { 5 } else { 1 },
+            (Primitive::Force { target: target1, .. },Primitive::Force { target: target2, .. }) =>  if target1 == target2 { 5 } else { 1 },
+            
+            // Cross-type Comparisons
+
+            // Selection and Inspect
+            (Primitive::Selection { target: target1, ..},Primitive::Inspect { target: target2, .. }) =>  if target1 == target2 { 4 } else { 1 },
+            (Primitive::Inspect { target: target1, ..},Primitive::Selection { target: target2, .. }) =>  if target1 == target2 { 4 } else { 1 },
+
+            // Selection and Hold
+            (Primitive::Selection { target: target1, ..},Primitive::Hold { target: target2, .. }) =>  if target1 == target2 { 2 } else { 1 },
+            (Primitive::Hold { target: target1, ..},Primitive::Selection { target: target2, .. }) =>  if target1 == target2 { 2 } else { 1 },
+
+            // Selection and Position
+            (Primitive::Selection { target: target1, ..},Primitive::Position { target: target2, .. }) =>  if target1 == target2 { 2 } else { 1 },
+            (Primitive::Position { target: target1, ..},Primitive::Selection { target: target2, .. }) =>  if target1 == target2 { 2 } else { 1 },
+
+            // Selection and Use
+            (Primitive::Selection { target: target1, ..},Primitive::Use { target: target2, .. }) =>  if target1 == target2 { 2 } else { 1 },
+            (Primitive::Use { target: target1, ..},Primitive::Selection { target: target2, .. }) =>  if target1 == target2 { 2 } else { 1 },
+
+            // Selection and Force
+            (Primitive::Selection { target: target1, ..},Primitive::Force { target: target2, .. }) =>  if target1 == target2 { 2 } else { 1 },
+            (Primitive::Force { target: target1, ..},Primitive::Selection { target: target2, .. }) =>  if target1 == target2 { 2 } else { 1 },
+
+            // Inspect and Hold
+            (Primitive::Inspect { target: target1, ..},Primitive::Hold { target: target2, .. }) =>  if target1 == target2 { 4 } else { 1 },
+            (Primitive::Hold { target: target1, ..},Primitive::Inspect { target: target2, .. }) =>  if target1 == target2 { 4 } else { 1 },
+
+            // Inspect and Position
+            (Primitive::Inspect { target: target1, ..},Primitive::Position { target: target2, .. }) =>  if target1 == target2 { 4 } else { 1 },
+            (Primitive::Position { target: target1, ..},Primitive::Inspect { target: target2, .. }) =>  if target1 == target2 { 4 } else { 1 },
+
+            // Inspect and Use
+            (Primitive::Inspect { target: target1, ..},Primitive::Use { target: target2, .. }) =>  if target1 == target2 { 3 } else { 1 },
+            (Primitive::Use { target: target1, ..},Primitive::Inspect { target: target2, .. }) =>  if target1 == target2 { 3 } else { 1 },
+
+            // Inspect and Force
+            (Primitive::Inspect { target: target1, ..},Primitive::Force { target: target2, .. }) =>  if target1 == target2 { 2 } else { 1 },
+            (Primitive::Force { target: target1, ..},Primitive::Inspect { target: target2, .. }) =>  if target1 == target2 { 2 } else { 1 },
+
+            // Hold and Use
+            (Primitive::Hold { target: target1, ..},Primitive::Use { target: target2, .. }) =>  if target1 == target2 { 4 } else { 1 },
+            (Primitive::Use { target: target1, ..},Primitive::Hold { target: target2, .. }) =>  if target1 == target2 { 4 } else { 1 },
+
+            // Hold and Force
+            (Primitive::Hold { target: target1, ..},Primitive::Force { target: target2, .. }) =>  if target1 == target2 { 4 } else { 1 },
+            (Primitive::Force { target: target1, ..},Primitive::Hold { target: target2, .. }) =>  if target1 == target2 { 4 } else { 1 },
+
+            // Hold and Position
+            (Primitive::Hold { target: target1, ..},Primitive::Position { target: target2, .. }) =>  if target1 == target2 { 5 } else { 1 },
+            (Primitive::Position { target: target1, ..},Primitive::Hold { target: target2, .. }) =>  if target1 == target2 { 5 } else { 1 },
+
+            // Position and Use
+            (Primitive::Position { target: target1, ..},Primitive::Use { target: target2, .. }) =>  if target1 == target2 { 3 } else { 1 },
+            (Primitive::Use { target: target1, ..},Primitive::Position { target: target2, .. }) =>  if target1 == target2 { 3 } else { 1 },
+
+            // Position and Force
+            (Primitive::Position { target: target1, ..},Primitive::Force { target: target2, .. }) =>  if target1 == target2 { 2 } else { 1 },
+            (Primitive::Force { target: target1, ..},Primitive::Position { target: target2, .. }) =>  if target1 == target2 { 2 } else { 1 },
+            
+            // Use and Force
+            (Primitive::Use { target: target1, ..},Primitive::Force { target: target2, .. }) =>  if target1 == target2 { 2 } else { 1 },
+            (Primitive::Force { target: target1, ..},Primitive::Use { target: target2, .. }) =>  if target1 == target2 { 2 } else { 1 },
+
         }
     }
 }

@@ -1,4 +1,6 @@
 use allocobot::description::job::Job;
+use allocobot::description::primitive::Primitive;
+use allocobot::description::rating::Rating;
 use uuid::Uuid;
 // use allocobot::petri::nets::basic::BasicNet;
 // use allocobot::petri::nets::agent::AgentNet;
@@ -22,7 +24,7 @@ fn main() -> std::io::Result<()> {
 
     let _panda: Uuid =
         job.create_robot_agent("Panda".into(), 0.855, 3.0, 0.7, 2.0, 0.0001, 0.7, 2.0);
-    let _charlie: Uuid = job.create_human_agent("Charlie".into());
+    let _charlie: Uuid = job.create_human_agent("Charlie".into(), 75.0, 1.45, 0.77);
 
     let _p1: Uuid = job.create_hand_point_of_interest("POI1".into(), 0.0, 1.0, 0.1);
     let p2: Uuid = job.create_hand_point_of_interest("POI2".into(), 1.0, 1.0, 0.4);
@@ -50,6 +52,16 @@ fn main() -> std::io::Result<()> {
     job.add_task_output(t2, part5, 1);
     job.add_task_output(t2, part6, 1);
     job.add_task_reusable(t1, tool0, 1);
+
+    job.add_task_primitive(t1, Primitive::new_selection(part2, Rating::High));
+    job.add_task_primitive(t1, Primitive::new_use(tool0));
+    job.add_task_primitive(t1, Primitive::new_hold(part2));
+    job.add_task_primitive(t1, Primitive::new_position(part2));
+    job.add_task_primitive(t1, Primitive::new_force(part2, 10.0));
+
+    job.add_task_primitive(t2, Primitive::new_force(part3, -5.0));
+    job.add_task_primitive(t2, Primitive::new_position(part3));
+    job.add_task_primitive(t2, Primitive::new_hold(part3));
 
     job.add_task_point_of_interest(t1, p2);
     job.add_task_point_of_interest(t1, p3);
