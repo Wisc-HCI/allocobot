@@ -17,7 +17,24 @@ pub struct Task {
 
 impl Task {
 
-    pub fn new(name: String) -> Self {
+    pub fn new(
+        name: String, 
+        primitives: Vec<Uuid>, 
+        dependencies: Vec<(Uuid, usize)>, 
+        output: Vec<(Uuid, usize)>, 
+        pois: Vec<Uuid>
+    ) -> Self {
+        Self {
+            id: Uuid::new_v4(),
+            name,
+            primitives,
+            dependencies,
+            output,
+            pois,
+        }
+    }
+
+    pub fn new_empty(name: String) -> Self {
         Self {
             id: Uuid::new_v4(),
             name,
@@ -90,5 +107,18 @@ impl Task {
         split_primitives(
             &self.primitives.iter().map(|p| primitives.get(p).unwrap()).collect(), splits
         )
+    }
+}
+
+impl Default for Task {
+    fn default() -> Self {
+        Self {
+            id: Uuid::new_v4(),
+            name: "default".to_string(),
+            primitives: Vec::new(),
+            dependencies: Vec::new(),
+            output: Vec::new(),
+            pois: Vec::new(),
+        }
     }
 }

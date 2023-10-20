@@ -58,7 +58,7 @@ pub fn split_primitives(primitives: &Vec<&Primitive>, splits: usize) -> Vec<Vec<
     let _satisfied = optimizer.check(&[]);
     let model: Option<Model> = optimizer.get_model();
 
-    println!("Model: {:?}", model);
+    // println!("Model: {:?}", model);
 
     let mut split_vec: Vec<Vec<Uuid>> = vec![];
     for _ in 0..splits {
@@ -79,6 +79,14 @@ pub fn split_primitives(primitives: &Vec<&Primitive>, splits: usize) -> Vec<Vec<
         }
     }
     split_vec
+}
+
+pub fn fitz_law(a: f64, b: f64, d: f64, w: f64) -> f64 {
+    a + b * index_of_difficulty(d, w)
+}
+
+pub fn index_of_difficulty(d: f64, w: f64) -> f64 {
+    (2.0 * d / w).log2()
 }
 
 #[test]

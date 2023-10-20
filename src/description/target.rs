@@ -102,6 +102,24 @@ impl Target  {
         }
     }
 
+    pub fn size(&self) -> f64 {
+        match self {
+            Target::Precursor { size, .. } => *size,
+            Target::Intermediate { size, .. } => *size,
+            Target::Product { size, .. } => *size,
+            Target::Reusable { size, .. } => *size
+        }
+    }
+
+    pub fn weight(&self) -> f64 {
+        match self {
+            Target::Precursor { weight, .. } => *weight,
+            Target::Intermediate { weight, .. } => *weight,
+            Target::Product { weight, .. } => *weight,
+            Target::Reusable { weight, .. } => *weight
+        }
+    }
+
     
 }
 

@@ -1,37 +1,331 @@
 digraph Job_1 {
 bgcolor="transparent"
-// Place Target: Part3
-	98501890677482419496533068529305100140 [label="Target: Part3\n(0)",tooltip="Target:Part3\nTargetSituated:Part3",style=filled,fillcolor="#FFFFFF",color="#000000",penwidth=3];
-// Place Target: Part2
-	272419595683725582094956830714749862259 [label="Target: Part2\n(∞)",tooltip="Target:Part2\nTargetSituated:Part2",style=filled,fillcolor="#FFFFFF",color="#000000",penwidth=3];
-// Place Target: Tool0 (pre)
-	18768335330799385918040082128003468290 [label="Target: Tool0 (pre)\n(1)",tooltip="Target:Tool0\nTargetUnplaced:Tool0",style=filled,fillcolor="#FFFFFF",color="#000000",penwidth=3];
-// Place Target: Part5
-	104698970875974591698877514371575835481 [label="Target: Part5\n(sink)",tooltip="Target:Part5\nTargetSituated:Part5",style=filled,fillcolor="#FFFFFF",color="#000000",penwidth=3];
-// Place Target: Part6
-	303753438186339175908875318780723127541 [label="Target: Part6\n(sink)",tooltip="Target:Part6\nTargetSituated:Part6",style=filled,fillcolor="#FFFFFF",color="#000000",penwidth=3];
-// Place Target: Tool0
-	123845945909793671893419224666080821832 [label="Target: Tool0\n(0)",tooltip="Target:Tool0\nTargetSituated:Tool0",style=filled,fillcolor="#FFFFFF",color="#000000",penwidth=3];
+fontname="helvetica"
 // Place Target: Part1
-	146271097330057280137622087321248912495 [label="Target: Part1\n(∞)",tooltip="Target:Part1\nTargetSituated:Part1",style=filled,fillcolor="#FFFFFF",color="#000000",penwidth=3];
+	28640837167374412615440776183815087409 [label=<<TABLE BORDER="0" CELLPADDING="7">
+    <TR>
+        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="64" COLOR="#333333">
+                <B>Target: Part1</B>
+            </FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#222222" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#dddddd">∞</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Target</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FFED6F" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part1</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">TargetSituated</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FFED6F" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part1</FONT>
+        </TD>
+    </TR>
+</TABLE>>,fillcolor="#FFED6F",style=filled,shape=circle,fontname="helvetica"];
 // Place Target: Part4
-	19435216894921677462939328822324111262 [label="Target: Part4\n(∞)",tooltip="Target:Part4\nTargetSituated:Part4",style=filled,fillcolor="#FFFFFF",color="#000000",penwidth=3];
-// Transition Situate: Tool0
-	22991668785196672797525485597157651905 [label="Situate: Tool0",tooltip="Target:Tool0\nTargetSituated:Tool0\nAgentAgnostic",shape=box,style=filled,fillcolor="#000000",fontcolor="#FFFFFF",color="#000000",penwidth=3];
-// Transition task2
-	252252695198722264194634873183955830226 [label="task2",tooltip="Task:task2",shape=box,style=filled,fillcolor="#000000",fontcolor="#FFFFFF",color="#8DD3C7",penwidth=3];
+	229904265178567602952827887756567289138 [label=<<TABLE BORDER="0" CELLPADDING="7">
+    <TR>
+        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="64" COLOR="#333333">
+                <B>Target: Part4</B>
+            </FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#222222" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#dddddd">∞</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Target</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#80B1D3" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part4</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">TargetSituated</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#80B1D3" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part4</FONT>
+        </TD>
+    </TR>
+</TABLE>>,fillcolor="#80B1D3",style=filled,shape=circle,fontname="helvetica"];
+// Place Target: Part6
+	253634807645300808641814953481672416525 [label=<<TABLE BORDER="0" CELLPADDING="7">
+    <TR>
+        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="64" COLOR="#333333">
+                <B>Target: Part6</B>
+            </FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#222222" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#dddddd">sink</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Target</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#CCEBC5" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part6</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">TargetSituated</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#CCEBC5" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part6</FONT>
+        </TD>
+    </TR>
+</TABLE>>,fillcolor="#CCEBC5",style=filled,shape=circle,fontname="helvetica"];
+// Place Target: Part5
+	84304330397662446925463866735788657807 [label=<<TABLE BORDER="0" CELLPADDING="7">
+    <TR>
+        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="64" COLOR="#333333">
+                <B>Target: Part5</B>
+            </FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#222222" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#dddddd">sink</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Target</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#E15759" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part5</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">TargetSituated</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#E15759" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part5</FONT>
+        </TD>
+    </TR>
+</TABLE>>,fillcolor="#E15759",style=filled,shape=circle,fontname="helvetica"];
+// Place Target: Part2
+	24942106328659492205203284982425378181 [label=<<TABLE BORDER="0" CELLPADDING="7">
+    <TR>
+        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="64" COLOR="#333333">
+                <B>Target: Part2</B>
+            </FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#222222" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#dddddd">∞</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Target</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#8DD3C7" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part2</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">TargetSituated</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#8DD3C7" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part2</FONT>
+        </TD>
+    </TR>
+</TABLE>>,fillcolor="#8DD3C7",style=filled,shape=circle,fontname="helvetica"];
+// Place Target: Tool0 (pre)
+	56338466502810812559467853701206750168 [label=<<TABLE BORDER="0" CELLPADDING="7">
+    <TR>
+        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="64" COLOR="#333333">
+                <B>Target: Tool0 (pre)</B>
+            </FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#222222" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#dddddd">1</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Target</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FCCDE5" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Tool0</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">TargetUnplaced</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FCCDE5" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Tool0</FONT>
+        </TD>
+    </TR>
+</TABLE>>,fillcolor="#FCCDE5",style=filled,shape=circle,fontname="helvetica"];
+// Place Target: Tool0
+	84460402199059655701243360577123160108 [label=<<TABLE BORDER="0" CELLPADDING="7">
+    <TR>
+        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="64" COLOR="#333333">
+                <B>Target: Tool0</B>
+            </FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#222222" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#dddddd">0</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Target</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FCCDE5" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Tool0</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">TargetSituated</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FCCDE5" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Tool0</FONT>
+        </TD>
+    </TR>
+</TABLE>>,fillcolor="#FCCDE5",style=filled,shape=circle,fontname="helvetica"];
+// Place Target: Part3
+	93515974061592646757604589633968631663 [label=<<TABLE BORDER="0" CELLPADDING="7">
+    <TR>
+        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="64" COLOR="#333333">
+                <B>Target: Part3</B>
+            </FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#222222" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#dddddd">0</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Target</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FB8072" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part3</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">TargetSituated</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FB8072" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part3</FONT>
+        </TD>
+    </TR>
+</TABLE>>,fillcolor="#FB8072",style=filled,shape=circle,fontname="helvetica"];
 // Transition task1
-	155910727221039318374908154034216930870 [label="task1",tooltip="Task:task1",shape=box,style=filled,fillcolor="#000000",fontcolor="#FFFFFF",color="#FFFFB3",penwidth=3];
-	18768335330799385918040082128003468290 -> 22991668785196672797525485597157651905 [label="1",color="#646464",fontcolor="#646464",penwidth=3];
-	22991668785196672797525485597157651905 -> 123845945909793671893419224666080821832 [label="1",color="#646464",fontcolor="#646464",penwidth=3];
-	98501890677482419496533068529305100140 -> 252252695198722264194634873183955830226 [label="1",color="#646464",fontcolor="#646464",penwidth=3];
-	19435216894921677462939328822324111262 -> 252252695198722264194634873183955830226 [label="1",color="#646464",fontcolor="#646464",penwidth=3];
-	252252695198722264194634873183955830226 -> 303753438186339175908875318780723127541 [label="1",color="#646464",fontcolor="#646464",penwidth=3];
-	252252695198722264194634873183955830226 -> 104698970875974591698877514371575835481 [label="1",color="#646464",fontcolor="#646464",penwidth=3];
-	146271097330057280137622087321248912495 -> 155910727221039318374908154034216930870 [label="1",color="#646464",fontcolor="#646464",penwidth=3];
-	123845945909793671893419224666080821832 -> 155910727221039318374908154034216930870 [label="1",color="#646464",fontcolor="#646464",penwidth=3];
-	272419595683725582094956830714749862259 -> 155910727221039318374908154034216930870 [label="1",color="#646464",fontcolor="#646464",penwidth=3];
-	155910727221039318374908154034216930870 -> 98501890677482419496533068529305100140 [label="1",color="#646464",fontcolor="#646464",penwidth=3];
-	155910727221039318374908154034216930870 -> 123845945909793671893419224666080821832 [label="1",color="#646464",fontcolor="#646464",penwidth=3];
+	127302167729943942670367091318897161625 [label=<<TABLE BORDER="0" CELLPADDING="7">
+    <TR>
+        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="64" COLOR="#333333">
+                <B>task1</B>
+            </FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Task</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#76B7B2" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">task1</FONT>
+        </TD>
+    </TR>
+</TABLE>>,shape=box,style=filled,fillcolor="#000000",fontname="helvetica"];
+// Transition Situate: Tool0
+	67444436338571540161419042166074271258 [label=<<TABLE BORDER="0" CELLPADDING="7">
+    <TR>
+        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="64" COLOR="#333333">
+                <B>Situate: Tool0</B>
+            </FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Target</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FCCDE5" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Tool0</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">TargetSituated</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FCCDE5" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Tool0</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="8" ALIGN="text" BGCOLOR="#555555" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#ffffff">AgentAgnostic</FONT>
+        </TD>
+    </TR>
+</TABLE>>,shape=box,style=filled,fillcolor="#000000",fontname="helvetica"];
+// Transition task2
+	104785976674720171759270365040567733748 [label=<<TABLE BORDER="0" CELLPADDING="7">
+    <TR>
+        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="64" COLOR="#333333">
+                <B>task2</B>
+            </FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Task</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#D9D9D9" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">task2</FONT>
+        </TD>
+    </TR>
+</TABLE>>,shape=box,style=filled,fillcolor="#000000",fontname="helvetica"];
+	28640837167374412615440776183815087409 -> 127302167729943942670367091318897161625 [label="Static(1)",color="#FFED6F",fontcolor="#FFED6F",fontname="helvetica",penwidth=10];
+	24942106328659492205203284982425378181 -> 127302167729943942670367091318897161625 [label="Static(1)",color="#8DD3C7",fontcolor="#8DD3C7",fontname="helvetica",penwidth=10];
+	84460402199059655701243360577123160108 -> 127302167729943942670367091318897161625 [label="Static(1)",color="#FCCDE5",fontcolor="#FCCDE5",fontname="helvetica",penwidth=10];
+	127302167729943942670367091318897161625 -> 93515974061592646757604589633968631663 [label="Static(1)",color="#FB8072",fontcolor="#FB8072",fontname="helvetica",penwidth=10];
+	127302167729943942670367091318897161625 -> 84460402199059655701243360577123160108 [label="Static(1)",color="#FCCDE5",fontcolor="#FCCDE5",fontname="helvetica",penwidth=10];
+	56338466502810812559467853701206750168 -> 67444436338571540161419042166074271258 [label="Static(1)",color="#FCCDE5",fontcolor="#FCCDE5",fontname="helvetica",penwidth=10];
+	67444436338571540161419042166074271258 -> 84460402199059655701243360577123160108 [label="Static(1)",color="#FCCDE5",fontcolor="#FCCDE5",fontname="helvetica",penwidth=10];
+	93515974061592646757604589633968631663 -> 104785976674720171759270365040567733748 [label="Static(1)",color="#FB8072",fontcolor="#FB8072",fontname="helvetica",penwidth=10];
+	229904265178567602952827887756567289138 -> 104785976674720171759270365040567733748 [label="Static(1)",color="#80B1D3",fontcolor="#80B1D3",fontname="helvetica",penwidth=10];
+	104785976674720171759270365040567733748 -> 84304330397662446925463866735788657807 [label="Static(1)",color="#E15759",fontcolor="#E15759",fontname="helvetica",penwidth=10];
+	104785976674720171759270365040567733748 -> 253634807645300808641814953481672416525 [label="Static(1)",color="#CCEBC5",fontcolor="#CCEBC5",fontname="helvetica",penwidth=10];
 overlap=false
 }

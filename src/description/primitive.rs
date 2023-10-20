@@ -2,8 +2,9 @@ use uuid::Uuid;
 use std::collections::HashMap;
 use serde::{Serialize, Deserialize};
 use crate::description::{poi::PointOfInterest, agent::Agent, target::Target, rating::Rating};
+use enum_tag::EnumTag;
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, EnumTag)]
 #[serde(tag = "type",rename_all = "camelCase")]
 pub enum Primitive {
     // -- Cognitive Primitives --
@@ -41,14 +42,49 @@ pub enum Primitive {
         target: Uuid
     },
 
-    // -- Descriptive Primitives --
-
     // A process by which force is applied
     Force {
         id: Uuid,
         target: Uuid,
         magnitude: f64
     },
+
+    // Pseudo-Primitives added by Algorithm
+
+    // An agent moves from one POI to another
+    Travel {
+        id: Uuid,
+        from_standing: Uuid,
+        to_standing: Uuid,
+        from_hand: Uuid,
+        to_hand: Uuid
+    },
+
+    // An agent moves an object from one Standing/Hand POI to another
+    Carry {
+        id: Uuid,
+        target: Uuid,
+        from_standing: Uuid,
+        to_standing: Uuid,
+        from_hand: Uuid,
+        to_hand: Uuid
+    },
+
+    Reach {
+        id: Uuid,
+        standing: Uuid,
+        from_hand: Uuid,
+        to_hand: Uuid
+    },
+
+    // An agent moves an object from one Hand POI to another
+    Move {
+        id: Uuid,
+        target: Uuid,
+        standing: Uuid,
+        from_hand: Uuid,
+        to_hand: Uuid
+    }
     
 }
 
@@ -60,7 +96,11 @@ impl Primitive {
             Primitive::Hold { id, .. } => *id,
             Primitive::Position { id, .. } => *id,
             Primitive::Use { id, .. } => *id,
-            Primitive::Force { id, .. } => *id
+            Primitive::Force { id, .. } => *id,
+            Primitive::Travel { id, .. } => *id,
+            Primitive::Reach { id, .. } => *id,
+            Primitive::Carry { id, .. } => *id,
+            Primitive::Move { id, .. } => *id,
         }
     }
 
@@ -109,14 +149,18 @@ impl Primitive {
         }
     }
 
-    pub fn target(&self) -> Uuid {
+    pub fn target(&self) -> Option<Uuid> {
         match self {
-            Primitive::Selection { target, .. } => *target,
-            Primitive::Inspect { target, .. } => *target,
-            Primitive::Hold { target, .. } => *target,
-            Primitive::Position { target, .. } => *target,
-            Primitive::Use { target, .. } => *target,
-            Primitive::Force { target, .. } => *target
+            Primitive::Selection { target, .. } => Some(*target),
+            Primitive::Inspect { target, .. } => Some(*target),
+            Primitive::Hold { target, .. } => Some(*target),
+            Primitive::Position { target, .. } => Some(*target),
+            Primitive::Use { target, .. } => Some(*target),
+            Primitive::Force { target, .. } => Some(*target),
+            Primitive::Carry { target, .. } => Some(*target),
+            Primitive::Move { target, .. } => Some(*target),
+            Primitive::Travel { .. } => None,
+            Primitive::Reach { .. } => None
         }
     }
 
@@ -203,6 +247,7 @@ impl Primitive {
             (Primitive::Use { target: target1, ..},Primitive::Force { target: target2, .. }) =>  if target1 == target2 { 2 } else { 1 },
             (Primitive::Force { target: target1, ..},Primitive::Use { target: target2, .. }) =>  if target1 == target2 { 2 } else { 1 },
 
+            (_, _) => 1
         }
     }
 }

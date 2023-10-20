@@ -1,3 +1,4 @@
+pub mod generators;
 pub mod agent;
 pub mod job;
 pub mod poi;

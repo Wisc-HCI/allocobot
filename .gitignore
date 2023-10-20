@@ -1,3 +1,4 @@
 /target
 .z3-trace
 .vscode/settings.json
+**/tooling/**/node_modules

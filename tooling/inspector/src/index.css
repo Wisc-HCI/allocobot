@@ -1,0 +1,10 @@
+:root {
+  background-color: #242424;
+  padding: 0pt;
+  margin: 0pt;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
