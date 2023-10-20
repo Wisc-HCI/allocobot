@@ -44,12 +44,14 @@ export const netAtom = atom<PetriNet>(net);
 
 export const colorLookupAtom = atom<{ [key: string]: string }>((get) => {
   const nameLookup = get(netAtom).nameLookup;
-  const colorKeys = Object.keys(nameLookup);
-  const sizeColor = colorKeys.length;
+  const colorValues = new Set(Object.values(nameLookup));
+
+  const sizeColor = colorValues.size;
+  const valueList = Array.from(colorValues);
 
   const colorLookup: { [key: string]: string } = mapValues(
     nameLookup,
-    (_, key) => interpolateRainbow(colorKeys.indexOf(key) / sizeColor)
+    (_, key) => interpolateRainbow(valueList.indexOf(nameLookup[key]) / sizeColor)
   );
   return colorLookup;
 });
