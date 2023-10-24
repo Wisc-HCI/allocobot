@@ -1,4 +1,4 @@
-import net from "../../../poi_net.json";
+import net from "../../../output/cost_net.json";
 import { mapValues, memoize } from "lodash";
 import { interpolateRainbow } from "d3-scale-chromatic";
 import { atom } from "jotai";
@@ -6,7 +6,7 @@ import { focusAtom } from "jotai-optics";
 
 export type MetaData = {
   type: string;
-  value?: string | string[];
+  value?: (string | number) | (string | number)[];
 };
 
 export type Place = {
@@ -40,6 +40,16 @@ export type PetriNet = {
   nameLookup: { [key: string]: string };
 };
 
+export type MetaDataFilter = {
+  type: string | null;
+  value?: (string | number | null) | (string | number | null)[];
+}
+
+export type Search = {
+  name: string | null;
+  tags: MetaDataFilter[];
+}
+
 export const netAtom = atom<PetriNet>(net);
 
 export const colorLookupAtom = atom<{ [key: string]: string }>((get) => {
@@ -70,6 +80,8 @@ export const nodeNameLookupAtom = atom<{ [key: string]: string }>((get) => {
     ...mapValues(get(transitionsAtom), (transition) => transition.name),
   };
 });
+
+export const searchAtom = atom<Search>({name: null, tags: []});
 
 // export const subnetAtom = atom<{
 //   [key: string]: { [key: string]: Transition | Place };

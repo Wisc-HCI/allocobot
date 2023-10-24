@@ -1,83 +1,106 @@
-import IconButton from "@mui/material/IconButton";
-import Chip from "@mui/material/Chip";
-import Tooltip from "@mui/material/Tooltip";
-import { styled, alpha } from "@mui/material/styles";
+import React, { MouseEventHandler } from "react";
+import { styled, alpha } from '@mui/material/styles';
+import { Button as MuiButton, Tooltip, TooltipProps } from "@mui/material";
 
-export const ToolbarButton = styled(IconButton, {
-  shouldForwardProp: (prop) => !["canToggle","toggled","flex"].includes(prop),
+export interface IconButtonProps {
+  // size?: Size;
+  size?: "small" | "medium" | "large" | undefined;
+  toggled?: boolean;
+  canToggle?: boolean;
+}
 
-})(({ theme, canToggle, toggled,  }) => ({
+const sizeMap = {
+  small: 24,
+  medium: 32,
+  large: 48
+}
+
+const fontSizeMap = {
+  small: "1rem",
+  medium: "1.4rem",
+  large: "2rem"
+}
+
+export const IconButton = styled(MuiButton, {
+  shouldForwardProp: (prop: string) =>
+    !['canToggle', 'toggled'].includes(prop)
+})<IconButtonProps>(({ theme, toggled, size = "medium", canToggle }) => ({
+  backgroundColor: canToggle && toggled
+    ? alpha(theme.palette.primary.main, 0.4)
+    : canToggle && !toggled
+      ? "transparent"
+      : "rgba(100,100,100,0.5)",
+  color: theme.palette.text.primary,
+  fontSize: size ? fontSizeMap[size] : "1.4rem",
+  "&.Mui-disabled": {
+    backgroundColor: "rgba(0,0,0,0.25)",
+    color: "#ccc",
+  },
   borderRadius: theme.shape.borderRadius * 0.66,
-  // fontSize: {md: "0.875rem", sm: "1rem"},
-  fontSize: "1rem",
-  height: 30,
-  flex: 1,
-  backgroundColor: toggled ? alpha(theme.palette.primary.main, 0.4) : "transparent",
+  height: size ? sizeMap[size] : 24,
+  minWidth: size ? sizeMap[size] : 24,
+  // flex: 1,
   "&:hover": {
-    borderColor: theme.palette.primary.main,
-    backgroundColor: canToggle
-      ? alpha(theme.palette.primary.main, toggled ? 0.5 : 0.3)
-      : "#ffffff30",
+    backgroundColor: canToggle && toggled
+      ? alpha(theme.palette.primary.main, 0.5)
+      : canToggle && !toggled
+        ? alpha(theme.palette.primary.main, 0.25)
+        : "rgba(0,0,0,0.7)",
     color: theme.palette.primary.main,
   },
-  "&:focus": {
-    borderColor: theme.palette.primary.main,
-    backgroundColor: canToggle && alpha(theme.palette.primary.main, 0.3),
-    color: theme.palette.primary.main,
-  },
-  // firefox
   "&:focus-visible": {
     userSelect: "none",
     outline: 0,
-  },
-  "& .Mui-selected": {
-    backgroundColor: alpha(theme.palette.primary.main, 0.5),
-    color: theme.palette.primary.main,
-  },
-}));
+  }
+}))
+  ;
 
-export const ToolbarChip = styled(Chip)(({ theme }) => ({
-  borderRadius: theme.shape.borderRadius * 0.66,
-  fontSize: "1rem",
-  height: 30,
-  backgroundColor: alpha(theme.palette.primary.main, 0.45),
-  color: "black",
-}));
-
-export const ToolbarButtonWrapper = styled("span")(({}) => ({
+export const ToolbarButtonWrapper = styled("span")(({ }) => ({
   display: "flex",
 }));
 
-export const TooltippedToolbarButton = ({
+export interface ActionIconButtonProps {
+  title?: string;
+  onClick?: MouseEventHandler<HTMLButtonElement>;
+  disabled?: boolean;
+  placement?: TooltipProps["placement"];
+  toggled?: boolean;
+  canToggle?: boolean;
+  size?: "small" | "medium" | "large";
+  children?: React.ReactNode
+}
+
+export const ActionIconButton = ({
   title = "Button",
-  onClick = () => {},
+  onClick = () => { },
   disabled = false,
-  placement = "top",
+  placement = "top" as TooltipProps["placement"],
   toggled = false,
   canToggle = false,
-  children = [],
-  flex = false,
+  children = null,
+  size = "medium",
   ...props
-}) => (
+}: ActionIconButtonProps) => (
   <Tooltip
     className="no-outline"
     title={title}
     color="primary"
     placement={placement}
+    arrow
   >
     <ToolbarButtonWrapper className="no-outline">
-      <ToolbarButton
+      <IconButton
         className="no-outline"
         disabled={disabled}
         aria-label={title}
         onClick={onClick}
         toggled={toggled}
         canToggle={canToggle}
-        flex={flex}
+        size={size}
         {...props}
       >
         {children}
-      </ToolbarButton>
+      </IconButton>
     </ToolbarButtonWrapper>
   </Tooltip>
 );

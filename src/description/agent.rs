@@ -1,6 +1,6 @@
 use crate::description::job::Job;
 use crate::description::primitive::Primitive;
-use crate::petri::data::DataTag;
+use crate::petri::data::{Data,DataTag};
 use crate::petri::transition::Transition;
 use nalgebra::Vector3;
 use serde::{Deserialize, Serialize};
@@ -8,6 +8,8 @@ use std::{collections::HashMap, cmp, f64::consts::PI};
 // use std::collections::HashMap;
 use enum_tag::EnumTag;
 use uuid::Uuid;
+
+use super::poi::PointOfInterest;
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "camelCase")]
@@ -261,11 +263,62 @@ impl CostProfiler for HumanInfo {
                 let mut total_cost = 0;
                 for assigned_primitive in assigned_primitives {
                     match assigned_primitive {
-                        Primitive::Selection { target, .. } => {}
-                        Primitive::Inspect { target, .. } => {}
-                        Primitive::Hold { target, .. } => {}
-                        Primitive::Position { target, .. } => {}
-                        Primitive::Use { target, .. } => {}
+                        Primitive::Hold { target, .. } => {
+                            let force_on_hold_target = force_magnitude_on_target.get(target).unwrap_or(&0.0);
+                            let mut hand_poi: &PointOfInterest;
+                            let mut standing_poi: &PointOfInterest;
+                            for meta_datum in transition.meta_data.iter() {
+                                match meta_datum {
+                                    Data::Hand(poi_id, agent_id) => {
+                                        hand_poi = job.points_of_interest.get(&poi_id).unwrap();
+                                    }
+                                    Data::Standing(poi_id, agent_id) => {
+                                        standing_poi = job.points_of_interest.get(&poi_id).unwrap();
+                                    }
+                                    _ => {
+                                        // Handled elsewhere
+                                    }
+                                }
+                            }
+                            // let target_poi = job.points_of_interest
+                            
+                            if force_on_hold_target == &0.0 {
+                                // A static hold. 
+                                /*
+                                Incremental Energy Function: 
+                                dE = .01(
+                                        80 + 
+                                        2.43*body_weight*(walking_speed)^2 +
+                                        4.63*(target_weight)*(walking_speed)^2 + 
+                                        4.62*(target_weight)
+                                    )*(duration) + 
+                                    .379(
+                                        (target_weight) + 
+                                        body_weight
+                                    )*(grade)*(walking_speed)*(duration)
+                                 */
+                                let target_info = job.targets.get(target).unwrap();
+
+                                let incremental_energy = 0.01 * (
+                                    80.0 + 
+                                    2.43 * self.assumption_weight * 1.0 +//self.mobile_speed.powi(2) +
+                                    4.63 * target_info.weight() * 1.0 +//self.mobile_speed.powi(2) +
+                                    4.62 * target_info.weight()
+                                ) * execution_time as f64;
+                                // The remainder cancels out because there is no grade
+                                println!("Incremental Energy: {}", incremental_energy);
+                                total_cost += incremental_energy as usize;
+                            } else {
+                                // Compute the cost of holding the object while applying force
+
+                            }
+                        }
+                        Primitive::Position { target, .. } => {
+
+                        }
+                        Primitive::Use { target, .. } => {
+
+                        }
                         _ => {
                             // Handled elsewhere
                         }

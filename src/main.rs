@@ -63,8 +63,8 @@ fn main() -> std::io::Result<()> {
     job.add_task_primitive(t2, Primitive::new_position(part3));
     job.add_task_primitive(t2, Primitive::new_hold(part3));
 
-    job.add_task_point_of_interest(t1, p2);
-    job.add_task_point_of_interest(t1, p3);
+    // job.add_task_point_of_interest(t1, p2);
+    // job.add_task_point_of_interest(t1, p3);
     
 
     // let c1 = job.create_complete_task("complete1".into());
@@ -77,12 +77,14 @@ fn main() -> std::io::Result<()> {
     job.create_petri_nets();
     // let pois: Vec<PointOfInterest> = vec![p1, p2, p3];
 
-    let mut jobfile = File::create("job.json")?;
-    let mut basicfile = File::create("basic.dot")?;
-    let mut agentfile = File::create("agent.dot")?;
-    let mut poifile: File = File::create("poi.dot")?;
-    let mut agent_net_file = File::create("agent_net.json")?;
-    let mut poi_net_file = File::create("poi_net.json")?;
+    let mut jobfile = File::create("output/job.json")?;
+    let mut basicfile = File::create("output/basic.dot")?;
+    let mut agentfile = File::create("output/agent.dot")?;
+    let mut poifile: File = File::create("output/poi.dot")?;
+    let mut costfile: File = File::create("output/cost.dot")?;
+    let mut agent_net_file = File::create("output/agent_net.json")?;
+    let mut poi_net_file = File::create("output/poi_net.json")?;
+    let mut cost_net_file: File = File::create("output/cost_net.json")?;
 
     jobfile.write_all(serde_json::to_string_pretty(&job).unwrap().as_bytes())?;
 
@@ -96,6 +98,10 @@ fn main() -> std::io::Result<()> {
     poifile.write_all(job.poi_net.clone().unwrap().get_dot().as_bytes())?;
 
     poi_net_file.write_all(serde_json::to_string_pretty(&job.poi_net.clone().unwrap()).unwrap().as_bytes())?;
+
+    costfile.write_all(job.cost_net.clone().unwrap().get_dot().as_bytes())?;
+
+    cost_net_file.write_all(serde_json::to_string_pretty(&job.cost_net.clone().unwrap()).unwrap().as_bytes())?;
 
     Ok(())
 }

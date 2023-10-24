@@ -39,6 +39,7 @@ impl Job {
                         })
                         .collect();
 
+                    // Add them and set their initial marking values to 0
                     for place in ergo_cost_places.iter() {
                         net.places.insert(place.id, place.clone());
                         net.initial_marking.insert(place.id, 0);
@@ -47,11 +48,13 @@ impl Job {
                     let ergo_cost_place_ids: Vec<Uuid> =
                         ergo_cost_places.iter().map(|p| p.id).collect();
 
+                    // Find all action-based transitions that are relevant to this agent
                     for transition in net.query_transitions(&vec![
                         Query::Data(Data::Agent(*id)),
                         Query::Data(Data::Action(*id)),
                     ]) {
                         // This should return only transitions representing actual actions
+                        // These include actions specified by the user, but also ones we added (e.g. travel, reach, etc)
 
                         // If we already updated this transition, use the updated version
                         let mut transition_copy = match updated_transitions.get(&transition.id) {

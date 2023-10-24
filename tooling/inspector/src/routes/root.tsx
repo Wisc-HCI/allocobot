@@ -14,9 +14,10 @@ import {
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { Outlet } from "react-router-dom";
-import { transitionsAtom, placesAtom } from "../store";
-import { useAtomValue } from "jotai";
+import { transitionsAtom, placesAtom, searchAtom, Search } from "../store";
+import { useAtomValue, useAtom } from "jotai";
 import NodeListLink from "../NodeListLink";
+import { TextInput } from "../TextInput";
 
 const drawerWidth = 240;
 
@@ -25,33 +26,44 @@ export default function Root() {
 
   const places = useAtomValue(placesAtom);
   const transitions = useAtomValue(transitionsAtom);
+  // const [search, setSearch] = useAtom(searchAtom);
 
+  const [search, setSearch] = useState<Search>({ name: null, tags: [] });
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
 
+  const nameLowercase = search.name?.toLowerCase();
+
   //   const params = useParams();
 
   const drawer = (
     <div>
-      <Toolbar />
       <Divider>Places</Divider>
       <List>
-        {Object.keys(places).map((placeId) => (
-          <NodeListLink key={placeId} id={placeId} type="place" />
-        ))}
+        {Object.values(places)
+          .filter((place) =>
+            place.name.toLowerCase().includes(nameLowercase || "")
+          )
+          .map((place) => (
+            <NodeListLink key={place.id} id={place.id} type="place" />
+          ))}
       </List>
       <Divider>Transitions</Divider>
       <List>
-        {Object.keys(transitions).map((transitionId) => (
-          <NodeListLink
-            key={transitionId}
-            id={transitionId}
-            type="transition"
-          />
-        ))}
+        {Object.values(transitions)
+          .filter((transition) =>
+            transition.name.toLowerCase().includes(nameLowercase || "")
+          )
+          .map((transition) => (
+            <NodeListLink
+              key={transition.id}
+              id={transition.id}
+              type="transition"
+            />
+          ))}
       </List>
     </div>
   );
@@ -104,6 +116,14 @@ export default function Root() {
               },
             }}
           >
+            <Toolbar>
+              <TextInput
+                value={search.name || undefined}
+                onChange={(event) =>
+                  setSearch({ ...search, name: event.target.value })
+                }
+              />
+            </Toolbar>
             {drawer}
           </Drawer>
           <Drawer
@@ -117,6 +137,14 @@ export default function Root() {
             }}
             open
           >
+            <Toolbar>
+              <TextInput
+                value={search.name || undefined}
+                onChange={(event) =>
+                  setSearch({ ...search, name: event.target.value })
+                }
+              />
+            </Toolbar>
             {drawer}
           </Drawer>
         </Box>
@@ -131,7 +159,7 @@ export default function Root() {
         >
           <Toolbar />
           <Box sx={{ flex: 1, backgroundColor: "#222" }}>
-            <Outlet/>
+            <Outlet />
           </Box>
         </Box>
       </Box>

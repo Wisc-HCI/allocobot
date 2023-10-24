@@ -28,11 +28,13 @@ export default function MetaDataRenderer({
         const count =
           typeof metaData.value === "string"
             ? 1
+            : typeof metaData.value === "number" 
+            ? 1
             : metaData.value
             ? metaData.value.length
             : 0;
-        const values =
-          typeof metaData.value === "string"
+        const values: (number | string)[] =
+          typeof metaData.value === "string" || typeof metaData.value === "number"
             ? [metaData.value]
             : metaData.value
             ? metaData.value
@@ -51,8 +53,8 @@ export default function MetaDataRenderer({
             {values.map((val, vidx) => (
               <Grid key={`${metaData.type}-md${i}-${vidx}`} item xs={cellSize}>
                 <Tooltip title={val}>
-                <Item color={colorLookup[val]}>
-                  {nameLookup[val]}
+                <Item color={typeof val === 'number' ? undefined : colorLookup[val]}>
+                  {typeof val === 'number' ? val : nameLookup[val]}
                 </Item>
 
                 </Tooltip>

@@ -45,7 +45,7 @@ impl Job {
                     valid_pairs
                         .iter()
                         .map(|(standing_poi, hand_poi)| {
-                            vec![Data::Standing(standing_poi.id()), Data::Hand(hand_poi.id())]
+                            vec![Data::Standing(standing_poi.id(), *agent_id), Data::Hand(hand_poi.id(), *agent_id)]
                         })
                         .collect(),
                     |_transition, _split_data| true,
@@ -120,9 +120,9 @@ impl Job {
                                     .collect(),
                                 vec![
                                     Data::Agent(*agent_id),
-                                    Data::Standing(standing_poi_id1),
-                                    Data::FromHandPOI(hand_poi_id1),
-                                    Data::ToHandPOI(hand_poi_id2),
+                                    Data::Standing(standing_poi_id1, *agent_id),
+                                    Data::FromHandPOI(hand_poi_id1, *agent_id),
+                                    Data::ToHandPOI(hand_poi_id2, *agent_id),
                                     Data::Action(*agent_id),
                                     Data::PrimitiveAssignment(*agent_id, primitive_id1),
                                 ],
@@ -158,9 +158,9 @@ impl Job {
                                     .collect(),
                                 vec![
                                     Data::Agent(*agent_id),
-                                    Data::Standing(standing_poi_id1),
-                                    Data::FromHandPOI(hand_poi_id2),
-                                    Data::ToHandPOI(hand_poi_id1),
+                                    Data::Standing(standing_poi_id1, *agent_id),
+                                    Data::FromHandPOI(hand_poi_id2, *agent_id),
+                                    Data::ToHandPOI(hand_poi_id1, *agent_id),
                                     Data::Action(*agent_id),
                                     Data::PrimitiveAssignment(*agent_id, primitive_id2),
                                 ],
@@ -214,11 +214,11 @@ impl Job {
                                 .collect(),
                             vec![
                                 Data::Agent(*agent_id),
-                                Data::Hand(hand_poi_id1),
-                                Data::FromStandingPOI(standing_poi_id1),
-                                Data::ToStandingPOI(standing_poi_id2),
-                                Data::FromHandPOI(hand_poi_id1),
-                                Data::ToHandPOI(hand_poi_id2),
+                                Data::Hand(hand_poi_id1, *agent_id),
+                                Data::FromStandingPOI(standing_poi_id1, *agent_id),
+                                Data::ToStandingPOI(standing_poi_id2, *agent_id),
+                                Data::FromHandPOI(hand_poi_id1, *agent_id),
+                                Data::ToHandPOI(hand_poi_id2, *agent_id),
                                 Data::Action(*agent_id),
                                 Data::PrimitiveAssignment(*agent_id, primitive_id1)
                             ],
@@ -241,11 +241,11 @@ impl Job {
                                 .collect(),
                             vec![
                                 Data::Agent(*agent_id),
-                                Data::Hand(hand_poi_id1),
-                                Data::FromStandingPOI(standing_poi_id2),
-                                Data::ToStandingPOI(standing_poi_id1),
-                                Data::FromHandPOI(hand_poi_id2),
-                                Data::ToHandPOI(hand_poi_id1),
+                                Data::Hand(hand_poi_id1, *agent_id),
+                                Data::FromStandingPOI(standing_poi_id2, *agent_id),
+                                Data::ToStandingPOI(standing_poi_id1, *agent_id),
+                                Data::FromHandPOI(hand_poi_id2, *agent_id),
+                                Data::ToHandPOI(hand_poi_id1, *agent_id),
                                 Data::Action(*agent_id),
                                 Data::PrimitiveAssignment(*agent_id, primitive_id2)
                             ],
@@ -294,6 +294,11 @@ impl Job {
                 if !task.pois.is_empty() && !task.pois.contains(&transition_hand_poi) {
                     return false;
                 }
+
+                if transition_hand_pois.into_iter().unique().collect::<Vec<Uuid>>().len() > 1 {
+                    // println!("Transition Hand POIs: {:#?}", transition.meta_data);
+                    return false;
+                }
             }
             true
         });
@@ -318,7 +323,7 @@ impl Job {
                 &target_place_id,
                 hand_pois
                     .iter()
-                    .map(|hand_poi| vec![Data::Hand(hand_poi.id())])
+                    .map(|hand_poi| vec![Data::Hand(hand_poi.id(), *target_id)])
                     .collect::<Vec<Vec<Data>>>(),
                 |transition, split_data| {
                     if transition.has_data(&vec![Query::Data(Data::TargetSituated(*target_id))]) {
@@ -330,7 +335,7 @@ impl Job {
                         .unwrap()
                         .id()
                         .unwrap();
-                    return transition.has_data(&vec![Query::Data(Data::Hand(hand_poi_id))]);
+                    return transition.has_data(&vec![Query::PartialTagPrimary(DataTag::Hand, hand_poi_id)]);
                 },
             );
 
@@ -338,6 +343,7 @@ impl Job {
                 .iter()
                 .tuple_combinations()
                 .for_each(|(place1_id, place2_id)| {
+                    // println!("Place1: {:?}, Place2: {:?}", place1_id, place2_id);
                     let place1 = net.places.get(place1_id).unwrap();
                     let place2 = net.places.get(place2_id).unwrap();
                     let hand_id_1 = place1
@@ -357,10 +363,11 @@ impl Job {
                     let hand_poi1 = self.points_of_interest.get(&hand_id_1).unwrap();
                     let hand_poi2 = self.points_of_interest.get(&hand_id_2).unwrap();
 
+
                     let existing_reach_transitions = net.query_transitions(&vec![
                         Query::Tag(DataTag::Agent),
-                        Query::Data(Data::FromHandPOI(hand_id_1)),
-                        Query::Data(Data::ToHandPOI(hand_id_2)),
+                        Query::PartialTagPrimary(DataTag::FromHandPOI, hand_id_1),
+                        Query::PartialTagPrimary(DataTag::ToHandPOI, hand_id_2)
                     ]);
 
                     for existing_reach_transition in existing_reach_transitions {
@@ -427,18 +434,18 @@ impl Job {
                             meta_data1 = vec![
                                 Data::Agent(agent_id),
                                 Data::Target(*target_id),
-                                Data::Standing(standing_poi_id1),
-                                Data::FromHandPOI(hand_id_1),
-                                Data::ToHandPOI(hand_id_2),
+                                Data::Standing(standing_poi_id1, agent_id),
+                                Data::FromHandPOI(hand_id_1, agent_id),
+                                Data::ToHandPOI(hand_id_2, agent_id),
                                 Data::Action(agent_id),
                                 Data::PrimitiveAssignment(agent_id, primitive_id1),
                             ];
                             meta_data2 = vec![
                                 Data::Agent(agent_id),
                                 Data::Target(*target_id),
-                                Data::Standing(standing_poi_id1),
-                                Data::FromHandPOI(hand_id_2),
-                                Data::ToHandPOI(hand_id_1),
+                                Data::Standing(standing_poi_id1, agent_id),
+                                Data::FromHandPOI(hand_id_2, agent_id),
+                                Data::ToHandPOI(hand_id_1, agent_id),
                                 Data::Action(agent_id),
                                 Data::PrimitiveAssignment(agent_id, primitive_id2),
                             ];
@@ -475,20 +482,20 @@ impl Job {
                             meta_data1 = vec![
                                 Data::Agent(agent_id),
                                 Data::Target(*target_id),
-                                Data::FromStandingPOI(standing_poi_id1),
-                                Data::ToStandingPOI(standing_poi_id2),
-                                Data::FromHandPOI(hand_id_1),
-                                Data::ToHandPOI(hand_id_2),
+                                Data::FromStandingPOI(standing_poi_id1, agent_id),
+                                Data::ToStandingPOI(standing_poi_id2, agent_id),
+                                Data::FromHandPOI(hand_id_1, agent_id),
+                                Data::ToHandPOI(hand_id_2, agent_id),
                                 Data::Action(agent_id),
                                 Data::PrimitiveAssignment(agent_id, primitive_id1)
                             ];
                             meta_data2 = vec![
                                 Data::Agent(agent_id),
                                 Data::Target(*target_id),
-                                Data::FromStandingPOI(standing_poi_id2),
-                                Data::ToStandingPOI(standing_poi_id1),
-                                Data::FromHandPOI(hand_id_2),
-                                Data::ToHandPOI(hand_id_1),
+                                Data::FromStandingPOI(standing_poi_id2, agent_id),
+                                Data::ToStandingPOI(standing_poi_id1, agent_id),
+                                Data::FromHandPOI(hand_id_2, agent_id),
+                                Data::ToHandPOI(hand_id_1, agent_id),
                                 Data::Action(agent_id),
                                 Data::PrimitiveAssignment(agent_id, primitive_id2)
                             ];

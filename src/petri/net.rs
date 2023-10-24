@@ -168,6 +168,7 @@ impl PetriNet {
             }
             None => {}
         }
+        // return x.to_string();
 
         let default_name = "Unknown".to_string();
         let default_color: Color = Color {
@@ -687,11 +688,13 @@ fn filtered_split_place() {
     let id2 = Uuid::new_v4();
     let id3 = Uuid::new_v4();
     let id4 = Uuid::new_v4();
+    let agent_id = Uuid::new_v4();
     let initial = Place::new("Initial".into(), TokenSet::Finite, vec![]);
     let center = Place::new("center".into(), TokenSet::Finite, vec![Data::Target(id1)]);
-    let p1 = Place::new("P1".into(), TokenSet::Finite, vec![Data::Hand(id2)]);
-    let p2 = Place::new("P2".into(), TokenSet::Finite, vec![Data::Hand(id3)]);
-    let p3 = Place::new("P3".into(), TokenSet::Finite, vec![Data::Hand(id4)]);
+    let p1 = Place::new("P1".into(), TokenSet::Finite, vec![Data::Hand(id2,agent_id)]);
+    let p2 = Place::new("P2".into(), TokenSet::Finite, vec![Data::Hand(id3,agent_id)]);
+    let p3 = Place::new("P3".into(), TokenSet::Finite, vec![Data::Hand(id4,agent_id)]);
+    
 
     let center_id = center.id;
 
@@ -708,7 +711,7 @@ fn filtered_split_place() {
         "T1".into(),
         HashMap::from([(center_id, Signature::Static(1))]),
         HashMap::from([(p1.id, Signature::Static(1))]),
-        vec![Data::Hand(id2)],
+        vec![Data::Hand(id2,agent_id)],
         0,
         0,
     );
@@ -717,7 +720,7 @@ fn filtered_split_place() {
         "T2".into(),
         HashMap::from([(center_id, Signature::Static(1))]),
         HashMap::from([(p2.id, Signature::Static(1))]),
-        vec![Data::Hand(id3)],
+        vec![Data::Hand(id3,agent_id)],
         0,
         0,
     );
@@ -726,7 +729,7 @@ fn filtered_split_place() {
         "T3".into(),
         HashMap::from([(center_id, Signature::Static(1))]),
         HashMap::from([(p3.id, Signature::Static(1))]),
-        vec![Data::Hand(id4)],
+        vec![Data::Hand(id4,agent_id)],
         0,
         0,
     );
@@ -735,7 +738,7 @@ fn filtered_split_place() {
         "T4".into(),
         HashMap::from([(p1.id, Signature::Static(1))]),
         HashMap::from([(center_id, Signature::Static(1))]),
-        vec![Data::Hand(id2)],
+        vec![Data::Hand(id2,agent_id)],
         0,
         0,
     );
@@ -744,7 +747,7 @@ fn filtered_split_place() {
         "T5".into(),
         HashMap::from([(p2.id, Signature::Static(1))]),
         HashMap::from([(center_id, Signature::Static(1))]),
-        vec![Data::Hand(id3)],
+        vec![Data::Hand(id3,agent_id)],
         0,
         0,
     );
@@ -753,7 +756,7 @@ fn filtered_split_place() {
         "T6".into(),
         HashMap::from([(p3.id, Signature::Static(1))]),
         HashMap::from([(center_id, Signature::Static(1))]),
-        vec![Data::Hand(id4)],
+        vec![Data::Hand(id4,agent_id)],
         0,
         0,
     );
@@ -780,7 +783,7 @@ fn filtered_split_place() {
 
     net.split_place(
         &center_id,
-        vec![vec![Data::Standing(id2)], vec![Data::Standing(id3)]],
+        vec![vec![Data::Standing(id2,agent_id)], vec![Data::Standing(id3,agent_id)]],
         |transition, split_data| {
             if transition.meta_data.len() == 0 {
                 return true;
@@ -803,45 +806,45 @@ fn filtered_split_place() {
     assert_eq!(net.places.len(), 6);
     assert_eq!(net.transitions.len(), 6);
     assert_eq!(
-        net.query_places(&vec![Query::Data(Data::Standing(id2))])
+        net.query_places(&vec![Query::Data(Data::Standing(id2,agent_id))])
             .len(),
         1
     );
     assert_eq!(
-        net.query_places(&vec![Query::Data(Data::Hand(id2))]).len(),
+        net.query_places(&vec![Query::Data(Data::Hand(id2,agent_id))]).len(),
         1
     );
     assert_eq!(
-        net.query_places(&vec![Query::Data(Data::Standing(id3))])
+        net.query_places(&vec![Query::Data(Data::Standing(id3,agent_id))])
             .len(),
         1
     );
     assert_eq!(
-        net.query_places(&vec![Query::Data(Data::Hand(id3))]).len(),
+        net.query_places(&vec![Query::Data(Data::Hand(id3,agent_id))]).len(),
         1
     );
     assert_eq!(
-        net.query_transitions(&vec![Query::Data(Data::Hand(id2))])
+        net.query_transitions(&vec![Query::Data(Data::Hand(id2,agent_id))])
             .len(),
         2
     );
     assert_eq!(
-        net.query_transitions(&vec![Query::Data(Data::Hand(id3))])
+        net.query_transitions(&vec![Query::Data(Data::Hand(id3,agent_id))])
             .len(),
         2
     );
     assert_eq!(
-        net.query_transitions(&vec![Query::Data(Data::Standing(id2))])
+        net.query_transitions(&vec![Query::Data(Data::Standing(id2,agent_id))])
             .len(),
         3
     );
     assert_eq!(
-        net.query_transitions(&vec![Query::Data(Data::Standing(id3))])
+        net.query_transitions(&vec![Query::Data(Data::Standing(id3,agent_id))])
             .len(),
         3
     );
     assert_eq!(
-        net.query_transitions(&vec![Query::Data(Data::Hand(id4))])
+        net.query_transitions(&vec![Query::Data(Data::Hand(id4,agent_id))])
             .len(),
         0
     );

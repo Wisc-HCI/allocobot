@@ -27,12 +27,13 @@ pub enum Data {
     TargetSituated(Uuid),
 
     // Contain POI UUID
-    Standing(Uuid),
-    Hand(Uuid),
-    FromStandingPOI(Uuid),
-    ToStandingPOI(Uuid),
-    FromHandPOI(Uuid),
-    ToHandPOI(Uuid),
+    // Encoded as Poi UUID, Agent/Target UUID
+    Standing(Uuid, Uuid),
+    Hand(Uuid, Uuid),
+    FromStandingPOI(Uuid, Uuid),
+    ToStandingPOI(Uuid, Uuid),
+    FromHandPOI(Uuid, Uuid),
+    ToHandPOI(Uuid, Uuid),
 
     // Primitive Assignments
     // Encoded as Agent UUID, Primitive UUID
@@ -68,12 +69,12 @@ impl Data {
             Data::Target(id) => Some(*id),
             Data::TargetUnplaced(id) => Some(*id),
             Data::TargetSituated(id) => Some(*id),
-            Data::Standing(id) => Some(*id),
-            Data::Hand(id) => Some(*id),
-            Data::FromStandingPOI(id) => Some(*id),
-            Data::ToStandingPOI(id) => Some(*id),
-            Data::FromHandPOI(id) => Some(*id),
-            Data::ToHandPOI(id) => Some(*id),
+            Data::Standing(id, _) => Some(*id),
+            Data::Hand(id, _) => Some(*id),
+            Data::FromStandingPOI(id, _) => Some(*id),
+            Data::ToStandingPOI(id, _) => Some(*id),
+            Data::FromHandPOI(id, _) => Some(*id),
+            Data::ToHandPOI(id, _) => Some(*id),
             // PrimitiveAssignment returns the Agent UUID
             Data::PrimitiveAssignment(id, _) => Some(*id),
             Data::AgentAgnostic => None,
@@ -100,12 +101,12 @@ impl Data {
             Data::Target(_id) => None,
             Data::TargetUnplaced(_id) => None,
             Data::TargetSituated(_id) => None,
-            Data::Standing(_id) => None,
-            Data::Hand(_id) => None,
-            Data::FromStandingPOI(_id) => None,
-            Data::ToStandingPOI(_id) => None,
-            Data::FromHandPOI(_id) => None,
-            Data::ToHandPOI(_id) => None,
+            Data::Standing(_, id) => Some(*id),
+            Data::Hand(_, id) => Some(*id),
+            Data::FromStandingPOI(_, id) => Some(*id),
+            Data::ToStandingPOI(_, id) => Some(*id),
+            Data::FromHandPOI(_, id) => Some(*id),
+            Data::ToHandPOI(_, id) => Some(*id),
             // PrimitiveAssignment returns the Primitive UUID
             Data::PrimitiveAssignment(_, id) => Some(*id),
             Data::AgentAgnostic => None,
@@ -132,12 +133,12 @@ impl Data {
             Data::Target(_id) => None,
             Data::TargetUnplaced(_id) => None,
             Data::TargetSituated(_id) => None,
-            Data::Standing(_id) => None,
-            Data::Hand(_id) => None,
-            Data::FromStandingPOI(_id) => None,
-            Data::ToStandingPOI(_id) => None,
-            Data::FromHandPOI(_id) => None,
-            Data::ToHandPOI(_id) => None,
+            Data::Standing(_id, _) => None,
+            Data::Hand(_id, _) => None,
+            Data::FromStandingPOI(_id, _) => None,
+            Data::ToStandingPOI(_id, _) => None,
+            Data::FromHandPOI(_id, _) => None,
+            Data::ToHandPOI(_id, _) => None,
             // PrimitiveAssignment returns the Primitive UUID
             Data::PrimitiveAssignment(_, _) => None,
             Data::AgentAgnostic => None,
@@ -154,6 +155,18 @@ pub fn data_query(data: &Vec<Data>, query: &Vec<Query>) -> bool {
     query.iter().all(|q| match q {
         Query::Data(d) => data.contains(d),
         Query::Tag(t) => data.iter().any(|d| d.tag() == *t),
+        Query::PartialTagPrimary(t, id) => {
+            data.iter().any(|d| d.tag() == *t && d.id() == Some(*id))
+        }
+        Query::PartialTagSecondary(t, id) => data
+            .iter()
+            .any(|d| d.tag() == *t && d.secondary() == Some(*id)),
+        Query::PartialTagNumeric(t, numeric) => data
+            .iter()
+            .any(|d| d.tag() == *t && d.numeric() == Some(*numeric)),
+        Query::PartialTagPrimarySecondary(t, id1, id2) => data
+            .iter()
+            .any(|d| d.tag() == *t && d.id() == Some(*id1) && d.secondary() == Some(*id2)),
     })
 }
 
@@ -162,6 +175,10 @@ pub type DataTag = <Data as EnumTag>::Tag;
 pub enum Query {
     Data(Data),
     Tag(DataTag),
+    PartialTagPrimary(DataTag, Uuid),
+    PartialTagSecondary(DataTag, Uuid),
+    PartialTagNumeric(DataTag, usize),
+    PartialTagPrimarySecondary(DataTag, Uuid, Uuid),
 }
 
 // #[derive(Clone, Debug, Eq, Hash, Serialize, Deserialize)]
@@ -293,7 +310,7 @@ pub enum Query {
 
 //     let charlie: Clade = Clade::new("Charlie".into(),vec![charlie_present.clone(),charlie_situated.clone(),charlie_discard.clone()]);
 //     let panda: Clade = Clade::new("Panda".into(),vec![panda_present.clone(),panda_situated.clone(),panda_discard.clone()]);
-    
+
 //     let agent_present: Clade = Clade::new("Agent Present".into(),vec![charlie_present.clone(),panda_present.clone()]);
 //     let agent_situated: Clade = Clade::new("Agent Situated".into(),vec![charlie_situated.clone(),panda_situated.clone()]);
 //     let agent_agnostic: Clade = Clade::new("Agent Agnostic".into(),vec![]);
