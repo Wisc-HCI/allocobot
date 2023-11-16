@@ -26,12 +26,12 @@ fn main() -> std::io::Result<()> {
         job.create_robot_agent("Panda".into(), 0.855, 3.0, 0.7, 2.0, 0.0001, 0.7, 2.0);
     let _charlie: Uuid = job.create_human_agent("Charlie".into(), 75.0, 1.45, 0.77, 84.0);
 
-    let _p1: Uuid = job.create_hand_point_of_interest("POI1".into(), 0.0, 1.0, 0.1);
-    let p2: Uuid = job.create_hand_point_of_interest("POI2".into(), 1.0, 1.0, 0.4);
-    let p3: Uuid = job.create_hand_point_of_interest("POI3".into(), 0.5, 0.0, 0.4);
+    let _p1: Uuid = job.create_hand_point_of_interest("POI1".into(), 0.0, 1.0, 0.1, Some(Rating::High), Some(Rating::High));
+    let p2: Uuid = job.create_hand_point_of_interest("POI2".into(), 1.0, 1.0, 0.4, Some(Rating::Low), Some(Rating::Low));
+    let p3: Uuid = job.create_hand_point_of_interest("POI3".into(), 0.5, 0.0, 0.4, Some(Rating::Medium), Some(Rating::High));
 
-    let _p4: Uuid = job.create_standing_point_of_interest("POI4".into(), 0.0, 0.0, 0.0);
-    let _p5: Uuid = job.create_standing_point_of_interest("POI5".into(), 0.2, 0.2, 0.0);
+    let _p4: Uuid = job.create_standing_point_of_interest("POI4".into(), 0.0, 0.0, 0.0, Some(Rating::Medium), Some(Rating::Medium));
+    let _p5: Uuid = job.create_standing_point_of_interest("POI5".into(), 0.2, 0.2, 0.0, Some(Rating::High), Some(Rating::Low));
 
     let part1: Uuid = job.create_precursor_target("Part1".into(), 5.0, 5.0);
     let part2: Uuid = job.create_precursor_target("Part2".into(), 1.0, 3.0);

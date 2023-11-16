@@ -1,5 +1,6 @@
 use crate::description::job::Job;
 use crate::description::agent::{Agent, CostProfiler};
+use crate::description::units::Time;
 use crate::petri::data::{Data, DataTag, Query};
 use crate::petri::net::PetriNet;
 use crate::petri::place::Place;
@@ -94,9 +95,15 @@ impl Job {
                         }
 
                         let onetime_cost: usize = human.onetime_cost(&transition, &self);
-                        let execution_time: usize = human.execution_time(&transition, &self);
+                        let execution_time: Time = human.execution_time(&transition, &self);
 
-                        transition_copy.time = cmp::max(transition_copy.time, execution_time);
+                        let time: Time;
+                        if transition_copy.time < execution_time {
+                            time = transition_copy.time;
+                        } else {
+                            time = execution_time;
+                        }
+                        transition_copy.time = time;
                         transition_copy.cost += onetime_cost;
 
                         updated_transitions.insert(transition.id, transition_copy);

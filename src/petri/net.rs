@@ -389,7 +389,7 @@ impl PetriNet {
             .filter(|(_, place)| output_validator(place))
             .map(|(id, _)| (*id, output_sig.clone()))
             .collect();
-        let transition = Transition::new(name, input, output, meta_data, 0, 0);
+        let transition = Transition::new(name, input, output, meta_data, 0.0, 0);
         self.transitions.insert(transition.id, transition);
     }
 
@@ -629,7 +629,7 @@ fn split_place() {
         HashMap::from([(p1.id, Signature::Static(1))]),
         HashMap::from([(p2.id, Signature::Static(1))]),
         vec![],
-        0,
+        0.0,
         0,
     );
     let t2 = Transition::new(
@@ -637,7 +637,7 @@ fn split_place() {
         HashMap::from([(p2.id, Signature::Static(1))]),
         HashMap::from([(p3.id, Signature::Static(1))]),
         vec![],
-        0,
+        0.0,
         0,
     );
     let p2_id = p2.id;
@@ -703,7 +703,7 @@ fn filtered_split_place() {
         HashMap::from([(initial.id, Signature::Static(1))]),
         HashMap::from([(center_id, Signature::Static(1))]),
         vec![],
-        0,
+        0.0,
         0,
     );
 
@@ -712,7 +712,7 @@ fn filtered_split_place() {
         HashMap::from([(center_id, Signature::Static(1))]),
         HashMap::from([(p1.id, Signature::Static(1))]),
         vec![Data::Hand(id2,agent_id)],
-        0,
+        0.0,
         0,
     );
 
@@ -721,7 +721,7 @@ fn filtered_split_place() {
         HashMap::from([(center_id, Signature::Static(1))]),
         HashMap::from([(p2.id, Signature::Static(1))]),
         vec![Data::Hand(id3,agent_id)],
-        0,
+        0.0,
         0,
     );
 
@@ -730,7 +730,7 @@ fn filtered_split_place() {
         HashMap::from([(center_id, Signature::Static(1))]),
         HashMap::from([(p3.id, Signature::Static(1))]),
         vec![Data::Hand(id4,agent_id)],
-        0,
+        0.0,
         0,
     );
 
@@ -739,7 +739,7 @@ fn filtered_split_place() {
         HashMap::from([(p1.id, Signature::Static(1))]),
         HashMap::from([(center_id, Signature::Static(1))]),
         vec![Data::Hand(id2,agent_id)],
-        0,
+        0.0,
         0,
     );
 
@@ -748,7 +748,7 @@ fn filtered_split_place() {
         HashMap::from([(p2.id, Signature::Static(1))]),
         HashMap::from([(center_id, Signature::Static(1))]),
         vec![Data::Hand(id3,agent_id)],
-        0,
+        0.0,
         0,
     );
 
@@ -757,7 +757,7 @@ fn filtered_split_place() {
         HashMap::from([(p3.id, Signature::Static(1))]),
         HashMap::from([(center_id, Signature::Static(1))]),
         vec![Data::Hand(id4,agent_id)],
-        0,
+        0.0,
         0,
     );
 

@@ -72,7 +72,7 @@ impl Job {
                             Data::TargetSituated(*target_id),
                             Data::AgentAgnostic,
                         ],
-                        0,
+                        0.0,
                         0,
                     );
                     net.transitions
@@ -111,7 +111,7 @@ impl Job {
                 input,
                 output,
                 vec![Data::Task(*task_id)],
-                0,
+                0.0,
                 0,
             );
 

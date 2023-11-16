@@ -126,7 +126,7 @@ impl Job {
                                     Data::Action(*agent_id),
                                     Data::PrimitiveAssignment(*agent_id, primitive_id1),
                                 ],
-                                0,
+                                0.0,
                                 0,
                             );
                             new_transitions.push(transition1);
@@ -164,7 +164,7 @@ impl Job {
                                     Data::Action(*agent_id),
                                     Data::PrimitiveAssignment(*agent_id, primitive_id2),
                                 ],
-                                0,
+                                0.0,
                                 0,
                             );
                             new_transitions.push(transition2);
@@ -222,7 +222,7 @@ impl Job {
                                 Data::Action(*agent_id),
                                 Data::PrimitiveAssignment(*agent_id, primitive_id1)
                             ],
-                            0,
+                            0.0,
                             0,
                         );
                         new_transitions.push(transition1);
@@ -249,7 +249,7 @@ impl Job {
                                 Data::Action(*agent_id),
                                 Data::PrimitiveAssignment(*agent_id, primitive_id2)
                             ],
-                            0,
+                            0.0,
                             0,
                         );
                         new_transitions.push(transition2);
@@ -513,7 +513,7 @@ impl Job {
                             input1,
                             output1,
                             meta_data1,
-                            0,
+                            0.0,
                             0,
                         );
                         new_transitions.push(transition1);
@@ -532,7 +532,7 @@ impl Job {
                             input2,
                             output2,
                             meta_data2,
-                            0,
+                            0.0,
                             0,
                         );
                         new_transitions.push(transition2);

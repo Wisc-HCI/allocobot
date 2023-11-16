@@ -1,19 +1,12 @@
-use crate::constants::SPLIT_SIZE;
-use crate::description::agent::{Agent, CostProfiler};
+use crate::description::agent::Agent;
 use crate::description::poi::PointOfInterest;
 use crate::description::primitive::Primitive;
 use crate::description::target::Target;
 use crate::description::task::Task;
-use crate::petri::data::{Data, DataTag, Query};
+use crate::description::rating::Rating;
 use crate::petri::net::PetriNet;
-use crate::petri::place::Place;
-use crate::petri::token::TokenSet;
-use crate::petri::transition::{Signature, Transition};
-use crate::util::split_primitives;
 use enum_tag::EnumTag;
-use itertools::Itertools;
 use serde::{Deserialize, Serialize};
-use std::cmp;
 use std::collections::HashMap;
 use uuid::Uuid;
 
@@ -83,15 +76,18 @@ impl Job {
         x: f64,
         y: f64,
         z: f64,
+        variability: Option<Rating>,
+        structure: Option<Rating>
     ) -> Uuid {
-        let poi = PointOfInterest::new_standing(name, x, y, z);
+        let poi = PointOfInterest::new_standing(name, x, y, z, variability, structure);
         let uuid = poi.id();
         self.add_point_of_interest(poi);
         uuid
     }
 
-    pub fn create_hand_point_of_interest(&mut self, name: String, x: f64, y: f64, z: f64) -> Uuid {
-        let poi = PointOfInterest::new_hand(name, x, y, z);
+    pub fn create_hand_point_of_interest(&mut self, name: String, x: f64, y: f64, z: f64, variability: Option<Rating>,
+        structure: Option<Rating>) -> Uuid {
+        let poi = PointOfInterest::new_hand(name, x, y, z, variability, structure);
         let uuid = poi.id();
         self.add_point_of_interest(poi);
         uuid
