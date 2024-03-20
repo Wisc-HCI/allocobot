@@ -1,3 +1,4 @@
+use crate::constants::{DISTANCE_PER_PACE, TMU_PER_SECOND};
 use crate::description::job::Job;
 use crate::description::primitive::Primitive;
 use crate::description::rating::Rating;
@@ -142,15 +143,41 @@ impl CostProfiler for HumanInfo {
             ) => {
                 // Consider Carry Calculation
 
+                let mut time: Time = 0.0;
+
                 // Retrieve data
                 let from_standing_info = job.points_of_interest.get(from_standing).unwrap();
                 let to_standing_info = job.points_of_interest.get(to_standing).unwrap();
+                let to_hand_info = job.points_of_interest.get(to_hand).unwrap();
+                let from_hand_info = job.points_of_interest.get(from_hand).unwrap();
 
+                // Grasp Time
+                time += 2.0;
+
+                // If the source hand is below the reachable area, based on standing location, add a time penalty
+                if get_is_within_neutral_reach(standing_info, from_hand_info, self.assumption_acromial_height, self.assumption_reach) {
+                    time += 30.5;
+                }
+
+                
                 // Compute travel vector/distance
                 let travel_vector = to_standing_info.position() - from_standing_info.position();
                 let travel_distance = travel_vector.norm();
+                time += 17.0 * (travel_distance/1.19);
 
-                0.0
+
+                // If the target hand is below the reachable area, based on standing location, add a time penalty
+                if get_is_within_neutral_reach(standing_info, to_hand_info, self.assumption_acromial_height, self.assumption_reach) {
+                    time += 30.5;
+                }
+
+                // Release time
+                time += 2.0;
+
+                // Convert from TMU to seconds
+                time = time * TMU_PER_SECOND;
+
+                return time;
             }, 
             (
                 1,
@@ -176,14 +203,8 @@ impl CostProfiler for HumanInfo {
                 let motion_vector = to_hand_info.position() - from_hand_info.position();
                 let motion_distance = motion_vector.norm();
 
-                // Calculate Grasp Time
-                if target_info.size() > 0.0254 {
-                    time += 0.5;
-                } else if 0.00635 <= target_info.size() && target_info.size() <= 0.0254 {
-                    time += 9.1;
-                } else {
-                    time += 12.9;
-                }
+                // Grasp Time
+                time += 2.0;
 
                 // If the source hand is below the reachable area, based on standing location, add a time penalty
                 if get_is_within_neutral_reach(standing_info, from_hand_info, self.assumption_acromial_height, self.assumption_reach) {
@@ -207,23 +228,23 @@ impl CostProfiler for HumanInfo {
                     Rating::Medium => {
                         if motion_distance < 0.0254 {
                             movement_time += 2.0
-                        } else if 0.0254 <= motion_distance && motion_distance <= 0.1016 {
-                            movement_time += 2.5*motion_distance.powf(0.681)
-                        } else if 0.1016 <= motion_distance && motion_distance <= 0.762 {
-                            movement_time += 4.309488 + 0.71666*motion_distance
+                        } else if 0.0254 <= motion_distance && motion_distance <= 0.127 {
+                            movement_time += 2.91*motion_distance.powf(0.660)
+                        } else if 0.127 < motion_distance && motion_distance <= 0.762 {
+                            movement_time += 5.647749 + 0.625535*motion_distance
                         } else {
-                            movement_time += 4.309488 + 0.71666*motion_distance + 0.7*(motion_distance - 0.762)
+                            movement_time += 5.647749 + 0.625535*motion_distance + 0.6*(motion_distance - 0.762)
                         }
                     },
                     Rating::Low => {
                         if motion_distance < 0.0254 {
                             movement_time += 2.0
-                        } else if 0.0254 <= motion_distance && motion_distance <= 0.0762 {
-                            movement_time += 2.5*motion_distance.powf(0.681)
-                        } else if 0.0762 <= motion_distance && motion_distance <= 0.762 {
-                            movement_time += 4.333601 + 0.440266*motion_distance
+                        } else if 0.0254 <= motion_distance && motion_distance <= 0.127 {
+                            movement_time += 3.4*motion_distance.powf(0.618)
+                        } else if 0.127 < motion_distance && motion_distance <= 0.762 {
+                            movement_time += 5.016974 + 0.854982*motion_distance
                         } else {
-                            movement_time += 4.333601 + 0.440266*motion_distance + 0.4*(motion_distance - 0.762)
+                            movement_time += 5.016974 + 0.854982*motion_distance + 0.85*(motion_distance - 0.762)
                         }
                     }
                 }
@@ -232,12 +253,13 @@ impl CostProfiler for HumanInfo {
                 let weight = target_info.weight();
                 for (lower, upper, factor, constant) in HUMAN_WEIGHT_FACTORS_MAPPING {
                     if lower < weight && weight <= upper {
-                        movement_time += factor*weight + constant;
+                        movement_time = factor*movement_time + constant;
                         break;
                     }
                 }
                 time += movement_time;
 
+                // If the target hand is below the reachable area, based on standing location, add a time penalty
                 if get_is_within_neutral_reach(standing_info, to_hand_info, self.assumption_acromial_height, self.assumption_reach) {
                     time += 30.5;
                 }
@@ -245,7 +267,8 @@ impl CostProfiler for HumanInfo {
                 // Release time
                 time += 2.0;
 
-
+                // Convert from TMU to seconds
+                time = time * TMU_PER_SECOND;
 
                 return time;
             },
@@ -269,11 +292,9 @@ impl CostProfiler for HumanInfo {
                 let travel_vector = to_standing_info.position() - from_standing_info.position();
                 let travel_distance = travel_vector.norm();
 
-
-
                 // Compute carry time
-                0.0
-            }
+                return (15.0 * (travel_distance / DISTANCE_PER_PACE)) * TMU_PER_SECOND
+            },
             (
                 1,
                 Some(Primitive::Reach {
@@ -294,38 +315,88 @@ impl CostProfiler for HumanInfo {
                 return match to_hand_info.variability() {
                     Rating::High => {
                         if motion_distance < 0.0254 {
-                            2.0
+                            2.0 * TMU_PER_SECOND
                         } else if 0.0254 <= motion_distance && motion_distance <= 0.1016 {
-                            3.6866*motion_distance.powf(0.6146)
+                            3.6866*39.37*motion_distance.powf(0.6146) * TMU_PER_SECOND
                         } else if 0.1016 <= motion_distance && motion_distance <= 0.762 {
-                            5.959169 + 0.690797*motion_distance
+                            (5.959169 + 0.690797*39.37*motion_distance) * TMU_PER_SECOND
                         } else {
-                            5.959169 + 0.690797*motion_distance + 0.7*(motion_distance - 0.762)
+                            (5.959169 + 0.690797*39.37*motion_distance + 0.7*(39.37*motion_distance - 0.762)) * TMU_PER_SECOND
                         }
                     },
                     Rating::Medium => {
                         if motion_distance < 0.0254 {
-                            2.0
+                            2.0 * TMU_PER_SECOND
                         } else if 0.0254 <= motion_distance && motion_distance <= 0.1016 {
-                            2.5*motion_distance.powf(0.681)
+                            2.5*39.37*motion_distance.powf(0.681) * TMU_PER_SECOND
                         } else if 0.1016 <= motion_distance && motion_distance <= 0.762 {
-                            4.309488 + 0.71666*motion_distance
+                            (4.309488 + 0.71666*39.37*motion_distance) * TMU_PER_SECOND
                         } else {
-                            4.309488 + 0.71666*motion_distance + 0.7*(motion_distance - 0.762)
+                            (4.309488 + 0.71666*38.37*motion_distance + 0.7*(39.37*motion_distance - 0.762)) * TMU_PER_SECOND
                         }
                     },
                     Rating::Low => {
                         if motion_distance < 0.0254 {
-                            2.0
+                            2.0 * TMU_PER_SECOND
                         } else if 0.0254 <= motion_distance && motion_distance <= 0.0762 {
-                            2.5*motion_distance.powf(0.681)
+                            2.5*39.37*motion_distance.powf(0.681) * TMU_PER_SECOND
                         } else if 0.0762 <= motion_distance && motion_distance <= 0.762 {
-                            4.333601 + 0.440266*motion_distance
+                            (4.333601 + 0.440266*39.37*motion_distance) * TMU_PER_SECOND
                         } else {
-                            4.333601 + 0.440266*motion_distance + 0.4*(motion_distance - 0.762)
+                            (4.333601 + 0.440266*39.37*motion_distance + 0.4*(39.37*motion_distance - 0.762)) * TMU_PER_SECOND
                         }
                     }
                 }
+            },
+            (
+                1,
+                Some(Primitive::Force {
+                    id, 
+                    target,
+                    magnitude,
+                    ..
+                }),
+            ) => {
+                // Consider Force Calculation
+                let mut time: Time = 0.0;
+
+                let target_info = job.targets.get(target).unwrap();
+                let weight = target_info.weight();
+
+                if *magnitude >= 0.0 {
+                    // Apply force, dwell minimum, and release
+                    return 10.6 * TMU_PER_SECOND;
+                }
+
+                time += 2.0;
+
+                // TODO: MVC
+                let mut mvc = 0.0;
+
+                if mvc < 0.2 {
+                    if weight < 1.13 {
+                        time += 4.0;
+                    } else {
+                        time += 5.7;
+                    }
+                } else if mvc < 0.5 {
+                    if weight < 1.13 {
+                        time += 7.5;
+                    } else {
+                        time += 11.8;
+                    }
+                } else {
+                    if weight < 1.13 {
+                        time += 22.9;
+                    } else {
+                        time += 34.7;
+                    }
+                }
+
+                // Convert TMU to seconds
+                time = time * TMU_PER_SECOND;
+
+                return time;
             },
             (_, _) => {
                 // There is some non-zero number of assigned primitives. Compute them independently and run the max on them
