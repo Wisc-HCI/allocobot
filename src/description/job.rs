@@ -98,10 +98,10 @@ impl Job {
         name: String,
         reach: f64,        // meters
         payload: f64,      // kg
-        agility: f64,      // rating 0-1
+        agility: Rating,      // rating
         speed: f64,        // m/s
         precision: f64,    // m (repeatability)
-        sensing: f64,      // rating 0-1
+        sensing: Rating,      // rating
         mobile_speed: f64, // m/s (zero if not mobile)
     ) -> Uuid {
         let agent = Agent::new_robot(
@@ -122,22 +122,26 @@ impl Job {
     pub fn create_human_agent(
         &mut self,
         name: String,
-        assumption_age: f64,
-        assumption_acromial_height: f64,
-        assumption_reach: f64,
-        assumption_height: f64
+        age: f64,
+        acromial_height: f64,
+        height: f64,
+        reach: f64,
+        weight: f64,
+        skill: Rating
     ) -> Uuid {
         let agent = Agent::new_human(
             name,
-            assumption_age,
-            assumption_acromial_height,
-            assumption_reach,
-            assumption_height,
+            age,
+            acromial_height,
+            height,
+            reach,
+            weight,
+            skill
         );
         let uuid = agent.id();
         self.add_agent(agent);
         uuid
-    }
+    } 
 
     pub fn create_precursor_target(&mut self, name: String, size: f64, weight: f64) -> Uuid {
         let target = Target::new_precursor(name, size, weight);

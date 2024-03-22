@@ -29,10 +29,10 @@ impl Agent {
         name: String,
         reach: f64,        // meters
         payload: f64,      // kg
-        agility: f64,      // rating 0-1
+        agility: Rating,      // rating 0-1
         speed: f64,        // m/s
         precision: f64,    // m (repeatability)
-        sensing: f64,      // rating 0-1
+        sensing: Rating,      // rating 0-1
         mobile_speed: f64, // m/s
     ) -> Self {
         return Agent::Robot(RobotInfo {
@@ -50,18 +50,22 @@ impl Agent {
 
     pub fn new_human(
         name: String,
-        assumption_age: f64,             // Years
-        assumption_acromial_height: f64, // meters
-        assumption_reach: f64,           // meters
-        assumption_weight: f64,          // kg
+        age: f64,             // Years
+        acromial_height: f64, // meters
+        height: f64, // meters
+        reach: f64,           // meters
+        weight: f64,          // kg
+        skill: Rating,
     ) -> Self {
         return Agent::Human(HumanInfo {
             id: Uuid::new_v4(),
             name,
-            assumption_age,
-            assumption_acromial_height,
-            assumption_reach,
-            assumption_weight,
+            age,
+            acromial_height,
+            height,
+            reach,
+            weight,
+            skill
         });
     }
 
@@ -86,10 +90,10 @@ pub struct RobotInfo {
     pub name: String,
     pub reach: f64,
     pub payload: f64,
-    pub agility: f64,
+    pub agility: Rating,
     pub speed: f64,
     pub precision: f64,
-    pub sensing: f64,
+    pub sensing: Rating,
     pub mobile_speed: f64,
 }
 
@@ -98,11 +102,13 @@ pub struct HumanInfo {
     pub id: Uuid,
     pub name: String,
     // NOTE: This is not currently used, need to check with Rob
-    // pub assumption_gender: Gender,
-    pub assumption_age: f64,
-    pub assumption_acromial_height: f64,
-    pub assumption_reach: f64,
-    pub assumption_weight: f64,
+    // pub gender: Gender,
+    pub age: f64,
+    pub acromial_height: f64,
+    pub height: f64,
+    pub reach: f64,
+    pub weight: f64,
+    pub skill: Rating
 }
 
 pub trait CostProfiler {
@@ -164,7 +170,7 @@ impl CostProfiler for HumanInfo {
             ) => {
                 // Consider Move Calculation
 
-                let mut time: Time = 0.0;
+                let mut tmu: f64 = 0.0;
 
                 // Retrieve data
                 let standing_info = job.points_of_interest.get(standing).unwrap();
@@ -178,74 +184,74 @@ impl CostProfiler for HumanInfo {
 
                 // Calculate Grasp Time
                 if target_info.size() > 0.0254 {
-                    time += 0.5;
+                    tmu += 0.5;
                 } else if 0.00635 <= target_info.size() && target_info.size() <= 0.0254 {
-                    time += 9.1;
+                    tmu += 9.1;
                 } else {
-                    time += 12.9;
+                    tmu += 12.9;
                 }
 
-                // If the source hand is below the reachable area, based on standing location, add a time penalty
-                if get_is_within_neutral_reach(standing_info, from_hand_info, self.assumption_acromial_height, self.assumption_reach) {
-                    time += 30.5;
+                // If the source hand is below the reachable area, based on standing location, add a tmu penalty
+                if get_is_within_neutral_reach(standing_info, from_hand_info, self.acromial_height, self.reach) {
+                    tmu += 30.5;
                 }
 
-                // Movement time
-                let mut movement_time = 0.0;
+                // Movement tmu
+                let mut movement_tmu = 0.0;
                 match to_hand_info.variability() {
                     Rating::High => {
                         if motion_distance < 0.0254 {
-                            movement_time += 2.0
+                            movement_tmu += 2.0
                         } else if 0.0254 <= motion_distance && motion_distance <= 0.1016 {
-                            movement_time += 3.6866*motion_distance.powf(0.6146)
+                            movement_tmu += 3.6866*motion_distance.powf(0.6146)
                         } else if 0.1016 <= motion_distance && motion_distance <= 0.762 {
-                            movement_time += 5.959169 + 0.690797*motion_distance
+                            movement_tmu += 5.959169 + 0.690797*motion_distance
                         } else {
-                            movement_time += 5.959169 + 0.690797*motion_distance + 0.7*(motion_distance - 0.762)
+                            movement_tmu += 5.959169 + 0.690797*motion_distance + 0.7*(motion_distance - 0.762)
                         }
                     },
                     Rating::Medium => {
                         if motion_distance < 0.0254 {
-                            movement_time += 2.0
+                            movement_tmu += 2.0
                         } else if 0.0254 <= motion_distance && motion_distance <= 0.1016 {
-                            movement_time += 2.5*motion_distance.powf(0.681)
+                            movement_tmu += 2.5*motion_distance.powf(0.681)
                         } else if 0.1016 <= motion_distance && motion_distance <= 0.762 {
-                            movement_time += 4.309488 + 0.71666*motion_distance
+                            movement_tmu += 4.309488 + 0.71666*motion_distance
                         } else {
-                            movement_time += 4.309488 + 0.71666*motion_distance + 0.7*(motion_distance - 0.762)
+                            movement_tmu += 4.309488 + 0.71666*motion_distance + 0.7*(motion_distance - 0.762)
                         }
                     },
                     Rating::Low => {
                         if motion_distance < 0.0254 {
-                            movement_time += 2.0
+                            movement_tmu += 2.0
                         } else if 0.0254 <= motion_distance && motion_distance <= 0.0762 {
-                            movement_time += 2.5*motion_distance.powf(0.681)
+                            movement_tmu += 2.5*motion_distance.powf(0.681)
                         } else if 0.0762 <= motion_distance && motion_distance <= 0.762 {
-                            movement_time += 4.333601 + 0.440266*motion_distance
+                            movement_tmu += 4.333601 + 0.440266*motion_distance
                         } else {
-                            movement_time += 4.333601 + 0.440266*motion_distance + 0.4*(motion_distance - 0.762)
+                            movement_tmu += 4.333601 + 0.440266*motion_distance + 0.4*(motion_distance - 0.762)
                         }
                     }
                 }
 
-                // Depending on the weight of the object, add a time penalty
+                // Depending on the weight of the object, add a tmu penalty
                 let weight = target_info.weight();
                 for (lower, upper, factor, constant) in HUMAN_WEIGHT_FACTORS_MAPPING {
                     if lower < weight && weight <= upper {
-                        movement_time += factor*weight + constant;
+                        movement_tmu += factor*weight + constant;
                         break;
                     }
                 }
-                time += movement_time;
+                tmu += movement_tmu;
 
-                if get_is_within_neutral_reach(standing_info, to_hand_info, self.assumption_acromial_height, self.assumption_reach) {
-                    time += 30.5;
+                if get_is_within_neutral_reach(standing_info, to_hand_info, self.acromial_height, self.reach) {
+                    tmu += 30.5;
                 }
                 
-                // Release time
-                time += 2.0;
+                // Release tmu
+                tmu += 2.0;
 
-
+                let time = tmu * 0.036;
 
                 return time;
             },
@@ -392,7 +398,7 @@ impl CostProfiler for HumanInfo {
                 let end_hand_vector = to_hand_info.position();
 
                 let acromial_vector: Vector3<f64> =
-                    Vector3::new(0.0, 0.0, self.assumption_acromial_height);
+                    Vector3::new(0.0, 0.0, self.acromial_height);
                 let starting_acromial: Vector3<f64> = starting_standing_vector + acromial_vector;
                 let end_acromial = end_standing_vector + acromial_vector;
 
@@ -416,7 +422,7 @@ impl CostProfiler for HumanInfo {
                 let float_retrieve_cost =
                     0.01 * starting_travel_distance * (3.57 + 1.23 * target_info.weight());
 
-                let float_interim_cost = 0.01 * (68.0 + 0.23 * self.assumption_weight);
+                let float_interim_cost = 0.01 * (68.0 + 0.23 * self.weight);
 
                 let float_deposit_cost =
                     0.01 * end_travel_distance * (3.57 + 1.23 * target_info.weight());
@@ -522,7 +528,7 @@ impl CostProfiler for HumanInfo {
 
                                 // let incremental_energy = 0.01 * (
                                 //     80.0 +
-                                //     2.43 * self.assumption_weight * 1.0 +//self.mobile_speed.powi(2) +
+                                //     2.43 * self.weight * 1.0 +//self.mobile_speed.powi(2) +
                                 //     4.63 * target_info.weight() * 1.0 +//self.mobile_speed.powi(2) +
                                 //     4.62 * target_info.weight()
                                 // ) * execution_time as f64;
@@ -644,7 +650,7 @@ fn get_grade(point1: Vector3<f64>, point2: Vector3<f64>) -> f64 {
     }
 }
 
-const HUMAN_WEIGHT_FACTORS_MAPPING: [(f64, f64, f64, f64); 10] = [
+const HUMAN_WEIGHT_FACTORS_MAPPING: [(f64, f64, f64, f64); 9] = [
     // (LOWER BOUND, UPPER BOUND, FACTOR, CONSTANT)
     (1.13, 3.4, 1.06, 2.2),
     (3.4, 5.67, 1.11, 3.9),
@@ -654,8 +660,7 @@ const HUMAN_WEIGHT_FACTORS_MAPPING: [(f64, f64, f64, f64); 10] = [
     (12.5, 14.74, 1.33, 10.8),
     (14.74, 17.0, 1.39, 12.5),
     (17.0, 19.29, 1.44, 14.3),
-    (19.29, 21.54, 1.5, 16.0),
-    (21.54, f64::INFINITY, 1.0, 0.0),
+    (19.29, f64::INFINITY, 1.5, 16.0)
 ];
 
 fn get_assigned_primitives<'t>(transition: &'t Transition, job: &'t Job, agent_id: Uuid) -> Vec<&'t Primitive> {
