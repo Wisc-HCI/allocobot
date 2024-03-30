@@ -126,295 +126,22 @@ pub trait CostProfiler {
 impl CostProfiler for HumanInfo {
     fn execution_time(&self, transition: &Transition, job: &Job) -> Time {
         let assigned_primitives = get_assigned_primitives(transition, job, self.id);
+        
+        let mut max_time = 0.0;
 
-        return match (assigned_primitives.len(), assigned_primitives.first()) {
-            (0, _) => {
-                // This is a no-op, so just return 0
-                0.0
-            },
-            (1, None) => {
-                // Technically impossible, but we cover it anyway. Return 0
-                0.0
-            },
-            (
-                1,
-                Some(Primitive::Carry {
-                    target,
-                    from_standing,
-                    to_standing,
-                    from_hand,
-                    to_hand,
-                    ..
-                }),
-            ) => {
-                // Consider Carry Calculation
+        for primitive in assigned_primitives.iter() {
+            let temp_vec = vec![*primitive.clone()];
+            let single_time = get_time_for_primitive(temp_vec);
+            max_time = max(max_time, single_time);
 
-                let mut tmu: f64 = 0.0;
-
-                // Retrieve data
-                let from_standing_info = job.points_of_interest.get(from_standing).unwrap();
-                let to_standing_info = job.points_of_interest.get(to_standing).unwrap();
-                let to_hand_info = job.points_of_interest.get(to_hand).unwrap();
-                let from_hand_info = job.points_of_interest.get(from_hand).unwrap();
-
-                // Grasp Time in TMU
-                tmu += 2.0;
-
-                // If the source hand is below the reachable area, based on standing location, add a time penalty
-                if get_is_within_neutral_reach(from_standing_info, from_hand_info, self.acromial_height, self.reach) {
-                    tmu += 30.5;
-                }
-
-                
-                // Compute travel vector/distance
-                let travel_vector = to_standing_info.position() - from_standing_info.position();
-                let travel_distance = travel_vector.norm();
-                tmu += 17.0 * (travel_distance/1.19);
-
-
-                // If the target hand is below the reachable area, based on standing location, add a tmu penalty
-                if get_is_within_neutral_reach(to_standing_info, to_hand_info, self.acromial_height, self.reach) {
-                    tmu += 30.5;
-                }
-
-                // Release time
-                tmu += 2.0;
-
-                // Convert from TMU to seconds
-                let time = tmu * TMU_PER_SECOND;
-
-                return time;
-            }, 
-            (
-                1,
-                Some(Primitive::Move {
-                    target,
-                    standing,
-                    from_hand,
-                    to_hand,
-                    ..
-                }),
-            ) => {
-                // Consider Move Calculation
-
-                let mut tmu: f64 = 0.0;
-
-                // Retrieve data
-                let standing_info = job.points_of_interest.get(standing).unwrap();
-                let to_hand_info = job.points_of_interest.get(to_hand).unwrap();
-                let from_hand_info = job.points_of_interest.get(from_hand).unwrap();
-                let target_info = job.targets.get(target).unwrap();
-
-                // Compute travel vector/distance
-                let motion_vector = to_hand_info.position() - from_hand_info.position();
-                let motion_distance = motion_vector.norm();
-
-                // Calculate Grasp Time
-                if target_info.size() > 0.0254 {
-                    tmu += 0.5;
-                } else if 0.00635 <= target_info.size() && target_info.size() <= 0.0254 {
-                    tmu += 9.1;
-                } else {
-                    tmu += 12.9;
-                }
-
-                // If the source hand is below the reachable area, based on standing location, add a tmu penalty
-                if get_is_within_neutral_reach(standing_info, from_hand_info, self.acromial_height, self.reach) {
-                    tmu += 30.5;
-                }
-
-                // Movement tmu
-                let mut movement_tmu = 0.0;
-                match to_hand_info.variability() {
-                    Rating::High => {
-                        if motion_distance < 0.0254 {
-                            movement_tmu += 2.0
-                        } else if 0.0254 <= motion_distance && motion_distance <= 0.1016 {
-                            movement_tmu += 3.6866*motion_distance.powf(0.6146)
-                        } else if 0.1016 <= motion_distance && motion_distance <= 0.762 {
-                            movement_tmu += 5.959169 + 0.690797*motion_distance
-                        } else {
-                            movement_tmu += 5.959169 + 0.690797*motion_distance + 0.7*(motion_distance - 0.762)
-                        }
-                    },
-                    Rating::Medium => {
-                        if motion_distance < 0.0254 {
-                            movement_tmu += 2.0
-                        } else if 0.0254 <= motion_distance && motion_distance <= 0.1016 {
-                            movement_tmu += 2.5*motion_distance.powf(0.681)
-                        } else if 0.1016 <= motion_distance && motion_distance <= 0.762 {
-                            movement_tmu += 4.309488 + 0.71666*motion_distance
-                        } else {
-                            movement_tmu += 4.309488 + 0.71666*motion_distance + 0.7*(motion_distance - 0.762)
-                        }
-                    },
-                    Rating::Low => {
-                        if motion_distance < 0.0254 {
-                            movement_tmu += 2.0
-                        } else if 0.0254 <= motion_distance && motion_distance <= 0.0762 {
-                            movement_tmu += 2.5*motion_distance.powf(0.681)
-                        } else if 0.0762 <= motion_distance && motion_distance <= 0.762 {
-                            movement_tmu += 4.333601 + 0.440266*motion_distance
-                        } else {
-                            movement_tmu += 4.333601 + 0.440266*motion_distance + 0.4*(motion_distance - 0.762)
-                        }
-                    }
-                }
-
-                // Depending on the weight of the object, add a tmu penalty
-                let weight = target_info.weight();
-                for (lower, upper, factor, constant) in HUMAN_WEIGHT_FACTORS_MAPPING {
-                    if lower < weight && weight <= upper {
-                        movement_tmu += factor*weight + constant;
-                        break;
-                    }
-                }
-                tmu += movement_tmu;
-
-                if get_is_within_neutral_reach(standing_info, to_hand_info, self.acromial_height, self.reach) {
-                    tmu += 30.5;
-                }
-                
-                // Release tmu
-                tmu += 2.0;
-
-                let time = tmu * TMU_PER_SECOND;
-
-                return time;
-            },
-            (
-                1,
-                Some(Primitive::Travel {
-                    from_standing,
-                    to_standing,
-                    from_hand,
-                    to_hand,
-                    ..
-                }),
-            ) => {
-                // Consider Travel Calculation
-
-                // Retrieve data
-                let from_standing_info = job.points_of_interest.get(from_standing).unwrap();
-                let to_standing_info = job.points_of_interest.get(to_standing).unwrap();
-
-                // Compute travel vector/distance
-                let travel_vector = to_standing_info.position() - from_standing_info.position();
-                let travel_distance = travel_vector.norm();
-
-                // Compute carry time
-                return (15.0 * (travel_distance / DISTANCE_PER_PACE)) * TMU_PER_SECOND
-            },
-            (
-                1,
-                Some(Primitive::Reach {
-                    from_hand,
-                    to_hand,
-                    ..
-                }),
-            ) => {
-                // Consider Reach Calculation
-
-                // Retrieve data
-                let from_hand_info = job.points_of_interest.get(from_hand).unwrap();
-                let to_hand_info = job.points_of_interest.get(to_hand).unwrap();
-
-                let motion_vector = to_hand_info.position() - from_hand_info.position();
-                let motion_distance = motion_vector.norm();
-
-                return match to_hand_info.variability() {
-                    Rating::High => {
-                        if motion_distance < 0.0254 {
-                            2.0 * TMU_PER_SECOND
-                        } else if 0.0254 <= motion_distance && motion_distance <= 0.1016 {
-                            3.6866*39.37*motion_distance.powf(0.6146) * TMU_PER_SECOND
-                        } else if 0.1016 <= motion_distance && motion_distance <= 0.762 {
-                            (5.959169 + 0.690797*39.37*motion_distance) * TMU_PER_SECOND
-                        } else {
-                            (5.959169 + 0.690797*39.37*motion_distance + 0.7*(39.37*motion_distance - 0.762)) * TMU_PER_SECOND
-                        }
-                    },
-                    Rating::Medium => {
-                        if motion_distance < 0.0254 {
-                            2.0 * TMU_PER_SECOND
-                        } else if 0.0254 <= motion_distance && motion_distance <= 0.1016 {
-                            2.5*39.37*motion_distance.powf(0.681) * TMU_PER_SECOND
-                        } else if 0.1016 <= motion_distance && motion_distance <= 0.762 {
-                            (4.309488 + 0.71666*39.37*motion_distance) * TMU_PER_SECOND
-                        } else {
-                            (4.309488 + 0.71666*38.37*motion_distance + 0.7*(39.37*motion_distance - 0.762)) * TMU_PER_SECOND
-                        }
-                    },
-                    Rating::Low => {
-                        if motion_distance < 0.0254 {
-                            2.0 * TMU_PER_SECOND
-                        } else if 0.0254 <= motion_distance && motion_distance <= 0.0762 {
-                            2.5*39.37*motion_distance.powf(0.681) * TMU_PER_SECOND
-                        } else if 0.0762 <= motion_distance && motion_distance <= 0.762 {
-                            (4.333601 + 0.440266*39.37*motion_distance) * TMU_PER_SECOND
-                        } else {
-                            (4.333601 + 0.440266*39.37*motion_distance + 0.4*(39.37*motion_distance - 0.762)) * TMU_PER_SECOND
-                        }
-                    }
-                }
-            },
-            (
-                1,
-                Some(Primitive::Force {
-                    id, 
-                    target,
-                    magnitude,
-                    ..
-                }),
-            ) => {
-                // Consider Force Calculation
-                let mut tmu: f64 = 0.0;
-
-                let target_info = job.targets.get(target).unwrap();
-                let weight = target_info.weight();
-
-                if *magnitude >= 0.0 {
-                    // Apply force, dwell minimum, and release
-                    return 10.6 * TMU_PER_SECOND;
-                }
-
-                tmu += 2.0;
-
-                // TODO: MVC
-                let mut mvc = 0.0;
-
-                if mvc < 0.2 {
-                    if weight < 1.13 {
-                        tmu += 4.0;
-                    } else {
-                        tmu += 5.7;
-                    }
-                } else if mvc < 0.5 {
-                    if weight < 1.13 {
-                        tmu += 7.5;
-                    } else {
-                        tmu += 11.8;
-                    }
-                } else {
-                    if weight < 1.13 {
-                        tmu += 22.9;
-                    } else {
-                        tmu += 34.7;
-                    }
-                }
-
-                // Convert TMU to seconds
-                let time = tmu * TMU_PER_SECOND;
-
-                return time;
-            },
-            (_, _) => {
-                // There is some non-zero number of assigned primitives. Compute them independently and run the max on them
-                0.0
+            for primitive_two in assigned_primitives.iter() {
+                let temp_vec = vec![*primitive.clone(), *primitive_two.clone()];
+                let doubles_time = get_time_for_primitive(temp_vec);
+                max_time = max(max_time, doubles_time);
             }
-        };
+        }
 
-
+        return max_time;
     }
 
     fn onetime_cost(&self, transition: &Transition, job: &Job) -> usize {
@@ -754,6 +481,295 @@ fn get_is_within_neutral_reach(standing_poi: &PointOfInterest, hand_poi: &PointO
     let acromial_standing_vector = standing_vector + acromial_vector;
     let distance = (hand_vector - acromial_standing_vector).norm();
     return distance <= reach;
+}
+
+fn get_time_for_primitive(assigned_primitives: Vec<&Primitive>) -> Time {
+    return match (assigned_primitives.len(), assigned_primitives.first()) {
+        (0, _) => {
+            // This is a no-op, so just return 0
+            0.0
+        },
+        (1, None) => {
+            // Technically impossible, but we cover it anyway. Return 0
+            0.0
+        },
+        (
+            1,
+            Some(Primitive::Carry {
+                target,
+                from_standing,
+                to_standing,
+                from_hand,
+                to_hand,
+                ..
+            }),
+        ) => {
+            // Consider Carry Calculation
+
+            let mut tmu: f64 = 0.0;
+
+            // Retrieve data
+            let from_standing_info = job.points_of_interest.get(from_standing).unwrap();
+            let to_standing_info = job.points_of_interest.get(to_standing).unwrap();
+            let to_hand_info = job.points_of_interest.get(to_hand).unwrap();
+            let from_hand_info = job.points_of_interest.get(from_hand).unwrap();
+
+            // Grasp Time in TMU
+            tmu += 2.0;
+
+            // If the source hand is below the reachable area, based on standing location, add a time penalty
+            if get_is_within_neutral_reach(from_standing_info, from_hand_info, self.acromial_height, self.reach) {
+                tmu += 30.5;
+            }
+
+            
+            // Compute travel vector/distance
+            let travel_vector = to_standing_info.position() - from_standing_info.position();
+            let travel_distance = travel_vector.norm();
+            tmu += 17.0 * (travel_distance/1.19);
+
+
+            // If the target hand is below the reachable area, based on standing location, add a tmu penalty
+            if get_is_within_neutral_reach(to_standing_info, to_hand_info, self.acromial_height, self.reach) {
+                tmu += 30.5;
+            }
+
+            // Release time
+            tmu += 2.0;
+
+            // Convert from TMU to seconds
+            let time = tmu * TMU_PER_SECOND;
+
+            return time;
+        }, 
+        (
+            1,
+            Some(Primitive::Move {
+                target,
+                standing,
+                from_hand,
+                to_hand,
+                ..
+            }),
+        ) => {
+            // Consider Move Calculation
+
+            let mut tmu: f64 = 0.0;
+
+            // Retrieve data
+            let standing_info = job.points_of_interest.get(standing).unwrap();
+            let to_hand_info = job.points_of_interest.get(to_hand).unwrap();
+            let from_hand_info = job.points_of_interest.get(from_hand).unwrap();
+            let target_info = job.targets.get(target).unwrap();
+
+            // Compute travel vector/distance
+            let motion_vector = to_hand_info.position() - from_hand_info.position();
+            let motion_distance = motion_vector.norm();
+
+            // Calculate Grasp Time
+            if target_info.size() > 0.0254 {
+                tmu += 0.5;
+            } else if 0.00635 <= target_info.size() && target_info.size() <= 0.0254 {
+                tmu += 9.1;
+            } else {
+                tmu += 12.9;
+            }
+
+            // If the source hand is below the reachable area, based on standing location, add a tmu penalty
+            if get_is_within_neutral_reach(standing_info, from_hand_info, self.acromial_height, self.reach) {
+                tmu += 30.5;
+            }
+
+            // Movement tmu
+            let mut movement_tmu = 0.0;
+            match to_hand_info.variability() {
+                Rating::High => {
+                    if motion_distance < 0.0254 {
+                        movement_tmu += 2.0
+                    } else if 0.0254 <= motion_distance && motion_distance <= 0.1016 {
+                        movement_tmu += 3.6866*motion_distance.powf(0.6146)
+                    } else if 0.1016 <= motion_distance && motion_distance <= 0.762 {
+                        movement_tmu += 5.959169 + 0.690797*motion_distance
+                    } else {
+                        movement_tmu += 5.959169 + 0.690797*motion_distance + 0.7*(motion_distance - 0.762)
+                    }
+                },
+                Rating::Medium => {
+                    if motion_distance < 0.0254 {
+                        movement_tmu += 2.0
+                    } else if 0.0254 <= motion_distance && motion_distance <= 0.1016 {
+                        movement_tmu += 2.5*motion_distance.powf(0.681)
+                    } else if 0.1016 <= motion_distance && motion_distance <= 0.762 {
+                        movement_tmu += 4.309488 + 0.71666*motion_distance
+                    } else {
+                        movement_tmu += 4.309488 + 0.71666*motion_distance + 0.7*(motion_distance - 0.762)
+                    }
+                },
+                Rating::Low => {
+                    if motion_distance < 0.0254 {
+                        movement_tmu += 2.0
+                    } else if 0.0254 <= motion_distance && motion_distance <= 0.0762 {
+                        movement_tmu += 2.5*motion_distance.powf(0.681)
+                    } else if 0.0762 <= motion_distance && motion_distance <= 0.762 {
+                        movement_tmu += 4.333601 + 0.440266*motion_distance
+                    } else {
+                        movement_tmu += 4.333601 + 0.440266*motion_distance + 0.4*(motion_distance - 0.762)
+                    }
+                }
+            }
+
+            // Depending on the weight of the object, add a tmu penalty
+            let weight = target_info.weight();
+            for (lower, upper, factor, constant) in HUMAN_WEIGHT_FACTORS_MAPPING {
+                if lower < weight && weight <= upper {
+                    movement_tmu += factor*weight + constant;
+                    break;
+                }
+            }
+            tmu += movement_tmu;
+
+            if get_is_within_neutral_reach(standing_info, to_hand_info, self.acromial_height, self.reach) {
+                tmu += 30.5;
+            }
+            
+            // Release tmu
+            tmu += 2.0;
+
+            let time = tmu * TMU_PER_SECOND;
+
+            return time;
+        },
+        (
+            1,
+            Some(Primitive::Travel {
+                from_standing,
+                to_standing,
+                from_hand,
+                to_hand,
+                ..
+            }),
+        ) => {
+            // Consider Travel Calculation
+
+            // Retrieve data
+            let from_standing_info = job.points_of_interest.get(from_standing).unwrap();
+            let to_standing_info = job.points_of_interest.get(to_standing).unwrap();
+
+            // Compute travel vector/distance
+            let travel_vector = to_standing_info.position() - from_standing_info.position();
+            let travel_distance = travel_vector.norm();
+
+            // Compute carry time
+            return (15.0 * (travel_distance / DISTANCE_PER_PACE)) * TMU_PER_SECOND
+        },
+        (
+            1,
+            Some(Primitive::Reach {
+                from_hand,
+                to_hand,
+                ..
+            }),
+        ) => {
+            // Consider Reach Calculation
+
+            // Retrieve data
+            let from_hand_info = job.points_of_interest.get(from_hand).unwrap();
+            let to_hand_info = job.points_of_interest.get(to_hand).unwrap();
+
+            let motion_vector = to_hand_info.position() - from_hand_info.position();
+            let motion_distance = motion_vector.norm();
+
+            return match to_hand_info.variability() {
+                Rating::High => {
+                    if motion_distance < 0.0254 {
+                        2.0 * TMU_PER_SECOND
+                    } else if 0.0254 <= motion_distance && motion_distance <= 0.1016 {
+                        3.6866*39.37*motion_distance.powf(0.6146) * TMU_PER_SECOND
+                    } else if 0.1016 <= motion_distance && motion_distance <= 0.762 {
+                        (5.959169 + 0.690797*39.37*motion_distance) * TMU_PER_SECOND
+                    } else {
+                        (5.959169 + 0.690797*39.37*motion_distance + 0.7*(39.37*motion_distance - 0.762)) * TMU_PER_SECOND
+                    }
+                },
+                Rating::Medium => {
+                    if motion_distance < 0.0254 {
+                        2.0 * TMU_PER_SECOND
+                    } else if 0.0254 <= motion_distance && motion_distance <= 0.1016 {
+                        2.5*39.37*motion_distance.powf(0.681) * TMU_PER_SECOND
+                    } else if 0.1016 <= motion_distance && motion_distance <= 0.762 {
+                        (4.309488 + 0.71666*39.37*motion_distance) * TMU_PER_SECOND
+                    } else {
+                        (4.309488 + 0.71666*38.37*motion_distance + 0.7*(39.37*motion_distance - 0.762)) * TMU_PER_SECOND
+                    }
+                },
+                Rating::Low => {
+                    if motion_distance < 0.0254 {
+                        2.0 * TMU_PER_SECOND
+                    } else if 0.0254 <= motion_distance && motion_distance <= 0.0762 {
+                        2.5*39.37*motion_distance.powf(0.681) * TMU_PER_SECOND
+                    } else if 0.0762 <= motion_distance && motion_distance <= 0.762 {
+                        (4.333601 + 0.440266*39.37*motion_distance) * TMU_PER_SECOND
+                    } else {
+                        (4.333601 + 0.440266*39.37*motion_distance + 0.4*(39.37*motion_distance - 0.762)) * TMU_PER_SECOND
+                    }
+                }
+            }
+        },
+        (
+            1,
+            Some(Primitive::Force {
+                id, 
+                target,
+                magnitude,
+                ..
+            }),
+        ) => {
+            // Consider Force Calculation
+            let mut tmu: f64 = 0.0;
+
+            let target_info = job.targets.get(target).unwrap();
+            let weight = target_info.weight();
+
+            if *magnitude >= 0.0 {
+                // Apply force, dwell minimum, and release
+                return 10.6 * TMU_PER_SECOND;
+            }
+
+            tmu += 2.0;
+
+            // TODO: MVC
+            let mut mvc = 0.0;
+
+            if mvc < 0.2 {
+                if weight < 1.13 {
+                    tmu += 4.0;
+                } else {
+                    tmu += 5.7;
+                }
+            } else if mvc < 0.5 {
+                if weight < 1.13 {
+                    tmu += 7.5;
+                } else {
+                    tmu += 11.8;
+                }
+            } else {
+                if weight < 1.13 {
+                    tmu += 22.9;
+                } else {
+                    tmu += 34.7;
+                }
+            }
+
+            // Convert TMU to seconds
+            let time = tmu * TMU_PER_SECOND;
+
+            return time;
+        },
+        (_, _) => {
+            // There is some non-zero number of assigned primitives. Compute them independently and run the max on them
+            0.0
+        }
+    };
 }
 
 #[test]
