@@ -750,8 +750,23 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>, job: &Job,
 
             tmu += 2.0;
 
-            // TODO: MVC
-            let mut mvc = 0.0;
+            let mut denom = 0.0;
+            // assume 2 hands if magnitude is greater than 100 based on the trees
+            if *magnitude > 100 {
+                // average
+                denom += 159;
+            } else if *magnitude < -100 {
+                // average
+                denom += 174;
+            } else if *magnitude >= 0 && *magnitude < 100 {
+                // average
+                denom += 81;
+            } else {
+                // average
+                denom += 92;
+            }
+
+            let mut mvc = *magnitude / denom;
 
             if mvc < 0.2 {
                 if weight < 1.13 {
@@ -777,6 +792,306 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>, job: &Job,
             let time = tmu * TMU_PER_SECOND;
 
             return time;
+        },
+        (
+            1,
+            Some(Primitive::Position {
+                id, 
+                target,
+                ..
+            }),
+        ) => {
+            // Consider Force Calculation
+            let mut tmu: f64 = 0.0;
+
+            let target_info = job.targets.get(target).unwrap();
+            let weight = target_info.weight();
+
+            // upper bounding by 360 degrees
+            if weight < 0.91 {
+                // 1.4927 + 0.043878*360
+                tmu += 17.28878;
+            } else  if weight < 4.54 {
+                // 2.3463636 + 0.0689090*360
+                tmu += 27.1536036;
+            } else {
+                // 4.4781818 + 0.131636*360
+                tmu += 51.8671418;
+            }
+
+            // Convert TMU to seconds
+            let time = tmu * TMU_PER_SECOND;
+
+            return time;
+        },
+        (
+            1,
+            Some(Primitive::Inspect {
+                id, 
+                target,
+                skill,
+                ..
+            }),
+        ) => {
+            // this primitive's time will be based on the time of the primitives coupled with it
+            0.0
+        },
+        (
+            1,
+            Some(Primitive::Selection {
+                id, 
+                target,
+                skill,
+                ..
+            }),
+        ) => {
+            // TODO. look at data to compare hand location to object location
+            0.0
+        },
+        (
+            2,
+            Some(Primitive::Position {
+                id, 
+                target,
+                ..
+            }),
+        ) => {
+            return match (assigned_primitives.last()) {
+                Some(Primitive::Force { id, target, magnitude }) => {
+                    let target_info = job.targets.get(target).unwrap();
+                    let weight = target_info.weight();
+                    let mut tmu = 0.0;
+
+                    // Grasp TMU
+                    tmu += 2.0;
+
+                    let mut denom = 0.0;
+                    // assume 2 hands if magnitude is greater than 100 based on the trees
+                    if *magnitude > 100 {
+                        // average
+                        denom += 159;
+                    } else if *magnitude < -100 {
+                        // average
+                        denom += 174;
+                    } else if *magnitude >= 0 && *magnitude < 100 {
+                        // average
+                        denom += 81;
+                    } else {
+                        // average
+                        denom += 92;
+                    }
+        
+                    let mut mvc = *magnitude / denom;
+
+                    if mvc < 0.2 {
+                        match target_info.symmetry() {
+                            Rating::High => {
+                                if weight < 1.13 {
+                                    tmu += 5.6;
+                                } else {
+                                    tmu += 11.2;
+                                }
+                            },
+                            Rating::Medium => {
+                                if weight < 1.13 {
+                                    tmu += 9.1;
+                                } else {
+                                    tmu += 14.7;
+                                }
+                            },
+                            Rating::Low => {
+                                if weight < 1.13 {
+                                    tmu += 10.4;
+                                } else {
+                                    tmu += 16.0;
+                                }
+                            }
+                        }
+                    } else if mvc < 0.5 {
+                        match target_info.symmetry() {
+                            Rating::High => {
+                                if weight < 1.13 {
+                                    tmu += 16.2;
+                                } else {
+                                    tmu += 21.8;
+                                }
+                            },
+                            Rating::Medium => {
+                                if weight < 1.13 {
+                                    tmu += 19.7;
+                                } else {
+                                    tmu += 25.3;
+                                }
+                            },
+                            Rating::Low => {
+                                if weight < 1.13 {
+                                    tmu += 21;
+                                } else {
+                                    tmu += 26.6;
+                                }
+                            }
+                        }
+                    } else {
+                        match target_info.symmetry() {
+                            Rating::High => {
+                                if weight < 1.13 {
+                                    tmu += 43;
+                                } else {
+                                    tmu += 48.6;
+                                }
+                            },
+                            Rating::Medium => {
+                                if weight < 1.13 {
+                                    tmu += 46.5;
+                                } else {
+                                    tmu += 52.1;
+                                }
+                            },
+                            Rating::Low => {
+                                if weight < 1.13 {
+                                    tmu += 47.8;
+                                } else {
+                                    tmu += 53.4;
+                                }
+                            }
+                        }
+                    }
+
+                    // release TMU
+                    tmu += 2.0;
+
+                    // convert tmu to seconds
+                    let time = tmu * TMU_PER_SECOND;
+
+                    return time;
+                },
+                _ => {
+                    0.0
+                }
+            }
+        },
+        (
+            2,
+            Some(Primitive::Force {
+                id, 
+                target,
+                magnitude,
+                ..
+            }),
+        ) => {
+            return match (assigned_primitives.last()) {
+                Some(Primitive::Position { id, target }) => {
+                    let target_info = job.targets.get(target).unwrap();
+                    let weight = target_info.weight();
+                    let mut tmu = 0.0;
+
+                    // Grasp TMU
+                    tmu += 2.0;
+
+                    let mut denom = 0.0;
+                    // assume 2 hands if magnitude is greater than 100 based on the trees
+                    if *magnitude > 100 {
+                        // average
+                        denom += 159;
+                    } else if *magnitude < -100 {
+                        // average
+                        denom += 174;
+                    } else if *magnitude >= 0 && *magnitude < 100 {
+                        // average
+                        denom += 81;
+                    } else {
+                        // average
+                        denom += 92;
+                    }
+        
+                    let mut mvc = *magnitude / denom;
+
+                    if mvc < 0.2 {
+                        match target_info.symmetry() {
+                            Rating::High => {
+                                if weight < 1.13 {
+                                    tmu += 5.6;
+                                } else {
+                                    tmu += 11.2;
+                                }
+                            },
+                            Rating::Medium => {
+                                if weight < 1.13 {
+                                    tmu += 9.1;
+                                } else {
+                                    tmu += 14.7;
+                                }
+                            },
+                            Rating::Low => {
+                                if weight < 1.13 {
+                                    tmu += 10.4;
+                                } else {
+                                    tmu += 16.0;
+                                }
+                            }
+                        }
+                    } else if mvc < 0.5 {
+                        match target_info.symmetry() {
+                            Rating::High => {
+                                if weight < 1.13 {
+                                    tmu += 16.2;
+                                } else {
+                                    tmu += 21.8;
+                                }
+                            },
+                            Rating::Medium => {
+                                if weight < 1.13 {
+                                    tmu += 19.7;
+                                } else {
+                                    tmu += 25.3;
+                                }
+                            },
+                            Rating::Low => {
+                                if weight < 1.13 {
+                                    tmu += 21;
+                                } else {
+                                    tmu += 26.6;
+                                }
+                            }
+                        }
+                    } else {
+                        match target_info.symmetry() {
+                            Rating::High => {
+                                if weight < 1.13 {
+                                    tmu += 43;
+                                } else {
+                                    tmu += 48.6;
+                                }
+                            },
+                            Rating::Medium => {
+                                if weight < 1.13 {
+                                    tmu += 46.5;
+                                } else {
+                                    tmu += 52.1;
+                                }
+                            },
+                            Rating::Low => {
+                                if weight < 1.13 {
+                                    tmu += 47.8;
+                                } else {
+                                    tmu += 53.4;
+                                }
+                            }
+                        }
+                    }
+
+                    // release TMU
+                    tmu += 2.0;
+
+                    // convert tmu to seconds
+                    let time = tmu * TMU_PER_SECOND;
+
+                    return time;
+                },
+                _ => {
+                    0.0
+                }
+            }
         },
         (_, _) => {
             // There is some non-zero number of assigned primitives. Compute them independently and run the max on them
