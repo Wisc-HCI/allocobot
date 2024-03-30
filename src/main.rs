@@ -23,8 +23,8 @@ fn main() -> std::io::Result<()> {
     let mut job = Job::new("Job 1".into());
 
     let _panda: Uuid =
-        job.create_robot_agent("Panda".into(), 0.855, 3.0, 0.7, 2.0, 0.0001, 0.7, 2.0);
-    let _charlie: Uuid = job.create_human_agent("Charlie".into(), 75.0, 1.45, 0.77, 84.0);
+        job.create_robot_agent("Panda".into(), 0.855, 3.0, Rating::Medium, 2.0, 0.0001, Rating::Medium, 0.1);
+    let _charlie: Uuid = job.create_human_agent("Charlie".into(), 75.0, 1.45, 2.0, 0.77, 84.0, Rating::High);
 
     let _p1: Uuid = job.create_hand_point_of_interest("POI1".into(), 0.0, 1.0, 0.1, Some(Rating::High), Some(Rating::High));
     let p2: Uuid = job.create_hand_point_of_interest("POI2".into(), 1.0, 1.0, 0.4, Some(Rating::Low), Some(Rating::Low));

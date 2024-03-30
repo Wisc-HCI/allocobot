@@ -161,7 +161,7 @@ impl CostProfiler for HumanInfo {
                 time += 2.0;
 
                 // If the source hand is below the reachable area, based on standing location, add a time penalty
-                if get_is_within_neutral_reach(standing_info, from_hand_info, self.assumption_acromial_height, self.assumption_reach) {
+                if get_is_within_neutral_reach(from_standing_info, from_hand_info, self.acromial_height, self.reach) {
                     time += 30.5;
                 }
 
@@ -173,7 +173,7 @@ impl CostProfiler for HumanInfo {
 
 
                 // If the target hand is below the reachable area, based on standing location, add a time penalty
-                if get_is_within_neutral_reach(standing_info, to_hand_info, self.assumption_acromial_height, self.assumption_reach) {
+                if get_is_within_neutral_reach(to_standing_info, to_hand_info, self.acromial_height, self.reach) {
                     time += 30.5;
                 }
 

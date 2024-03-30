@@ -98,10 +98,10 @@ impl Job {
         name: String,
         reach: f64,        // meters
         payload: f64,      // kg
-        agility: Rating,      // rating
+        agility: Rating,   // rating
         speed: f64,        // m/s
         precision: f64,    // m (repeatability)
-        sensing: Rating,      // rating
+        sensing: Rating,   // rating
         mobile_speed: f64, // m/s (zero if not mobile)
     ) -> Uuid {
         let agent = Agent::new_robot(
