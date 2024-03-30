@@ -73,7 +73,7 @@ impl Job {
                             Data::AgentAgnostic,
                         ],
                         0.0,
-                        0,
+                        vec![],
                     );
                     net.transitions
                         .insert(situate_transition.id, situate_transition);
@@ -112,7 +112,7 @@ impl Job {
                 output,
                 vec![Data::Task(*task_id)],
                 0.0,
-                0,
+                vec![],
             );
 
             net.transitions.insert(transition.id, transition);

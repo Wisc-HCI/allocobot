@@ -6,6 +6,7 @@ use crate::description::poi::PointOfInterest;
 use crate::description::units::Time;
 use crate::petri::data::{Data, DataTag};
 use crate::petri::transition::Transition;
+use crate::petri::cost::{CostSet, CostFrequency, CostCategory, Cost};
 use nalgebra::Vector3;
 use serde::{Deserialize, Serialize};
 use std::{cmp, collections::HashMap, f64::consts::PI};
@@ -114,7 +115,7 @@ pub struct HumanInfo {
 
 pub trait CostProfiler {
     fn execution_time(&self, transition: &Transition, job: &Job) -> Time;
-    fn onetime_cost(&self, transition: &Transition, job: &Job) -> usize;
+    fn cost_set(&self, transition: &Transition, job: &Job) -> CostSet;
     fn ergo_cost_whole(&self, transition: &Transition, job: &Job) -> TokenCount;
     fn ergo_cost_arm(&self, transition: &Transition, job: &Job) -> TokenCount;
     fn ergo_cost_hand(&self, transition: &Transition, job: &Job) -> TokenCount;
@@ -130,27 +131,33 @@ impl CostProfiler for HumanInfo {
         let mut max_time = 0.0;
 
         for primitive in assigned_primitives.iter() {
-            let temp_vec = vec![*primitive.clone()];
-            let single_time = get_time_for_primitive(temp_vec);
-            max_time = max(max_time, single_time);
+            let temp_vec = vec![*primitive];
+            let single_time = get_human_time_for_primitive(temp_vec, job, self);
+            if single_time > max_time {
+                max_time = single_time;
+            }
 
             for primitive_two in assigned_primitives.iter() {
-                let temp_vec = vec![*primitive.clone(), *primitive_two.clone()];
-                let doubles_time = get_time_for_primitive(temp_vec);
-                max_time = max(max_time, doubles_time);
+                let temp_vec = vec![*primitive, *primitive_two];
+                let doubles_time = get_human_time_for_primitive(temp_vec, job, self);
+                if doubles_time > max_time {
+                    max_time = doubles_time;
+                }
             }
         }
 
         return max_time;
     }
 
-    fn onetime_cost(&self, transition: &Transition, job: &Job) -> usize {
+    fn cost_set(&self, transition: &Transition, job: &Job) -> CostSet {
         let assigned_primitives: Vec<&Primitive> = transition
             .meta_data
             .iter()
             .filter(|d| d.tag() == DataTag::PrimitiveAssignment && d.id() == Some(self.id))
             .map(|d| job.primitives.get(&d.secondary().unwrap()).unwrap())
             .collect();
+
+        let mut one_time_ergo_cost = CostSet::new();
 
         let execution_time = self.execution_time(transition, job);
 
@@ -168,11 +175,11 @@ impl CostProfiler for HumanInfo {
             // if there is no assigned primitive
             (0, _) => {
                 // This is a no-op, so just return 0
-                0
+                0.0
             }
             (1, None) => {
                 // Technically impossible, but we cover it anyway. Return 0
-                0
+                0.0
             }
             (
                 1,
@@ -230,7 +237,7 @@ impl CostProfiler for HumanInfo {
                     0.01 * end_travel_distance * (3.57 + 1.23 * target_info.weight());
 
                 let carry_cost =
-                    (float_retrieve_cost + float_interim_cost + float_deposit_cost) as usize;
+                    float_retrieve_cost + float_interim_cost + float_deposit_cost;
 
                 carry_cost
             }
@@ -250,7 +257,7 @@ impl CostProfiler for HumanInfo {
                 let from_hand_info = job.points_of_interest.get(from_hand).unwrap();
                 let to_hand_info = job.points_of_interest.get(to_hand).unwrap();
                 // Compute carry cost
-                0
+                0.0
             }
             (
                 1,
@@ -268,7 +275,7 @@ impl CostProfiler for HumanInfo {
                 let from_hand_info = job.points_of_interest.get(from_hand).unwrap();
                 let to_hand_info = job.points_of_interest.get(to_hand).unwrap();
                 // Compute carry cost
-                0
+                0.0
             }
             (
                 1,
@@ -284,11 +291,11 @@ impl CostProfiler for HumanInfo {
                 let from_hand_info = job.points_of_interest.get(from_hand).unwrap();
                 let to_hand_info = job.points_of_interest.get(to_hand).unwrap();
                 // Compute carry cost
-                0
+                0.0
             }
             _ => {
                 // There is some non-zero number of assigned primitives. Compute them independently and sum them
-                let mut total_cost = 0;
+                let mut total_cost = 0.0;
                 for assigned_primitive in assigned_primitives {
                     match assigned_primitive {
                         Primitive::Hold { target, .. } => {
@@ -376,7 +383,13 @@ impl CostProfiler for HumanInfo {
             - Compute the cost of moving the hands directly from old hand to new hand poi
         */
 
-        cost
+        // cost
+        one_time_ergo_cost.push(Cost {
+            frequency: CostFrequency::Once,
+            value: cost,
+            category: CostCategory::Ergonomic
+        });
+        one_time_ergo_cost
     }
 
     fn ergo_cost_whole(&self, transition: &Transition, job: &Job) -> TokenCount {
@@ -409,8 +422,8 @@ impl CostProfiler for RobotInfo {
         0.0
     }
 
-    fn onetime_cost(&self, transition: &Transition, primitives: &Job) -> usize {
-        0
+    fn cost_set(&self, transition: &Transition, job: &Job) -> CostSet {
+        vec![]
     }
 
     fn ergo_cost_whole(&self, transition: &Transition, job: &Job) -> TokenCount {
@@ -483,7 +496,7 @@ fn get_is_within_neutral_reach(standing_poi: &PointOfInterest, hand_poi: &PointO
     return distance <= reach;
 }
 
-fn get_time_for_primitive(assigned_primitives: Vec<&Primitive>) -> Time {
+fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>, job: &Job, agent: &HumanInfo) -> Time {
     return match (assigned_primitives.len(), assigned_primitives.first()) {
         (0, _) => {
             // This is a no-op, so just return 0
@@ -518,7 +531,7 @@ fn get_time_for_primitive(assigned_primitives: Vec<&Primitive>) -> Time {
             tmu += 2.0;
 
             // If the source hand is below the reachable area, based on standing location, add a time penalty
-            if get_is_within_neutral_reach(from_standing_info, from_hand_info, self.acromial_height, self.reach) {
+            if get_is_within_neutral_reach(from_standing_info, from_hand_info, agent.acromial_height, agent.reach) {
                 tmu += 30.5;
             }
 
@@ -530,7 +543,7 @@ fn get_time_for_primitive(assigned_primitives: Vec<&Primitive>) -> Time {
 
 
             // If the target hand is below the reachable area, based on standing location, add a tmu penalty
-            if get_is_within_neutral_reach(to_standing_info, to_hand_info, self.acromial_height, self.reach) {
+            if get_is_within_neutral_reach(to_standing_info, to_hand_info, agent.acromial_height, agent.reach) {
                 tmu += 30.5;
             }
 
@@ -576,7 +589,7 @@ fn get_time_for_primitive(assigned_primitives: Vec<&Primitive>) -> Time {
             }
 
             // If the source hand is below the reachable area, based on standing location, add a tmu penalty
-            if get_is_within_neutral_reach(standing_info, from_hand_info, self.acromial_height, self.reach) {
+            if get_is_within_neutral_reach(standing_info, from_hand_info, agent.acromial_height, agent.reach) {
                 tmu += 30.5;
             }
 
@@ -628,7 +641,7 @@ fn get_time_for_primitive(assigned_primitives: Vec<&Primitive>) -> Time {
             }
             tmu += movement_tmu;
 
-            if get_is_within_neutral_reach(standing_info, to_hand_info, self.acromial_height, self.reach) {
+            if get_is_within_neutral_reach(standing_info, to_hand_info, agent.acromial_height, agent.reach) {
                 tmu += 30.5;
             }
             

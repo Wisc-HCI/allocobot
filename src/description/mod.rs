@@ -7,3 +7,4 @@ pub mod rating;
 pub mod target;
 pub mod task;
 pub mod units;
+pub mod weights;

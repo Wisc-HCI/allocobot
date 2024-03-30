@@ -3,6 +3,8 @@ use serde::{Serialize, Deserialize};
 use enum_tag::EnumTag;
 use crate::description::agent::Agent;
 
+use crate::description::rating::Rating;
+
 #[derive(Clone, Debug, PartialEq, EnumTag, Serialize, Deserialize)]
 #[serde(tag = "type",rename_all = "camelCase")]
 pub enum Target {
@@ -11,62 +13,70 @@ pub enum Target {
         name: String,
         size: f64,
         weight: f64,
+        symmetry: Rating
         
     },
     Intermediate {
         id: Uuid,
         name: String,
         size: f64,
-        weight: f64
+        weight: f64,
+        symmetry: Rating
     },
     Product {
         id: Uuid,
         name: String,
         size: f64,
-        weight: f64
+        weight: f64,
+        symmetry: Rating
     },
     Reusable {
         id: Uuid,
         name: String,
         size: f64,
-        weight: f64
+        weight: f64,
+        symmetry: Rating
     }
 }
 
 impl Target  {
-    pub fn new_precursor(name: String, size: f64, weight: f64) -> Target  {
+    pub fn new_precursor(name: String, size: f64, weight: f64, symmetry: Rating) -> Target  {
         Target::Precursor {
             id: Uuid::new_v4(),
             name,
             size,
-            weight
+            weight,
+            symmetry
         }
     }
 
-    pub fn new_intermediate(name: String, size: f64, weight: f64) -> Target  {
+    pub fn new_intermediate(name: String, size: f64, weight: f64, symmetry: Rating) -> Target  {
         Target::Intermediate {
             id: Uuid::new_v4(),
             name,
             size,
-            weight
+            weight,
+            symmetry
         }
     }
 
-    pub fn new_product(name: String, size: f64, weight: f64) -> Target  {
+    pub fn new_product(name: String, size: f64, weight: f64, symmetry: Rating) -> Target  {
         Target::Product {
             id: Uuid::new_v4(),
             name,
             size,
-            weight
+            weight,
+            symmetry
         }
     }
 
-    pub fn new_reusable(name: String, size: f64, weight: f64) -> Target  {
+    pub fn new_reusable(name: String, size: f64, weight: f64, symmetry: Rating) -> Target  {
         Target::Reusable {
             id: Uuid::new_v4(),
             name,
             size,
-            weight
+            weight,
+            symmetry
         }
     }
 
@@ -117,6 +127,15 @@ impl Target  {
             Target::Intermediate { weight, .. } => *weight,
             Target::Product { weight, .. } => *weight,
             Target::Reusable { weight, .. } => *weight
+        }
+    }
+
+    pub fn symmetry(&self) -> Rating {
+        match self {
+            Target::Precursor { symmetry, .. } => symmetry.clone(),
+            Target::Intermediate { symmetry, .. } => symmetry.clone(),
+            Target::Product { symmetry, .. } => symmetry.clone(),
+            Target::Reusable { symmetry, .. } => symmetry.clone()
         }
     }
 

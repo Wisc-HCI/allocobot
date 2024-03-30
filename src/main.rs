@@ -33,13 +33,13 @@ fn main() -> std::io::Result<()> {
     let _p4: Uuid = job.create_standing_point_of_interest("POI4".into(), 0.0, 0.0, 0.0, Some(Rating::Medium), Some(Rating::Medium));
     let _p5: Uuid = job.create_standing_point_of_interest("POI5".into(), 0.2, 0.2, 0.0, Some(Rating::High), Some(Rating::Low));
 
-    let part1: Uuid = job.create_precursor_target("Part1".into(), 5.0, 5.0);
-    let part2: Uuid = job.create_precursor_target("Part2".into(), 1.0, 3.0);
-    let part3: Uuid = job.create_intermediate_target("Part3".into(), 6.0, 2.0);
-    let part4: Uuid = job.create_precursor_target("Part4".into(), 14.0, 1.0);
-    let part5: Uuid = job.create_product_target("Part5".into(), 4.0, 1.0);
-    let part6: Uuid = job.create_product_target("Part6".into(), 10.0, 3.0);
-    let tool0: Uuid = job.create_reusable_target("Tool0".into(), 1.0, 1.0);
+    let part1: Uuid = job.create_precursor_target("Part1".into(), 5.0, 5.0, Rating::High);
+    let part2: Uuid = job.create_precursor_target("Part2".into(), 1.0, 3.0, Rating::Medium);
+    let part3: Uuid = job.create_intermediate_target("Part3".into(), 6.0, 2.0, Rating::Low);
+    let part4: Uuid = job.create_precursor_target("Part4".into(), 14.0, 1.0, Rating::High);
+    let part5: Uuid = job.create_product_target("Part5".into(), 4.0, 1.0, Rating::Medium);
+    let part6: Uuid = job.create_product_target("Part6".into(), 10.0, 3.0, Rating::Medium);
+    let tool0: Uuid = job.create_reusable_target("Tool0".into(), 1.0, 1.0, Rating::High);
 
     let t1 = job.create_task("task1".into());
     let t2 = job.create_task("task2".into());

@@ -1,13 +1,13 @@
 use crate::description::job::Job;
 use crate::description::agent::{Agent, CostProfiler};
 use crate::description::units::Time;
+use crate::petri::cost::{CostSet, add_cost_sets};
 use crate::petri::data::{Data, DataTag, Query};
 use crate::petri::net::PetriNet;
 use crate::petri::place::Place;
 use crate::petri::token::TokenSet;
 use crate::petri::transition::{Signature, Transition};
 use enum_tag::EnumTag;
-use std::cmp;
 use std::collections::HashMap;
 use uuid::Uuid;
 
@@ -94,7 +94,7 @@ impl Job {
                             }
                         }
 
-                        let onetime_cost: usize = human.onetime_cost(&transition, &self);
+                        let cost_set: CostSet = human.cost_set(&transition, &self);
                         let execution_time: Time = human.execution_time(&transition, &self);
 
                         let time: Time;
@@ -104,7 +104,7 @@ impl Job {
                             time = execution_time;
                         }
                         transition_copy.time = time;
-                        transition_copy.cost += onetime_cost;
+                        transition_copy.cost = add_cost_sets(&transition.cost, &cost_set);
 
                         updated_transitions.insert(transition.id, transition_copy);
                     }

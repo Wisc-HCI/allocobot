@@ -2,9 +2,11 @@ use std::collections::HashMap;
 use uuid::Uuid;
 use serde::{Serialize, Deserialize};
 use crate::{petri::data::{Data, Query, data_query}, description::units::{Time, TokenCount}};
+use crate::petri::cost::Cost;
 #[cfg(test)]
 use crate::petri::data::DataTag;
 use std::ops::{Add,Sub};
+use crate::petri::cost::CostSet;
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "type", content = "value", rename_all = "camelCase")]
@@ -54,7 +56,7 @@ pub struct Transition {
     pub output: HashMap<Uuid,Signature>,
     pub meta_data: Vec<Data>,
     pub time: Time,
-    pub cost: usize,
+    pub cost: CostSet,
 }
 
 impl Transition {
@@ -64,7 +66,7 @@ impl Transition {
         output: HashMap<Uuid,Signature>, 
         meta_data: Vec<Data>,
         time: Time,
-        cost: usize,
+        cost: Vec<Cost>,
     ) -> Self {
         Self {
             id: Uuid::new_v4(),
@@ -113,7 +115,7 @@ pub fn data_query_mismatched_inner_nonfuzzy() {
             Data::Agent(uuid2)
         ],
         0.0,
-        0,
+        vec![],
     );
     assert_eq!(transition.has_data(&vec![Query::Data(Data::Task(uuid2))]), false);
 }
@@ -131,7 +133,7 @@ pub fn data_query_mismatched_inner_fuzzy() {
             Data::Agent(uuid2)
         ],
         0.0,
-        0,
+        vec![],
     );
     assert_eq!(transition.has_data(&vec![Query::Tag(DataTag::Task)]), true);
 }
@@ -149,7 +151,7 @@ pub fn data_query_matched_inner_nonfuzzy() {
             Data::Agent(uuid2)
         ],
         0.0,
-        0
+        vec![]
     );
     assert_eq!(transition.has_data(&vec![Query::Data(Data::Task(uuid1))]), true);
 }

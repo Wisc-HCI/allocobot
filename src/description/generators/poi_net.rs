@@ -127,7 +127,7 @@ impl Job {
                                     Data::PrimitiveAssignment(*agent_id, primitive_id1),
                                 ],
                                 0.0,
-                                0,
+                                vec![],
                             );
                             new_transitions.push(transition1);
 
@@ -165,7 +165,7 @@ impl Job {
                                     Data::PrimitiveAssignment(*agent_id, primitive_id2),
                                 ],
                                 0.0,
-                                0,
+                                vec![],
                             );
                             new_transitions.push(transition2);
                         }
@@ -223,7 +223,7 @@ impl Job {
                                 Data::PrimitiveAssignment(*agent_id, primitive_id1)
                             ],
                             0.0,
-                            0,
+                            vec![],
                         );
                         new_transitions.push(transition1);
                         let transition2 = Transition::new(
@@ -250,7 +250,7 @@ impl Job {
                                 Data::PrimitiveAssignment(*agent_id, primitive_id2)
                             ],
                             0.0,
-                            0,
+                            vec![],
                         );
                         new_transitions.push(transition2);
                     }
@@ -514,7 +514,7 @@ impl Job {
                             output1,
                             meta_data1,
                             0.0,
-                            0,
+                            vec![],
                         );
                         new_transitions.push(transition1);
                         let mut input2 = existing_reach_transition.output.clone();
@@ -533,7 +533,7 @@ impl Job {
                             output2,
                             meta_data2,
                             0.0,
-                            0,
+                            vec![],
                         );
                         new_transitions.push(transition2);
                     }

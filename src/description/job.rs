@@ -4,6 +4,7 @@ use crate::description::primitive::Primitive;
 use crate::description::target::Target;
 use crate::description::task::Task;
 use crate::description::rating::Rating;
+use crate::description::weights::Weights;
 use crate::petri::net::PetriNet;
 use enum_tag::EnumTag;
 use serde::{Deserialize, Serialize};
@@ -24,6 +25,7 @@ pub struct Job {
     pub agent_net: Option<PetriNet>,
     pub poi_net: Option<PetriNet>,
     pub cost_net: Option<PetriNet>,
+    pub weights: Weights,
 }
 
 impl Job {
@@ -40,6 +42,8 @@ impl Job {
             agent_net: None,
             poi_net: None,
             cost_net: None,
+            weights: Weights::default()
+            
         }
     }
 
@@ -143,29 +147,29 @@ impl Job {
         uuid
     } 
 
-    pub fn create_precursor_target(&mut self, name: String, size: f64, weight: f64) -> Uuid {
-        let target = Target::new_precursor(name, size, weight);
+    pub fn create_precursor_target(&mut self, name: String, size: f64, weight: f64, symmetry: Rating) -> Uuid {
+        let target = Target::new_precursor(name, size, weight, symmetry);
         let uuid = target.id();
         self.add_target(target);
         uuid
     }
 
-    pub fn create_intermediate_target(&mut self, name: String, size: f64, weight: f64) -> Uuid {
-        let target = Target::new_intermediate(name, size, weight);
+    pub fn create_intermediate_target(&mut self, name: String, size: f64, weight: f64, symmetry: Rating) -> Uuid {
+        let target = Target::new_intermediate(name, size, weight, symmetry);
         let uuid = target.id();
         self.add_target(target);
         uuid
     }
 
-    pub fn create_product_target(&mut self, name: String, size: f64, weight: f64) -> Uuid {
-        let target = Target::new_product(name, size, weight);
+    pub fn create_product_target(&mut self, name: String, size: f64, weight: f64, symmetry: Rating) -> Uuid {
+        let target = Target::new_product(name, size, weight, symmetry);
         let uuid = target.id();
         self.add_target(target);
         uuid
     }
 
-    pub fn create_reusable_target(&mut self, name: String, size: f64, weight: f64) -> Uuid {
-        let target = Target::new_reusable(name, size, weight);
+    pub fn create_reusable_target(&mut self, name: String, size: f64, weight: f64, symmetry: Rating) -> Uuid {
+        let target = Target::new_reusable(name, size, weight, symmetry);
         let uuid = target.id();
         self.add_target(target);
         uuid
@@ -207,6 +211,14 @@ impl Job {
             }
             None => {}
         }
+    }
+
+    pub fn set_ergonomic_weight(&mut self, weight: f64) {
+        self.weights.ergonomic = weight;
+    }
+
+    pub fn set_monetary_weight(&mut self, weight: f64) {
+        self.weights.monetary = weight;
     }
 
     pub fn create_petri_nets(&mut self) {

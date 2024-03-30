@@ -78,7 +78,7 @@ impl Job {
                 .collect(),
                 vec![Data::Agent(*agent_id), Data::AgentAdd(*agent_id)],
                 0.0,
-                0,
+                vec![],
             );
             net.transitions.insert(transition.id, transition);
 
@@ -92,7 +92,7 @@ impl Job {
                     .collect(),
                 vec![Data::Agent(*agent_id), Data::AgentDiscard(*agent_id)],
                 0.0,
-                0,
+                vec![],
             );
             net.transitions.insert(transition.id, transition);
         }
@@ -253,7 +253,7 @@ impl Job {
                             .chain(all_assigned_agent_ids.iter().map(|id| Data::Agent(**id)))
                             .collect(),
                         0.0,
-                        0,
+                        vec![],
                     );
                     net.transitions
                         .insert(allocation_transition.id, allocation_transition);
