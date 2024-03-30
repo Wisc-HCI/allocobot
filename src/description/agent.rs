@@ -149,7 +149,7 @@ impl CostProfiler for HumanInfo {
             ) => {
                 // Consider Carry Calculation
 
-                let mut time: Time = 0.0;
+                let mut tmu: f64 = 0.0;
 
                 // Retrieve data
                 let from_standing_info = job.points_of_interest.get(from_standing).unwrap();
@@ -157,31 +157,31 @@ impl CostProfiler for HumanInfo {
                 let to_hand_info = job.points_of_interest.get(to_hand).unwrap();
                 let from_hand_info = job.points_of_interest.get(from_hand).unwrap();
 
-                // Grasp Time
-                time += 2.0;
+                // Grasp Time in TMU
+                tmu += 2.0;
 
                 // If the source hand is below the reachable area, based on standing location, add a time penalty
                 if get_is_within_neutral_reach(standing_info, from_hand_info, self.assumption_acromial_height, self.assumption_reach) {
-                    time += 30.5;
+                    tmu += 30.5;
                 }
 
                 
                 // Compute travel vector/distance
                 let travel_vector = to_standing_info.position() - from_standing_info.position();
                 let travel_distance = travel_vector.norm();
-                time += 17.0 * (travel_distance/1.19);
+                tmu += 17.0 * (travel_distance/1.19);
 
 
                 // If the target hand is below the reachable area, based on standing location, add a time penalty
                 if get_is_within_neutral_reach(standing_info, to_hand_info, self.assumption_acromial_height, self.assumption_reach) {
-                    time += 30.5;
+                    tmu += 30.5;
                 }
 
                 // Release time
-                time += 2.0;
+                tmu += 2.0;
 
                 // Convert from TMU to seconds
-                time = time * TMU_PER_SECOND;
+                let time = tmu * TMU_PER_SECOND;
 
                 return time;
             }, 
@@ -278,7 +278,7 @@ impl CostProfiler for HumanInfo {
                 // Release tmu
                 tmu += 2.0;
 
-                let time = tmu * 0.036;
+                let time = tmu * TMU_PER_SECOND;
 
                 return time;
             },
@@ -368,7 +368,7 @@ impl CostProfiler for HumanInfo {
                 }),
             ) => {
                 // Consider Force Calculation
-                let mut time: Time = 0.0;
+                let mut tmu: f64 = 0.0;
 
                 let target_info = job.targets.get(target).unwrap();
                 let weight = target_info.weight();
@@ -378,33 +378,33 @@ impl CostProfiler for HumanInfo {
                     return 10.6 * TMU_PER_SECOND;
                 }
 
-                time += 2.0;
+                tmu += 2.0;
 
                 // TODO: MVC
                 let mut mvc = 0.0;
 
                 if mvc < 0.2 {
                     if weight < 1.13 {
-                        time += 4.0;
+                        tmu += 4.0;
                     } else {
-                        time += 5.7;
+                        tmu += 5.7;
                     }
                 } else if mvc < 0.5 {
                     if weight < 1.13 {
-                        time += 7.5;
+                        tmu += 7.5;
                     } else {
-                        time += 11.8;
+                        tmu += 11.8;
                     }
                 } else {
                     if weight < 1.13 {
-                        time += 22.9;
+                        tmu += 22.9;
                     } else {
-                        time += 34.7;
+                        tmu += 34.7;
                     }
                 }
 
                 // Convert TMU to seconds
-                time = time * TMU_PER_SECOND;
+                let time = tmu * TMU_PER_SECOND;
 
                 return time;
             },
