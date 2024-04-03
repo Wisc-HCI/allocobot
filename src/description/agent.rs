@@ -132,14 +132,14 @@ impl CostProfiler for HumanInfo {
 
         for primitive in assigned_primitives.iter() {
             let temp_vec = vec![*primitive];
-            let single_time = get_human_time_for_primitive(temp_vec, job, self);
+            let single_time = get_human_time_for_primitive(temp_vec, transition, job, self);
             if single_time > max_time {
                 max_time = single_time;
             }
 
             for primitive_two in assigned_primitives.iter() {
                 let temp_vec = vec![*primitive, *primitive_two];
-                let doubles_time = get_human_time_for_primitive(temp_vec, job, self);
+                let doubles_time = get_human_time_for_primitive(temp_vec, transition,  job, self);
                 if doubles_time > max_time {
                     max_time = doubles_time;
                 }
@@ -496,7 +496,7 @@ fn get_is_within_neutral_reach(standing_poi: &PointOfInterest, hand_poi: &PointO
     return distance <= reach;
 }
 
-fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>, job: &Job, agent: &HumanInfo) -> Time {
+fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transition: &Transition, job: &Job, agent: &HumanInfo) -> Time {
     return match (assigned_primitives.len(), assigned_primitives.first()) {
         (0, _) => {
             // This is a no-op, so just return 0
@@ -743,6 +743,8 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>, job: &Job,
             let target_info = job.targets.get(target).unwrap();
             let weight = target_info.weight();
 
+            let mut is_one_hand = true;
+
             if *magnitude >= 0.0 {
                 // Apply force, dwell minimum, and release
                 return 10.6 * TMU_PER_SECOND;
@@ -750,20 +752,74 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>, job: &Job,
 
             tmu += 2.0;
 
+            let mut hand_location = Vector3::new(0.0,0.0,0.0);
+            let mut stand_location = Vector3::new(0.0,0.0,0.0);
+            
+            for data in transition.meta_data.iter() {
+                match (data) {
+                    Data::Hand(poi_id, agent_id) => {
+                        if agent_id == agent.id {
+                            let hand_poi = job.points_of_interest.get(poi_id).unwrap();
+                            hand_location = hand_poi.position().clone();
+                        }
+                    },
+                    Data::Standing(poi_id, agent_id) => {
+                        if agent_id == agent.id {
+                            let stand_poi = job.points_of_interest.get(poi_id).unwrap();
+                            stand_location = stand_poi.position().clone();
+                        }
+                    },
+                    _ => {}
+                }
+            }
+
+            // Check whether this is a 1 or 2 handed activity
+            let horizontal_distance = ((hand_location.x * hand_location.x) - (stand_location.x * stand_location.x)).sqrt();
+            if horizontal_distance < 0.05 && weight > 1 {
+                is_one_hand = false;
+            } else if horizontal_distance < 0.15 && weight > 4 {
+                is_one_hand = false;
+            } else if horizontal_distance < 0.45 && weight > 8 {
+                is_one_hand = false;
+            } else if horizontal_distance < 2 {
+                is_one_hand = false;
+            }
+
+            // TODO: double check whether you should use stand locatioon or offset the stand_location by the acromial height.
+            let distance_between_hand_stand = Vector3.distance(hand_location, stand_location);
             let mut denom = 0.0;
-            // assume 2 hands if magnitude is greater than 100 based on the trees
-            if *magnitude > 100 {
-                // average
-                denom += 159;
-            } else if *magnitude < -100 {
-                // average
-                denom += 174;
-            } else if *magnitude >= 0 && *magnitude < 100 {
-                // average
-                denom += 81;
+            if !is_one_hand && *magnitude > 0 {
+                if distance_between_hand_stand < 0.5 {
+                    denom += 149;
+                } else if distance_between_hand_stand < 1 {
+                    denom += 109;
+                } else {
+                    denom += 218;
+                }
+            } else if !is_one_hand && *magnitude < 0 {
+                if distance_between_hand_stand < 0.5 {
+                    denom += 109;
+                } else if distance_between_hand_stand < 1 {
+                    denom += 228;
+                } else {
+                    denom += 185;
+                }
+            } else if *magnitude >= 0 {
+                if distance_between_hand_stand < 0.97 {
+                    denom += 89;
+                } else if distance_between_hand_stand < 1.296 {
+                    denom += 76
+                } else {
+                    denom += 78
+                }
             } else {
-                // average
-                denom += 92;
+                if distance_between_hand_stand < 0.97 {
+                    denom += 91;
+                } else if distance_between_hand_stand < 1.296 {
+                    denom += 86
+                } else {
+                    denom += 99
+                }
             }
 
             let mut mvc = *magnitude / denom;
@@ -845,8 +901,21 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>, job: &Job,
                 ..
             }),
         ) => {
+            let mut tmu = 0;
             // TODO. look at data to compare hand location to object location
-            0.0
+            for data in transition.meta_data.iter() {
+                match (data) {
+                    Data::Hand(poi_id, agent_id) => {
+                        if agent_id == agent.id {
+                            let hand_location = job.points_of_interest.get(poi_id).unwrap();
+                            let target = job.targets.get(target).unwrap();
+
+                            // TODO
+                        }
+                    },
+                    _ => {}
+                }
+            }
         },
         (
             2,
@@ -865,20 +934,74 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>, job: &Job,
                     // Grasp TMU
                     tmu += 2.0;
 
+                    let mut hand_location = Vector3::new(0.0,0.0,0.0);
+                    let mut stand_location = Vector3::new(0.0,0.0,0.0);
+                    
+                    for data in transition.meta_data.iter() {
+                        match (data) {
+                            Data::Hand(poi_id, agent_id) => {
+                                if agent_id == agent.id {
+                                    let hand_poi = job.points_of_interest.get(poi_id).unwrap();
+                                    hand_location = hand_poi.position().clone();
+                                }
+                            },
+                            Data::Standing(poi_id, agent_id) => {
+                                if agent_id == agent.id {
+                                    let stand_poi = job.points_of_interest.get(poi_id).unwrap();
+                                    stand_location = stand_poi.position().clone();
+                                }
+                            },
+                            _ => {}
+                        }
+                    }
+        
+                    // Check whether this is a 1 or 2 handed activity
+                    let horizontal_distance = ((hand_location.x * hand_location.x) - (stand_location.x * stand_location.x)).sqrt();
+                    if horizontal_distance < 0.05 && weight > 1 {
+                        is_one_hand = false;
+                    } else if horizontal_distance < 0.15 && weight > 4 {
+                        is_one_hand = false;
+                    } else if horizontal_distance < 0.45 && weight > 8 {
+                        is_one_hand = false;
+                    } else if horizontal_distance < 2 {
+                        is_one_hand = false;
+                    }
+        
+                    // TODO: double check whether you should use stand locatioon or offset the stand_location by the acromial height.
+                    let distance_between_hand_stand = Vector3.distance(hand_location, stand_location);
                     let mut denom = 0.0;
-                    // assume 2 hands if magnitude is greater than 100 based on the trees
-                    if *magnitude > 100 {
-                        // average
-                        denom += 159;
-                    } else if *magnitude < -100 {
-                        // average
-                        denom += 174;
-                    } else if *magnitude >= 0 && *magnitude < 100 {
-                        // average
-                        denom += 81;
+                    if !is_one_hand && *magnitude > 0 {
+                        if distance_between_hand_stand < 0.5 {
+                            denom += 149;
+                        } else if distance_between_hand_stand < 1 {
+                            denom += 109;
+                        } else {
+                            denom += 218;
+                        }
+                    } else if !is_one_hand && *magnitude < 0 {
+                        if distance_between_hand_stand < 0.5 {
+                            denom += 109;
+                        } else if distance_between_hand_stand < 1 {
+                            denom += 228;
+                        } else {
+                            denom += 185;
+                        }
+                    } else if *magnitude >= 0 {
+                        if distance_between_hand_stand < 0.97 {
+                            denom += 89;
+                        } else if distance_between_hand_stand < 1.296 {
+                            denom += 76
+                        } else {
+                            denom += 78
+                        }
                     } else {
-                        // average
-                        denom += 92;
+                        if distance_between_hand_stand < 0.97 {
+                            denom += 91;
+                        } else if distance_between_hand_stand < 1.296 {
+                            denom += 86
+                        } else {
+                            denom += 99
+                        }
                     }
         
                     let mut mvc = *magnitude / denom;
@@ -988,20 +1111,75 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>, job: &Job,
                     // Grasp TMU
                     tmu += 2.0;
 
+                            
+                    let mut hand_location = Vector3::new(0.0,0.0,0.0);
+                    let mut stand_location = Vector3::new(0.0,0.0,0.0);
+                    
+                    for data in transition.meta_data.iter() {
+                        match (data) {
+                            Data::Hand(poi_id, agent_id) => {
+                                if agent_id == agent.id {
+                                    let hand_poi = job.points_of_interest.get(poi_id).unwrap();
+                                    hand_location = hand_poi.position().clone();
+                                }
+                            },
+                            Data::Standing(poi_id, agent_id) => {
+                                if agent_id == agent.id {
+                                    let stand_poi = job.points_of_interest.get(poi_id).unwrap();
+                                    stand_location = stand_poi.position().clone();
+                                }
+                            },
+                            _ => {}
+                        }
+                    }
+
+                    // Check whether this is a 1 or 2 handed activity
+                    let horizontal_distance = ((hand_location.x * hand_location.x) - (stand_location.x * stand_location.x)).sqrt();
+                    if horizontal_distance < 0.05 && weight > 1 {
+                        is_one_hand = false;
+                    } else if horizontal_distance < 0.15 && weight > 4 {
+                        is_one_hand = false;
+                    } else if horizontal_distance < 0.45 && weight > 8 {
+                        is_one_hand = false;
+                    } else if horizontal_distance < 2 {
+                        is_one_hand = false;
+                    }
+
+                    // TODO: double check whether you should use stand locatioon or offset the stand_location by the acromial height.
+                    let distance_between_hand_stand = Vector3.distance(hand_location, stand_location);
                     let mut denom = 0.0;
-                    // assume 2 hands if magnitude is greater than 100 based on the trees
-                    if *magnitude > 100 {
-                        // average
-                        denom += 159;
-                    } else if *magnitude < -100 {
-                        // average
-                        denom += 174;
-                    } else if *magnitude >= 0 && *magnitude < 100 {
-                        // average
-                        denom += 81;
+                    if !is_one_hand && *magnitude > 0 {
+                        if distance_between_hand_stand < 0.5 {
+                            denom += 149;
+                        } else if distance_between_hand_stand < 1 {
+                            denom += 109;
+                        } else {
+                            denom += 218;
+                        }
+                    } else if !is_one_hand && *magnitude < 0 {
+                        if distance_between_hand_stand < 0.5 {
+                            denom += 109;
+                        } else if distance_between_hand_stand < 1 {
+                            denom += 228;
+                        } else {
+                            denom += 185;
+                        }
+                    } else if *magnitude >= 0 {
+                        if distance_between_hand_stand < 0.97 {
+                            denom += 89;
+                        } else if distance_between_hand_stand < 1.296 {
+                            denom += 76
+                        } else {
+                            denom += 78
+                        }
                     } else {
-                        // average
-                        denom += 92;
+                        if distance_between_hand_stand < 0.97 {
+                            denom += 91;
+                        } else if distance_between_hand_stand < 1.296 {
+                            denom += 86
+                        } else {
+                            denom += 99
+                        }
                     }
         
                     let mut mvc = *magnitude / denom;
