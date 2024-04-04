@@ -7,6 +7,7 @@ use crate::description::units::Time;
 use crate::petri::data::{Data, DataTag};
 use crate::petri::transition::Transition;
 use crate::petri::cost::{CostSet, CostFrequency, CostCategory, Cost};
+use crate::util::vector3_distance_f64;
 use nalgebra::Vector3;
 use serde::{Deserialize, Serialize};
 use std::{cmp, collections::HashMap, f64::consts::PI};
@@ -774,7 +775,7 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
             }
 
             // Check whether this is a 1 or 2 handed activity
-            let horizontal_distance = ((hand_location.x * hand_location.x) - (stand_location.x * stand_location.x)).sqrt();
+            let horizontal_distance = hand_location.x - stand_location.x;
             if horizontal_distance < 0.05 && weight > 1 {
                 is_one_hand = false;
             } else if horizontal_distance < 0.15 && weight > 4 {
@@ -786,7 +787,7 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
             }
 
             // TODO: double check whether you should use stand locatioon or offset the stand_location by the acromial height.
-            let distance_between_hand_stand = Vector3.distance(hand_location, stand_location);
+            let distance_between_hand_stand = vector3_distance_f64(hand_location, stand_location);
             let mut denom = 0.0;
             if !is_one_hand && *magnitude > 0 {
                 if distance_between_hand_stand < 0.5 {
@@ -956,7 +957,7 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
                     }
         
                     // Check whether this is a 1 or 2 handed activity
-                    let horizontal_distance = ((hand_location.x * hand_location.x) - (stand_location.x * stand_location.x)).sqrt();
+                    let horizontal_distance = hand_location.x - stand_location.x;
                     if horizontal_distance < 0.05 && weight > 1 {
                         is_one_hand = false;
                     } else if horizontal_distance < 0.15 && weight > 4 {
@@ -968,7 +969,7 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
                     }
         
                     // TODO: double check whether you should use stand locatioon or offset the stand_location by the acromial height.
-                    let distance_between_hand_stand = Vector3.distance(hand_location, stand_location);
+                    let distance_between_hand_stand = vector3_distance_f64(hand_location, stand_location);
                     let mut denom = 0.0;
                     if !is_one_hand && *magnitude > 0 {
                         if distance_between_hand_stand < 0.5 {
@@ -1134,7 +1135,7 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
                     }
 
                     // Check whether this is a 1 or 2 handed activity
-                    let horizontal_distance = ((hand_location.x * hand_location.x) - (stand_location.x * stand_location.x)).sqrt();
+                    let horizontal_distance = hand_location.x - stand_location.x;
                     if horizontal_distance < 0.05 && weight > 1 {
                         is_one_hand = false;
                     } else if horizontal_distance < 0.15 && weight > 4 {
@@ -1146,7 +1147,7 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
                     }
 
                     // TODO: double check whether you should use stand locatioon or offset the stand_location by the acromial height.
-                    let distance_between_hand_stand = Vector3.distance(hand_location, stand_location);
+                    let distance_between_hand_stand = vector3_distance_f64(hand_location, stand_location);
                     let mut denom = 0.0;
                     if !is_one_hand && *magnitude > 0 {
                         if distance_between_hand_stand < 0.5 {

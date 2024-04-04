@@ -89,6 +89,10 @@ pub fn index_of_difficulty(d: f64, w: f64) -> f64 {
     (2.0 * d / w).log2()
 }
 
+pub fn vector3_distance_f64(vector1: Vector3<f64>, vector2: Vector3<f64>) -> f64 {
+    return ((vector1.x - vector2.x).powf(2.0) + (vector1.y - vector2.y).powf(2.0) + (vector1.z - vector2.z).powf(2.0)).sqrt();
+}
+
 #[test]
 pub fn test_split() {
     let target1 = Uuid::new_v4();
