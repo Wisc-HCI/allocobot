@@ -21,6 +21,12 @@ export type Signature = {
   value: number | [number, number];
 };
 
+export type Cost = {
+  frequency: "perTime" | "once";
+  category: "monetary" | "ergonomic";
+  value: number;
+};
+
 export type Transition = {
   id: string;
   name: string;
@@ -28,7 +34,7 @@ export type Transition = {
   input: { [key: string]: Signature };
   output: { [key: string]: Signature };
   time: number;
-  cost: number;
+  cost: Cost[];
 };
 
 export type PetriNet = {
@@ -43,12 +49,12 @@ export type PetriNet = {
 export type MetaDataFilter = {
   type: string | null;
   value?: (string | number | null) | (string | number | null)[];
-}
+};
 
 export type Search = {
   name: string | null;
   tags: MetaDataFilter[];
-}
+};
 
 export const netAtom = atom<PetriNet>(net);
 
@@ -61,17 +67,18 @@ export const colorLookupAtom = atom<{ [key: string]: string }>((get) => {
 
   const colorLookup: { [key: string]: string } = mapValues(
     nameLookup,
-    (_, key) => interpolateRainbow(valueList.indexOf(nameLookup[key]) / sizeColor)
+    (_, key) =>
+      interpolateRainbow(valueList.indexOf(nameLookup[key]) / sizeColor),
   );
   return colorLookup;
 });
 
 export const placesAtom = focusAtom(netAtom, (optic) => optic.prop("places"));
 export const transitionsAtom = focusAtom(netAtom, (optic) =>
-  optic.prop("transitions")
+  optic.prop("transitions"),
 );
 export const nameLookupAtom = focusAtom(netAtom, (optic) =>
-  optic.prop("nameLookup")
+  optic.prop("nameLookup"),
 );
 
 export const nodeNameLookupAtom = atom<{ [key: string]: string }>((get) => {
@@ -81,7 +88,7 @@ export const nodeNameLookupAtom = atom<{ [key: string]: string }>((get) => {
   };
 });
 
-export const searchAtom = atom<Search>({name: null, tags: []});
+export const searchAtom = atom<Search>({ name: null, tags: [] });
 
 // export const subnetAtom = atom<{
 //   [key: string]: { [key: string]: Transition | Place };
@@ -98,19 +105,21 @@ export const searchAtom = atom<Search>({name: null, tags: []});
 //   return subnets;
 // });
 
-export const directedNeighborsAtom = atom<{ [key: string]:{incoming: Neighbors; outgoing: Neighbors} }>((get) => {
-    const net = get(netAtom);
-    const directedNeighbors = {
-        ...mapValues(net.places, (place) => getDirectedNeighbors(place.id, net)),
-        ...mapValues(net.transitions, (transition) =>
-            getDirectedNeighbors(transition.id, net)
-        ),
-        };
-    return directedNeighbors;
-})
+export const directedNeighborsAtom = atom<{
+  [key: string]: { incoming: Neighbors; outgoing: Neighbors };
+}>((get) => {
+  const net = get(netAtom);
+  const directedNeighbors = {
+    ...mapValues(net.places, (place) => getDirectedNeighbors(place.id, net)),
+    ...mapValues(net.transitions, (transition) =>
+      getDirectedNeighbors(transition.id, net),
+    ),
+  };
+  return directedNeighbors;
+});
 
 export const markingAtom = focusAtom(netAtom, (optic) =>
-  optic.prop("initialMarking")
+  optic.prop("initialMarking"),
 );
 
 export interface Neighbors {
@@ -120,7 +129,7 @@ export interface Neighbors {
 // A version of getNeighbors that breaks up incoming from outgoing connections
 const getDirectedNeighbors: (
   id: string,
-  net: PetriNet
+  net: PetriNet,
 ) => { incoming: Neighbors; outgoing: Neighbors } = memoize((id, net) => {
   let incoming: Neighbors = {};
   let outgoing: Neighbors = {};
@@ -137,7 +146,7 @@ const getDirectedNeighbors: (
   } else if (net.places[id]) {
     const neighborTransitions = getPlaceNeighbors(
       id,
-      Object.values(net.transitions)
+      Object.values(net.transitions),
     );
 
     neighborTransitions.forEach((neighborTransition: Transition) => {
@@ -146,7 +155,7 @@ const getDirectedNeighbors: (
           neighborTransition,
           neighborTransition.input[id],
         ];
-      } 
+      }
       if (Object.keys(neighborTransition.output).includes(id)) {
         incoming[neighborTransition.id] = [
           neighborTransition,
@@ -162,7 +171,7 @@ const getNeighbors: (
   id: string,
   net: PetriNet,
   boundary: number,
-  covered: string[]
+  covered: string[],
 ) => { [key: string]: Transition | Place } = memoize(
   (id, net, boundary, covered) => {
     let neighbors: { [key: string]: Transition | Place } = {};
@@ -179,7 +188,7 @@ const getNeighbors: (
               key,
               net,
               boundary - 1,
-              currentCovered
+              currentCovered,
             );
             neighbors = { ...neighbors, ...adjacentNeighbors };
             Object.keys(adjacentNeighbors).forEach((key) => {
@@ -198,7 +207,7 @@ const getNeighbors: (
               key,
               net,
               boundary - 1,
-              currentCovered
+              currentCovered,
             );
             neighbors = { ...neighbors, ...adjacentNeighbors };
             Object.keys(adjacentNeighbors).forEach((key) => {
@@ -212,7 +221,7 @@ const getNeighbors: (
     } else if (net.places[id]) {
       const neighborTransitions = getPlaceNeighbors(
         id,
-        Object.values(net.transitions)
+        Object.values(net.transitions),
       );
       const place = net.places[id];
       let currentCovered = [...covered, id];
@@ -226,7 +235,7 @@ const getNeighbors: (
               neighborTransition.id,
               net,
               boundary - 1,
-              currentCovered
+              currentCovered,
             );
             neighbors = { ...neighbors, ...adjacentNeighbors };
             Object.keys(adjacentNeighbors).forEach((key) => {
@@ -239,17 +248,17 @@ const getNeighbors: (
       });
     }
     return neighbors;
-  }
+  },
 );
 
 const getPlaceNeighbors: (
   id: string,
-  transitions: Transition[]
+  transitions: Transition[],
 ) => Transition[] = (id, transitions) => {
   return transitions.filter(
     (transition) =>
       Object.keys(transition.input).includes(id) ||
-      Object.keys(transition.output).includes(id)
+      Object.keys(transition.output).includes(id),
   );
 };
 

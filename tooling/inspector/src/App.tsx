@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   AppBar,
   Card,
@@ -61,7 +60,10 @@ function App() {
   const colorKeys = Object.keys(net.nameLookup);
   const sizeColor = colorKeys.length;
 
-  const colorMap: { [key: string]: string } = mapValues(net.nameLookup, (_, key)=>interpolateRainbow(colorKeys.indexOf(key)/sizeColor))
+  const colorMap: { [key: string]: string } = mapValues(
+    net.nameLookup,
+    (_, key) => interpolateRainbow(colorKeys.indexOf(key) / sizeColor),
+  );
 
   return (
     <ThemeProvider theme={createTheme({ palette: { mode: "dark" } })}>
@@ -83,25 +85,46 @@ function App() {
           sx={{ paddingTop: 10, paddingBottom: 5 }}
         >
           {Object.values(net.places).map((place: Place) => (
-            <Card href={place.id} key={place.id} component="a" rel="noopener noreferrer">
-              <CardHeader title={place.name}/>
+            <Card
+              href={place.id}
+              key={place.id}
+              component="a"
+              rel="noopener noreferrer"
+            >
+              <CardHeader title={place.name} />
               <CardContent>
-                <Stack
-                direction="column"
-                spacing={1}
-                >
-                {place.metaData.map((metaData: MetaData, i: number) => (
-                  <div key={`${place.id}-md${i}`}>
-                    <span style={{backgroundColor: '#555', padding: 5, borderRadius: 5, marginRight: 3}}>{metaData.type}</span>
-                    {typeof metaData.value === "string"
-                      ? <span style={{backgroundColor: colorMap[metaData.value], padding: 5, borderRadius: 5}}>{net.nameLookup[metaData.value]}</span>
-                      : typeof metaData.value === "object"
-                      ? `: ${metaData.value
+                <Stack direction="column" spacing={1}>
+                  {place.metaData.map((metaData: MetaData, i: number) => (
+                    <div key={`${place.id}-md${i}`}>
+                      <span
+                        style={{
+                          backgroundColor: "#555",
+                          padding: 5,
+                          borderRadius: 5,
+                          marginRight: 3,
+                        }}
+                      >
+                        {metaData.type}
+                      </span>
+                      {typeof metaData.value === "string" ? (
+                        <span
+                          style={{
+                            backgroundColor: colorMap[metaData.value],
+                            padding: 5,
+                            borderRadius: 5,
+                          }}
+                        >
+                          {net.nameLookup[metaData.value]}
+                        </span>
+                      ) : typeof metaData.value === "object" ? (
+                        `: ${metaData.value
                           .map((v) => net.nameLookup[v])
                           .join(", ")}`
-                      : ""}
-                  </div>
-                ))}
+                      ) : (
+                        ""
+                      )}
+                    </div>
+                  ))}
                 </Stack>
               </CardContent>
             </Card>

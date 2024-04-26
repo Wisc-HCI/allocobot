@@ -1,21 +1,20 @@
+use serde::{Deserialize, Serialize};
 use std::ops::Add;
 use std::vec::Vec;
-use serde::{Serialize, Deserialize};
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(tag = "type", rename_all = "camelCase")]
+#[serde(rename_all = "camelCase")]
 pub enum CostFrequency {
     Once,
     PerTime,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(tag = "type", rename_all = "camelCase")]
+#[serde(rename_all = "camelCase")]
 pub enum CostCategory {
     Ergonomic,
-    Monetary
+    Monetary,
 }
-
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Cost {
@@ -31,10 +30,16 @@ pub fn add_cost_sets(a: &CostSet, b: &CostSet) -> CostSet {
     for freq in vec![CostFrequency::Once, CostFrequency::PerTime].iter() {
         for cat in vec![CostCategory::Ergonomic, CostCategory::Monetary].iter() {
             let mut sum = 0.0;
-            for cost in a.iter().filter(|c| c.frequency == *freq && c.category == *cat) {
+            for cost in a
+                .iter()
+                .filter(|c| c.frequency == *freq && c.category == *cat)
+            {
                 sum += cost.value;
             }
-            for cost in b.iter().filter(|c| c.frequency == *freq && c.category == *cat) {
+            for cost in b
+                .iter()
+                .filter(|c| c.frequency == *freq && c.category == *cat)
+            {
                 sum += cost.value;
             }
             if sum > 0.0 {

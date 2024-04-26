@@ -1,14 +1,15 @@
 import { useMemo } from "react";
-import { Card, CardHeader, CardContent, Stack } from "@mui/material";
+import { Card, CardHeader, CardContent, Stack, Tooltip } from "@mui/material";
 // import "./App.css";
 import { useParams } from "react-router-dom";
-import { Transition, MetaData } from "../store";
-import { colorLookupAtom, transitionsAtom, nameLookupAtom, directedNeighborsAtom, Neighbors } from "../store";
+import { Transition, Cost } from "../store";
+import { transitionsAtom, directedNeighborsAtom, Neighbors } from "../store";
 import { selectAtom } from "jotai/utils";
 import { focusAtom } from "jotai-optics";
 import { atom, useAtomValue } from "jotai";
 import MetaDataRenderer from "../MetaDataRenderer";
 import PeerRenderer from "../PeerRenderer";
+import { BackHand, LooksOne, Repeat, Sell } from "@mui/icons-material";
 
 const defaultTransitionAtom = atom<Transition>({
   id: "",
@@ -17,7 +18,7 @@ const defaultTransitionAtom = atom<Transition>({
   input: {},
   output: {},
   time: 0,
-  cost: 0,
+  cost: [],
 });
 
 const defaultNeighborAtom = atom<{ incoming: Neighbors; outgoing: Neighbors }>({
@@ -27,13 +28,13 @@ const defaultNeighborAtom = atom<{ incoming: Neighbors; outgoing: Neighbors }>({
 
 export default function TransitionCard() {
   const { transitionId } = useParams();
-  
+
   const transitionAtom = useMemo(
     () =>
       transitionId
         ? focusAtom(transitionsAtom, (optic) => optic.prop(transitionId))
         : defaultTransitionAtom,
-    [transitionId]
+    [transitionId],
   );
   const transition = useAtomValue(transitionAtom);
 
@@ -42,7 +43,7 @@ export default function TransitionCard() {
       transitionId
         ? selectAtom(directedNeighborsAtom, (lookup) => lookup[transitionId])
         : defaultNeighborAtom,
-    [transitionId]
+    [transitionId],
   );
 
   const neighbors = useAtomValue(neighborAtom);
@@ -66,16 +67,27 @@ export default function TransitionCard() {
         }
         action={
           <Stack direction="row" gap={1}>
-            <span
-              style={{
-                backgroundColor: "#666",
-                padding: 5,
-                borderRadius: 5,
-                textTransform: "uppercase",
-              }}
-            >
-              Cost {transition.cost}
-            </span>
+            {transition.cost.map((cost: Cost) => (
+              <Stack
+                direction="row"
+                gap={1}
+                alignItems="center"
+                style={{
+                  backgroundColor: "#666",
+                  padding: 5,
+                  borderRadius: 5,
+                  textTransform: "uppercase",
+                }}
+              >
+                <Tooltip title={cost.category.toUpperCase()}>
+                  {CategoryIcon[cost.category]}
+                </Tooltip>
+                <Tooltip title={cost.frequency.toUpperCase()}>
+                  {FrequencyIcon[cost.frequency]}
+                </Tooltip>
+                {cost.value.toFixed(4)}
+              </Stack>
+            ))}
             <span
               style={{
                 backgroundColor: "#666",
@@ -98,3 +110,13 @@ export default function TransitionCard() {
     </Card>
   );
 }
+
+const CategoryIcon = {
+  monetary: <Sell sx={{ fontSize: 14 }} />,
+  ergonomic: <BackHand sx={{ fontSize: 14 }} />,
+};
+
+const FrequencyIcon = {
+  once: <LooksOne sx={{ fontSize: 14 }} />,
+  perTime: <Repeat sx={{ fontSize: 14 }} />,
+};

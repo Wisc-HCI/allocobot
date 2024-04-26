@@ -2,13 +2,18 @@ import { useMemo } from "react";
 import { Card, CardHeader, CardContent, Stack } from "@mui/material";
 // import "./App.css";
 import { useParams } from "react-router-dom";
-import { Place, MetaData, directedNeighborsAtom, Neighbors, placesAtom, markingAtom } from "../store";
+import {
+  Place,
+  directedNeighborsAtom,
+  Neighbors,
+  placesAtom,
+  markingAtom,
+} from "../store";
 import { focusAtom } from "jotai-optics";
 import { atom, useAtomValue } from "jotai";
 import { selectAtom } from "jotai/utils";
 import MetaDataRenderer from "../MetaDataRenderer";
 import PeerRenderer from "../PeerRenderer";
-import { initial } from "lodash";
 
 const defaultPlaceAtom = atom<Place>({
   id: "",
@@ -24,13 +29,13 @@ const defaultNeighborAtom = atom<{ incoming: Neighbors; outgoing: Neighbors }>({
 
 export default function PlaceCard() {
   const { placeId } = useParams();
-  
+
   const placeAtom = useMemo(
     () =>
       placeId
         ? focusAtom(placesAtom, (optic) => optic.prop(placeId))
         : defaultPlaceAtom,
-    [placeId]
+    [placeId],
   );
   const place = useAtomValue(placeAtom);
 
@@ -39,12 +44,12 @@ export default function PlaceCard() {
       placeId
         ? selectAtom(directedNeighborsAtom, (lookup) => lookup[placeId])
         : defaultNeighborAtom,
-    [placeId]
+    [placeId],
   );
 
   const neighbors = useAtomValue(neighborAtom);
 
-  const marking = useAtomValue(markingAtom)
+  const marking = useAtomValue(markingAtom);
 
   return (
     <Card key={place.id}>
