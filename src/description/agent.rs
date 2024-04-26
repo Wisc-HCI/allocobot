@@ -7,9 +7,10 @@ use crate::description::units::Time;
 use crate::petri::data::{Data, DataTag};
 use crate::petri::transition::Transition;
 use crate::petri::cost::{CostSet, CostFrequency, CostCategory, Cost};
-use crate::util::vector3_distance_f64;
-use nalgebra::Vector3;
+use crate::util::{vector2_distance_f64, vector3_distance_f64};
+use nalgebra::{Vector2, Vector3};
 use serde::{Deserialize, Serialize};
+use std::primitive;
 use std::{cmp, collections::HashMap, f64::consts::PI};
 // use std::collections::HashMap;
 use enum_tag::EnumTag;
@@ -158,7 +159,7 @@ impl CostProfiler for HumanInfo {
             .map(|d| job.primitives.get(&d.secondary().unwrap()).unwrap())
             .collect();
 
-        let mut one_time_ergo_cost = CostSet::new();
+        let mut ergo_cost_set = CostSet::new();
 
         let execution_time = self.execution_time(transition, job);
 
@@ -171,6 +172,255 @@ impl CostProfiler for HumanInfo {
                 _ => None,
             })
             .collect();
+
+        for primitive in assigned_primitives.iter() {
+            // for primitive in &assigned_primitives {
+            match *primitive {
+                Primitive::Force {
+                    target,
+                    magnitude,
+                    ..
+                } => {
+                    let target_info = job.targets.get(target).unwrap();
+                    let weight = target_info.weight();
+                    let mvc = get_force_mvc(transition, magnitude, self, job, weight);
+                    ergo_cost_set.push(Cost {
+                        frequency: CostFrequency::PerTime,
+                        value: mvc * execution_time,
+                        category: CostCategory::Ergonomic
+                    });
+                },
+                Primitive::Carry { 
+                    target,  
+                    to_standing,
+                    to_hand ,
+                    ..
+                } => {
+                    let target_info = job.targets.get(target).unwrap();
+                    let weight = target_info.weight();
+                    let (hand_location, stand_location) = get_hand_stand_locations(transition, self, job);                    
+                    let is_one_hand = is_one_hand_task(hand_location, stand_location, weight);
+                    
+                    // let from_standing_info = job.points_of_interest.get(from_standing).unwrap();
+                    let to_standing_info = job.points_of_interest.get(to_standing).unwrap();
+                    let to_hand_info = job.points_of_interest.get(to_hand).unwrap();
+                    // let from_hand_info = job.points_of_interest.get(from_hand).unwrap();
+                    
+                    let hand_travel_vector = to_hand_info.position() - to_standing_info.position();
+                    let hand_travel_distance = hand_travel_vector.norm();
+
+                    let mut denom = 0.0;
+                    if is_one_hand {
+                        if hand_travel_distance < 0.279 {
+                            denom += 101.0;
+                        } else if hand_travel_distance < 0.4185 {
+                            denom += 69.5;
+                        } else {
+                            denom += 49.0
+                        }
+                    } else {
+                        if hand_travel_distance < 0.279 {
+                            denom += 202.0;
+                        } else if hand_travel_distance < 0.4185 {
+                            denom += 139.0;
+                        } else {
+                            denom += 98.0
+                        }
+                    }
+
+                    let mvc = weight / denom;
+                    ergo_cost_set.push(Cost {
+                        frequency: CostFrequency::PerTime,
+                        value: mvc * execution_time,
+                        category: CostCategory::Ergonomic
+                    });
+                },
+                Primitive::Move {
+                    target,
+                    standing,
+                    from_hand,
+                    to_hand,
+                    ..
+                } => {
+                    let to_hand_info = job.points_of_interest.get(to_hand).unwrap();
+                    let from_hand_info = job.points_of_interest.get(from_hand).unwrap();
+                    let standing_info = job.points_of_interest.get(standing).unwrap();
+
+                    let target_info = job.targets.get(target).unwrap();
+                    let weight = target_info.weight();
+                    
+                    let to_hand_pos = to_hand_info.position();
+                    let from_hand_pos = from_hand_info.position();
+                    let standing_pos = standing_info.position();
+
+                    let is_one_hand = is_one_hand_task(to_hand_pos, standing_pos, weight);
+
+                    let horizontal_distance = vector2_distance_f64(Vector2::new(to_hand_pos.x, to_hand_pos.y), Vector2::new(from_hand_pos.x, from_hand_pos.y));
+                    let horizontal_hand_shoulder_distance = vector2_distance_f64(Vector2::new(to_hand_pos.x, to_hand_pos.y), Vector2::new(standing_pos.x, standing_pos.y));
+                    let vertical_distance = to_hand_pos.z - from_hand_pos.z;
+
+                    let is_arm_work = is_arm_work(horizontal_hand_shoulder_distance);
+
+                    // todo: might need to offset z by the acromial height
+                    let reach_distance = vector3_distance_f64(standing_pos, to_hand_pos);
+
+                    let mut denom = 0.0;
+
+                    if vertical_distance == 0.0 {
+                        if is_one_hand {
+                            // push
+                            if horizontal_distance > 0.0 {
+                                if to_hand_pos.z < 0.97 {
+                                    denom += 89.0;
+                                } else if to_hand_pos.z < 1.296 {
+                                    denom += 76.0;
+                                } else {
+                                    denom += 78.0;
+                                }
+                            // pull
+                            } else {
+                                if to_hand_pos.z < 0.97 {
+                                    denom += 91.0;
+                                } else if to_hand_pos.z < 1.296 {
+                                    denom += 86.0;
+                                } else {
+                                    denom += 99.0;
+                                }
+                            }
+                        } else {
+                            // push
+                            if horizontal_distance > 0.0 {
+                                if to_hand_pos.y < 0.5 {
+                                    denom += 149.0;
+                                } else if to_hand_pos.y < 1.0 {
+                                    denom += 109.0;
+                                } else {
+                                    denom += 218.0;
+                                }
+                            // pull
+                            } else {
+                                if to_hand_pos.y < 0.5 {
+                                    denom += 109.0;
+                                } else if to_hand_pos.y < 1.0 {
+                                    denom += 228.0;
+                                } else {
+                                    denom += 185.0;
+                                }
+                            }
+                        }
+                    } else {
+                        if is_one_hand {
+                            if is_arm_work {
+                                if reach_distance < 0.279 {
+                                    denom += 101.0;
+                                } else if reach_distance < 0.4185 {
+                                    denom += 69.5;
+                                } else {
+                                    denom += 49.0;
+                                }
+                            } else {
+                                if reach_distance < 0.279 {
+                                    denom += 15.0;
+                                } else if reach_distance < 0.4185 {
+                                    denom += 27.0;
+                                } else {
+                                    // make this really small to blow up the cost
+                                    denom += 0.001;
+                                }
+                            }
+                        } else {
+                            if is_arm_work {
+                                if reach_distance < 0.279 {
+                                    denom += 202.0;
+                                } else if reach_distance < 0.4185 {
+                                    denom += 139.0;
+                                } else {
+                                    denom += 98.0;
+                                }
+                            } else {
+                                if reach_distance < 0.279 {
+                                    denom += 30.0;
+                                } else if reach_distance < 0.4185 {
+                                    denom += 54.0;
+                                } else {
+                                    // make this really small to blow up the cost
+                                    denom += 0.001;
+                                }
+                            }
+                        }
+                    }
+
+                    let mvc = weight / denom;
+
+                    ergo_cost_set.push(Cost {
+                        frequency: CostFrequency::PerTime,
+                        value: mvc * execution_time,
+                        category: CostCategory::Ergonomic
+                    });
+                },
+                Primitive::Use { 
+                    target,
+                    ..
+                } => {
+                    let target_info = job.targets.get(target).unwrap();
+                    let size = target_info.size();
+                    let weight = target_info.weight();
+
+                    let mut denom = 0.0;
+                    if size > 0.406 {
+                        denom += 233.5;
+                    } else {
+                        denom += 41.7;
+                    }
+
+                    let mvc = weight / denom;
+
+                    ergo_cost_set.push(Cost {
+                        frequency: CostFrequency::PerTime,
+                        value: mvc * execution_time,
+                        category: CostCategory::Ergonomic
+                    });
+
+                },
+                Primitive::Hold {
+                    target,
+                    ..
+                } => {
+                    let target_info = job.targets.get(target).unwrap();
+                    let weight = target_info.weight();
+                    let (hand_location, stand_location) = get_hand_stand_locations(transition, self, job);                    
+                    let is_one_hand = is_one_hand_task(hand_location, stand_location, weight);
+
+                    let horizontal_hand_shoulder_distance = vector2_distance_f64(Vector2::new(hand_location.x, hand_location.y), Vector2::new(stand_location.x, stand_location.y));
+                    let is_hand_work = horizontal_hand_shoulder_distance < 0.05;
+
+                    let mut denom = 0.0;
+
+                    // todo: shoulder and elbow angles????
+                    if is_one_hand {
+                        if is_hand_work {
+                            denom += 99.0;
+                        } else {
+                            denom += 38.96;
+                        }
+                    } else {
+                        if is_hand_work {
+                            denom += 198.0;
+                        } else {
+                            denom += 77.9;
+                        }
+                    }
+                    let mvc = weight / denom;
+
+                    ergo_cost_set.push(Cost {
+                        frequency: CostFrequency::PerTime,
+                        value: mvc * execution_time,
+                        category: CostCategory::Ergonomic
+                    });
+                },
+                _ => {}
+            }
+        }
 
         let cost = match (assigned_primitives.len(), assigned_primitives.first()) {
             // if there is no assigned primitive
@@ -385,12 +635,13 @@ impl CostProfiler for HumanInfo {
         */
 
         // cost
-        one_time_ergo_cost.push(Cost {
+        ergo_cost_set.push(Cost {
             frequency: CostFrequency::Once,
             value: cost,
             category: CostCategory::Ergonomic
         });
-        one_time_ergo_cost
+
+        ergo_cost_set
     }
 
     fn ergo_cost_whole(&self, transition: &Transition, job: &Job) -> TokenCount {
@@ -495,6 +746,97 @@ fn get_is_within_neutral_reach(standing_poi: &PointOfInterest, hand_poi: &PointO
     let acromial_standing_vector = standing_vector + acromial_vector;
     let distance = (hand_vector - acromial_standing_vector).norm();
     return distance <= reach;
+}
+
+fn is_arm_work(horizontal_distance: f64) -> bool {
+    return horizontal_distance < 0.45
+}
+
+fn is_one_hand_task(hand_location: Vector3<f64>, stand_location: Vector3<f64>, weight: f64) -> bool {
+    // Check whether this is a 1 or 2 handed activity
+    let mut is_one_hand = true;
+    let horizontal_distance = hand_location.x - stand_location.x;
+    if horizontal_distance < 0.05 && weight > 1.0 {
+        is_one_hand = false;
+    } else if horizontal_distance < 0.15 && weight > 4.0 {
+        is_one_hand = false;
+    } else if horizontal_distance < 0.45 && weight > 8.0 {
+        is_one_hand = false;
+    } else if horizontal_distance < 2.0 {
+        is_one_hand = false;
+    }
+    return is_one_hand;
+}
+
+fn get_hand_stand_locations(transition: &Transition, agent: &HumanInfo, job: &Job) -> (Vector3<f64>, Vector3<f64>) {
+    let mut hand_location = Vector3::new(0.0,0.0,0.0);
+    let mut stand_location = Vector3::new(0.0,0.0,0.0);
+    
+    for data in transition.meta_data.iter() {
+        match data {
+            Data::Hand(poi_id, agent_id) => {
+                if *agent_id == agent.id {
+                    let hand_poi = job.points_of_interest.get(poi_id).unwrap();
+                    hand_location = hand_poi.position().clone();
+                }
+            },
+            Data::Standing(poi_id, agent_id) => {
+                if *agent_id == agent.id {
+                    let stand_poi = job.points_of_interest.get(poi_id).unwrap();
+                    stand_location = stand_poi.position().clone();
+                }
+            },
+            _ => {}
+        }
+    }
+    return (hand_location, stand_location)
+}
+
+fn get_force_mvc(transition: &Transition, magnitude: &f64, agent: &HumanInfo, job: &Job, weight: f64) -> f64 {
+    
+    let (hand_location, stand_location) = get_hand_stand_locations(transition, agent, job);
+
+    let is_one_hand = is_one_hand_task(hand_location, stand_location, weight);
+
+    let distance_between_hand_stand = vector3_distance_f64(hand_location, stand_location);
+
+    let mut denom = 0.0;
+    if !is_one_hand && *magnitude > 0.0 {
+        if distance_between_hand_stand < 0.5 {
+            denom += 149.0;
+        } else if distance_between_hand_stand < 1.0 {
+            denom += 109.0;
+        } else {
+            denom += 218.0;
+        }
+    } else if !is_one_hand && *magnitude < 0.0 {
+        if distance_between_hand_stand < 0.5 {
+            denom += 109.0;
+        } else if distance_between_hand_stand < 1.0 {
+            denom += 228.0;
+        } else {
+            denom += 185.0;
+        }
+    } else if *magnitude >= 0.0 {
+        if distance_between_hand_stand < 0.97 {
+            denom += 89.0;
+        } else if distance_between_hand_stand < 1.296 {
+            denom += 76.0;
+        } else {
+            denom += 78.0;
+        }
+    } else {
+        if distance_between_hand_stand < 0.97 {
+            denom += 91.0;
+        } else if distance_between_hand_stand < 1.296 {
+            denom += 86.0;
+        } else {
+            denom += 99.0;
+        }
+    }
+
+    let mvc = *magnitude / denom;
+    return mvc;
 }
 
 fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transition: &Transition, job: &Job, agent: &HumanInfo) -> Time {
@@ -744,8 +1086,6 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
             let target_info = job.targets.get(target).unwrap();
             let weight = target_info.weight();
 
-            let mut is_one_hand = true;
-
             if *magnitude >= 0.0 {
                 // Apply force, dwell minimum, and release
                 return 10.6 * TMU_PER_SECOND;
@@ -753,77 +1093,7 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
 
             tmu += 2.0;
 
-            let mut hand_location = Vector3::new(0.0,0.0,0.0);
-            let mut stand_location = Vector3::new(0.0,0.0,0.0);
-            
-            for data in transition.meta_data.iter() {
-                match (data) {
-                    Data::Hand(poi_id, agent_id) => {
-                        if agent_id == agent.id {
-                            let hand_poi = job.points_of_interest.get(poi_id).unwrap();
-                            hand_location = hand_poi.position().clone();
-                        }
-                    },
-                    Data::Standing(poi_id, agent_id) => {
-                        if agent_id == agent.id {
-                            let stand_poi = job.points_of_interest.get(poi_id).unwrap();
-                            stand_location = stand_poi.position().clone();
-                        }
-                    },
-                    _ => {}
-                }
-            }
-
-            // Check whether this is a 1 or 2 handed activity
-            let horizontal_distance = hand_location.x - stand_location.x;
-            if horizontal_distance < 0.05 && weight > 1 {
-                is_one_hand = false;
-            } else if horizontal_distance < 0.15 && weight > 4 {
-                is_one_hand = false;
-            } else if horizontal_distance < 0.45 && weight > 8 {
-                is_one_hand = false;
-            } else if horizontal_distance < 2 {
-                is_one_hand = false;
-            }
-
-            // TODO: double check whether you should use stand locatioon or offset the stand_location by the acromial height.
-            let distance_between_hand_stand = vector3_distance_f64(hand_location, stand_location);
-            let mut denom = 0.0;
-            if !is_one_hand && *magnitude > 0 {
-                if distance_between_hand_stand < 0.5 {
-                    denom += 149;
-                } else if distance_between_hand_stand < 1 {
-                    denom += 109;
-                } else {
-                    denom += 218;
-                }
-            } else if !is_one_hand && *magnitude < 0 {
-                if distance_between_hand_stand < 0.5 {
-                    denom += 109;
-                } else if distance_between_hand_stand < 1 {
-                    denom += 228;
-                } else {
-                    denom += 185;
-                }
-            } else if *magnitude >= 0 {
-                if distance_between_hand_stand < 0.97 {
-                    denom += 89;
-                } else if distance_between_hand_stand < 1.296 {
-                    denom += 76
-                } else {
-                    denom += 78
-                }
-            } else {
-                if distance_between_hand_stand < 0.97 {
-                    denom += 91;
-                } else if distance_between_hand_stand < 1.296 {
-                    denom += 86
-                } else {
-                    denom += 99
-                }
-            }
-
-            let mut mvc = *magnitude / denom;
+            let mvc = get_force_mvc(transition, magnitude, agent, job, weight);
 
             if mvc < 0.2 {
                 if weight < 1.13 {
@@ -896,27 +1166,41 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
         (
             1,
             Some(Primitive::Selection {
-                id, 
                 target,
-                skill,
                 ..
             }),
         ) => {
-            let mut tmu = 0;
+            
+            let target_object = job.targets.get(target).unwrap();
+            // take the cube root of the object's size (this is making the assumption that the item has a cuboid shape for the volume/size)
+            let w = f64::powf(target_object.size(), 1.0 / 3.0);
+
+            let mut hand_location = None;
+            let mut stand_location = None;
             // TODO. look at data to compare hand location to object location
             for data in transition.meta_data.iter() {
-                match (data) {
+                match data {
                     Data::Hand(poi_id, agent_id) => {
-                        if agent_id == agent.id {
-                            let hand_location = job.points_of_interest.get(poi_id).unwrap();
-                            let target = job.targets.get(target).unwrap();
-
-                            // TODO
+                        if *agent_id == agent.id {
+                            hand_location = Some(job.points_of_interest.get(poi_id).unwrap());
+                        }
+                    },
+                    Data::Standing(poi_id, agent_id) => {
+                        if *agent_id == agent.id {
+                            stand_location = Some(job.points_of_interest.get(poi_id).unwrap());
                         }
                     },
                     _ => {}
                 }
             }
+            let d = 0.0;
+
+            // use fitts law as an estimate for time to travel to select object
+            let fitts_law_difficulty = (2.0 * d / w).log2();
+
+            // calculate time
+            15.2 * fitts_law_difficulty * TMU_PER_SECOND
+
         },
         (
             2,
@@ -926,7 +1210,7 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
                 ..
             }),
         ) => {
-            return match (assigned_primitives.last()) {
+            return match assigned_primitives.last() {
                 Some(Primitive::Force { id, target, magnitude }) => {
                     let target_info = job.targets.get(target).unwrap();
                     let weight = target_info.weight();
@@ -935,77 +1219,7 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
                     // Grasp TMU
                     tmu += 2.0;
 
-                    let mut hand_location = Vector3::new(0.0,0.0,0.0);
-                    let mut stand_location = Vector3::new(0.0,0.0,0.0);
-                    
-                    for data in transition.meta_data.iter() {
-                        match (data) {
-                            Data::Hand(poi_id, agent_id) => {
-                                if agent_id == agent.id {
-                                    let hand_poi = job.points_of_interest.get(poi_id).unwrap();
-                                    hand_location = hand_poi.position().clone();
-                                }
-                            },
-                            Data::Standing(poi_id, agent_id) => {
-                                if agent_id == agent.id {
-                                    let stand_poi = job.points_of_interest.get(poi_id).unwrap();
-                                    stand_location = stand_poi.position().clone();
-                                }
-                            },
-                            _ => {}
-                        }
-                    }
-        
-                    // Check whether this is a 1 or 2 handed activity
-                    let horizontal_distance = hand_location.x - stand_location.x;
-                    if horizontal_distance < 0.05 && weight > 1 {
-                        is_one_hand = false;
-                    } else if horizontal_distance < 0.15 && weight > 4 {
-                        is_one_hand = false;
-                    } else if horizontal_distance < 0.45 && weight > 8 {
-                        is_one_hand = false;
-                    } else if horizontal_distance < 2 {
-                        is_one_hand = false;
-                    }
-        
-                    // TODO: double check whether you should use stand locatioon or offset the stand_location by the acromial height.
-                    let distance_between_hand_stand = vector3_distance_f64(hand_location, stand_location);
-                    let mut denom = 0.0;
-                    if !is_one_hand && *magnitude > 0 {
-                        if distance_between_hand_stand < 0.5 {
-                            denom += 149;
-                        } else if distance_between_hand_stand < 1 {
-                            denom += 109;
-                        } else {
-                            denom += 218;
-                        }
-                    } else if !is_one_hand && *magnitude < 0 {
-                        if distance_between_hand_stand < 0.5 {
-                            denom += 109;
-                        } else if distance_between_hand_stand < 1 {
-                            denom += 228;
-                        } else {
-                            denom += 185;
-                        }
-                    } else if *magnitude >= 0 {
-                        if distance_between_hand_stand < 0.97 {
-                            denom += 89;
-                        } else if distance_between_hand_stand < 1.296 {
-                            denom += 76
-                        } else {
-                            denom += 78
-                        }
-                    } else {
-                        if distance_between_hand_stand < 0.97 {
-                            denom += 91;
-                        } else if distance_between_hand_stand < 1.296 {
-                            denom += 86
-                        } else {
-                            denom += 99
-                        }
-                    }
-        
-                    let mut mvc = *magnitude / denom;
+                    let mvc = get_force_mvc(transition, magnitude, agent, job, weight);
 
                     if mvc < 0.2 {
                         match target_info.symmetry() {
@@ -1049,7 +1263,7 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
                             },
                             Rating::Low => {
                                 if weight < 1.13 {
-                                    tmu += 21;
+                                    tmu += 21.0;
                                 } else {
                                     tmu += 26.6;
                                 }
@@ -1059,7 +1273,7 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
                         match target_info.symmetry() {
                             Rating::High => {
                                 if weight < 1.13 {
-                                    tmu += 43;
+                                    tmu += 43.0;
                                 } else {
                                     tmu += 48.6;
                                 }
@@ -1103,7 +1317,7 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
                 ..
             }),
         ) => {
-            return match (assigned_primitives.last()) {
+            return match assigned_primitives.last() {
                 Some(Primitive::Position { id, target }) => {
                     let target_info = job.targets.get(target).unwrap();
                     let weight = target_info.weight();
@@ -1112,78 +1326,7 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
                     // Grasp TMU
                     tmu += 2.0;
 
-                            
-                    let mut hand_location = Vector3::new(0.0,0.0,0.0);
-                    let mut stand_location = Vector3::new(0.0,0.0,0.0);
-                    
-                    for data in transition.meta_data.iter() {
-                        match (data) {
-                            Data::Hand(poi_id, agent_id) => {
-                                if agent_id == agent.id {
-                                    let hand_poi = job.points_of_interest.get(poi_id).unwrap();
-                                    hand_location = hand_poi.position().clone();
-                                }
-                            },
-                            Data::Standing(poi_id, agent_id) => {
-                                if agent_id == agent.id {
-                                    let stand_poi = job.points_of_interest.get(poi_id).unwrap();
-                                    stand_location = stand_poi.position().clone();
-                                }
-                            },
-                            _ => {}
-                        }
-                    }
-
-                    // Check whether this is a 1 or 2 handed activity
-                    let horizontal_distance = hand_location.x - stand_location.x;
-                    if horizontal_distance < 0.05 && weight > 1 {
-                        is_one_hand = false;
-                    } else if horizontal_distance < 0.15 && weight > 4 {
-                        is_one_hand = false;
-                    } else if horizontal_distance < 0.45 && weight > 8 {
-                        is_one_hand = false;
-                    } else if horizontal_distance < 2 {
-                        is_one_hand = false;
-                    }
-
-                    // TODO: double check whether you should use stand locatioon or offset the stand_location by the acromial height.
-                    let distance_between_hand_stand = vector3_distance_f64(hand_location, stand_location);
-                    let mut denom = 0.0;
-                    if !is_one_hand && *magnitude > 0 {
-                        if distance_between_hand_stand < 0.5 {
-                            denom += 149;
-                        } else if distance_between_hand_stand < 1 {
-                            denom += 109;
-                        } else {
-                            denom += 218;
-                        }
-                    } else if !is_one_hand && *magnitude < 0 {
-                        if distance_between_hand_stand < 0.5 {
-                            denom += 109;
-                        } else if distance_between_hand_stand < 1 {
-                            denom += 228;
-                        } else {
-                            denom += 185;
-                        }
-                    } else if *magnitude >= 0 {
-                        if distance_between_hand_stand < 0.97 {
-                            denom += 89;
-                        } else if distance_between_hand_stand < 1.296 {
-                            denom += 76
-                        } else {
-                            denom += 78
-                        }
-                    } else {
-                        if distance_between_hand_stand < 0.97 {
-                            denom += 91;
-                        } else if distance_between_hand_stand < 1.296 {
-                            denom += 86
-                        } else {
-                            denom += 99
-                        }
-                    }
-        
-                    let mut mvc = *magnitude / denom;
+                    let mvc = get_force_mvc(transition, magnitude, agent, job, weight);
 
                     if mvc < 0.2 {
                         match target_info.symmetry() {
@@ -1227,7 +1370,7 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
                             },
                             Rating::Low => {
                                 if weight < 1.13 {
-                                    tmu += 21;
+                                    tmu += 21.0;
                                 } else {
                                     tmu += 26.6;
                                 }
@@ -1237,7 +1380,7 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
                         match target_info.symmetry() {
                             Rating::High => {
                                 if weight < 1.13 {
-                                    tmu += 43;
+                                    tmu += 43.0;
                                 } else {
                                     tmu += 48.6;
                                 }
