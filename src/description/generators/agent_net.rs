@@ -1,6 +1,6 @@
 use crate::constants::SPLIT_SIZE;
-use crate::description::job::Job;
 use crate::description::agent::Agent;
+use crate::description::job::Job;
 use crate::description::primitive::Primitive;
 use crate::petri::data::{Data, DataTag, Query};
 use crate::petri::net::PetriNet;
@@ -8,9 +8,9 @@ use crate::petri::place::Place;
 use crate::petri::token::TokenSet;
 use crate::petri::transition::{Signature, Transition};
 use crate::util::split_primitives;
+use enum_tag::EnumTag;
 use itertools::Itertools;
 use std::collections::HashMap;
-use enum_tag::EnumTag;
 use uuid::Uuid;
 
 impl Job {
@@ -76,12 +76,17 @@ impl Job {
                 ]
                 .into_iter()
                 .collect(),
-                vec![Data::Agent(*agent_id), Data::AgentAdd(*agent_id)],
+                vec![
+                    Data::Setup,
+                    Data::Agent(*agent_id),
+                    Data::AgentAdd(*agent_id),
+                ],
                 0.0,
                 vec![],
             );
             net.transitions.insert(transition.id, transition);
 
+            // Add transitions from the indeterminite place to the discard place
             let transition: Transition = Transition::new(
                 format!("Discard {}", agent.name()),
                 vec![(indeterminite_place_id, Signature::Static(1))]
@@ -90,7 +95,11 @@ impl Job {
                 vec![(discard_place_id, Signature::Static(1))]
                     .into_iter()
                     .collect(),
-                vec![Data::Agent(*agent_id), Data::AgentDiscard(*agent_id)],
+                vec![
+                    Data::Setup,
+                    Data::Agent(*agent_id),
+                    Data::AgentDiscard(*agent_id),
+                ],
                 0.0,
                 vec![],
             );
@@ -248,10 +257,14 @@ impl Job {
                             .into_iter()
                             .chain(agent_present_places.clone().into_iter())
                             .collect(),
-                        vec![Data::Task(task_id), Data::AllocatedTask(task_id)]
-                            .into_iter()
-                            .chain(all_assigned_agent_ids.iter().map(|id| Data::Agent(**id)))
-                            .collect(),
+                        vec![
+                            Data::Setup,
+                            Data::Task(task_id),
+                            Data::AllocatedTask(task_id),
+                        ]
+                        .into_iter()
+                        .chain(all_assigned_agent_ids.iter().map(|id| Data::Agent(**id)))
+                        .collect(),
                         0.0,
                         vec![],
                     );

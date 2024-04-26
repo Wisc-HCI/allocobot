@@ -5,8 +5,8 @@ use crate::petri::net::PetriNet;
 use crate::petri::place::Place;
 use crate::petri::token::TokenSet;
 use crate::petri::transition::{Signature, Transition};
-use std::collections::HashMap;
 use enum_tag::EnumTag;
+use std::collections::HashMap;
 use uuid::Uuid;
 
 impl Job {
@@ -68,6 +68,7 @@ impl Job {
                             .collect(),
                         vec![(place_id, Signature::Static(1))].into_iter().collect(),
                         vec![
+                            Data::Setup,
                             Data::Target(*target_id),
                             Data::TargetSituated(*target_id),
                             Data::AgentAgnostic,
@@ -110,7 +111,7 @@ impl Job {
                 format!("{}", task.name),
                 input,
                 output,
-                vec![Data::Task(*task_id)],
+                vec![Data::Simulation, Data::Task(*task_id)],
                 0.0,
                 vec![],
             );

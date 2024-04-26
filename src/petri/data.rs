@@ -6,6 +6,10 @@ use uuid::Uuid;
 #[derive(Clone, Debug, PartialEq, EnumTag, Serialize, Deserialize)]
 #[serde(tag = "type", content = "value", rename_all = "camelCase")]
 pub enum Data {
+    // Markers for Transitions indicating Setup or Simulation Phases
+    Setup,
+    Simulation,
+
     // Contain Agent UUID
     Agent(Uuid),
     AgentPresent(Uuid),
@@ -83,6 +87,8 @@ impl Data {
             Data::ErgoWholeBody(id, _) => Some(*id),
             Data::ErgoArm(id, _) => Some(*id),
             Data::ErgoHand(id, _) => Some(*id),
+            Data::Setup => None,
+            Data::Simulation => None,
         }
     }
 
@@ -115,6 +121,8 @@ impl Data {
             Data::ErgoWholeBody(_, _) => None,
             Data::ErgoArm(_, _) => None,
             Data::ErgoHand(_, _) => None,
+            Data::Setup => None,
+            Data::Simulation => None,
         }
     }
 
@@ -147,6 +155,8 @@ impl Data {
             Data::ErgoWholeBody(_, n) => Some(*n),
             Data::ErgoArm(_, n) => Some(*n),
             Data::ErgoHand(_, n) => Some(*n),
+            Data::Setup => None,
+            Data::Simulation => None,
         }
     }
 }
