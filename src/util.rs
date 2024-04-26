@@ -7,6 +7,7 @@ use z3::{Config, Context, Model, Optimize};
 use crate::description::rating::Rating;
 #[cfg(test)]
 use std::collections::HashMap;
+use nalgebra::{Vector2, Vector3};
 
 use crate::description::primitive::Primitive;
 
@@ -91,6 +92,10 @@ pub fn index_of_difficulty(d: f64, w: f64) -> f64 {
 
 pub fn vector3_distance_f64(vector1: Vector3<f64>, vector2: Vector3<f64>) -> f64 {
     return ((vector1.x - vector2.x).powf(2.0) + (vector1.y - vector2.y).powf(2.0) + (vector1.z - vector2.z).powf(2.0)).sqrt();
+}
+
+pub fn vector2_distance_f64(vector1: Vector2<f64>, vector2: Vector2<f64>) -> f64 {
+    return ((vector1.x - vector2.x).powf(2.0) + (vector1.y - vector2.y).powf(2.0)).sqrt();
 }
 
 #[test]
