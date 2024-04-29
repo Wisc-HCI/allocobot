@@ -185,7 +185,7 @@ impl CostProfiler for HumanInfo {
                     let weight = target_info.weight();
                     let mvc = get_force_mvc(transition, magnitude, self, job, weight);
                     ergo_cost_set.push(Cost {
-                        frequency: CostFrequency::PerTime,
+                        frequency: CostFrequency::Extrapolated,
                         value: mvc * execution_time,
                         category: CostCategory::Ergonomic
                     });
@@ -230,7 +230,7 @@ impl CostProfiler for HumanInfo {
 
                     let mvc = weight / denom;
                     ergo_cost_set.push(Cost {
-                        frequency: CostFrequency::PerTime,
+                        frequency: CostFrequency::Extrapolated,
                         value: mvc * execution_time,
                         category: CostCategory::Ergonomic
                     });
@@ -353,7 +353,7 @@ impl CostProfiler for HumanInfo {
                     let mvc = weight / denom;
 
                     ergo_cost_set.push(Cost {
-                        frequency: CostFrequency::PerTime,
+                        frequency: CostFrequency::Extrapolated,
                         value: mvc * execution_time,
                         category: CostCategory::Ergonomic
                     });
@@ -376,7 +376,7 @@ impl CostProfiler for HumanInfo {
                     let mvc = weight / denom;
 
                     ergo_cost_set.push(Cost {
-                        frequency: CostFrequency::PerTime,
+                        frequency: CostFrequency::Extrapolated,
                         value: mvc * execution_time,
                         category: CostCategory::Ergonomic
                     });
@@ -413,7 +413,7 @@ impl CostProfiler for HumanInfo {
                     let mvc = weight / denom;
 
                     ergo_cost_set.push(Cost {
-                        frequency: CostFrequency::PerTime,
+                        frequency: CostFrequency::Extrapolated,
                         value: mvc * execution_time,
                         category: CostCategory::Ergonomic
                     });
@@ -1175,25 +1175,32 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
             // take the cube root of the object's size (this is making the assumption that the item has a cuboid shape for the volume/size)
             let w = f64::powf(target_object.size(), 1.0 / 3.0);
 
-            let mut hand_location = None;
-            let mut stand_location = None;
+            let mut d = 0.0;
+            let mut vector_point = Vector3::new(0.0, 0.0, 0.0);
             // TODO. look at data to compare hand location to object location
             for data in transition.meta_data.iter() {
                 match data {
                     Data::Hand(poi_id, agent_id) => {
                         if *agent_id == agent.id {
-                            hand_location = Some(job.points_of_interest.get(poi_id).unwrap());
+                            if (vector_point.x == 0.0 && vector_point.y == 0.0 && vector_point.z == 0.0) {
+                                vector_point = job.points_of_interest.get(poi_id).unwrap().position().clone();
+                            } else {
+                                d = vector3_distance_f64(vector_point, job.points_of_interest.get(poi_id).unwrap().position().clone());
+                            }
                         }
                     },
                     Data::Standing(poi_id, agent_id) => {
                         if *agent_id == agent.id {
-                            stand_location = Some(job.points_of_interest.get(poi_id).unwrap());
+                            if (vector_point.x == 0.0 && vector_point.y == 0.0 && vector_point.z == 0.0) {
+                                vector_point = job.points_of_interest.get(poi_id).unwrap().position().clone();
+                            } else {
+                                d = vector3_distance_f64(vector_point, job.points_of_interest.get(poi_id).unwrap().position().clone());
+                            }
                         }
                     },
                     _ => {}
                 }
             }
-            let d = 0.0;
 
             // use fitts law as an estimate for time to travel to select object
             let fitts_law_difficulty = (2.0 * d / w).log2();
