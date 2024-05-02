@@ -270,11 +270,11 @@ impl Job {
         for (agent_id, agent) in self.agents.iter() {
             let agent_situated_places =
                 net.query_places(&vec![Query::Data(Data::AgentSituated(*agent_id))]);
-            println!(
-                "Agent {} has {} situated places",
-                agent.name(),
-                agent_situated_places.len()
-            );
+            // println!(
+            //     "Agent {} has {} situated places",
+            //     agent.name(),
+            //     agent_situated_places.len()
+            // );
             for place in agent_situated_places.iter() {
                 let standing_poi_data = place
                     .meta_data
@@ -300,7 +300,7 @@ impl Job {
                             0.1,
                             vec![],
                         );
-                        println!("Rest Transition: {:?}", transition);
+                        // println!("Rest Transition: {:?}", transition);
                         new_rest_transitions.push(transition);
                     }
                     _ => {}
