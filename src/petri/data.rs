@@ -48,6 +48,7 @@ pub enum Data {
 
     // Cost-Related
     Action(Uuid), // A meta-data that includes tasks or anything physical, likely with a cost
+    Rest(Uuid),   // A meta-data that specifies that the agent is resting
     ErgoWholeBody(Uuid, usize),
     ErgoArm(Uuid, usize),
     ErgoHand(Uuid, usize),
@@ -84,6 +85,7 @@ impl Data {
             Data::AgentAgnostic => None,
             Data::AgentJoint => None,
             Data::Action(id) => Some(*id),
+            Data::Rest(id) => Some(*id),
             Data::ErgoWholeBody(id, _) => Some(*id),
             Data::ErgoArm(id, _) => Some(*id),
             Data::ErgoHand(id, _) => Some(*id),
@@ -118,6 +120,7 @@ impl Data {
             Data::AgentAgnostic => None,
             Data::AgentJoint => None,
             Data::Action(_id) => None,
+            Data::Rest(_id) => None,
             Data::ErgoWholeBody(_, _) => None,
             Data::ErgoArm(_, _) => None,
             Data::ErgoHand(_, _) => None,
@@ -152,6 +155,7 @@ impl Data {
             Data::AgentAgnostic => None,
             Data::AgentJoint => None,
             Data::Action(_id) => None,
+            Data::Rest(_id) => None,
             Data::ErgoWholeBody(_, n) => Some(*n),
             Data::ErgoArm(_, n) => Some(*n),
             Data::ErgoHand(_, n) => Some(*n),

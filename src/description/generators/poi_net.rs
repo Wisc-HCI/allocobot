@@ -265,6 +265,52 @@ impl Job {
             }
         }
 
+        // Add a no-op (rest) transition for each agent situated place
+        let mut new_rest_transitions = vec![];
+        for (agent_id, agent) in self.agents.iter() {
+            let agent_situated_places =
+                net.query_places(&vec![Query::Data(Data::AgentSituated(*agent_id))]);
+            println!(
+                "Agent {} has {} situated places",
+                agent.name(),
+                agent_situated_places.len()
+            );
+            for place in agent_situated_places.iter() {
+                let standing_poi_data = place
+                    .meta_data
+                    .iter()
+                    .find(|d| d.tag() == DataTag::Standing);
+                let hand_poi_data = place.meta_data.iter().find(|d| d.tag() == DataTag::Hand);
+                match (standing_poi_data, hand_poi_data) {
+                    (
+                        Some(Data::Standing(standing_poi_id, standing_agent_id)),
+                        Some(Data::Hand(hand_poi_id, hand_agent_id)),
+                    ) => {
+                        let transition = Transition::new(
+                            format!("{}:Rest", agent.name()),
+                            vec![(place.id, Signature::Static(1))].into_iter().collect(),
+                            vec![(place.id, Signature::Static(1))].into_iter().collect(),
+                            vec![
+                                Data::Simulation,
+                                Data::Agent(*agent_id),
+                                Data::Standing(*standing_poi_id, *standing_agent_id),
+                                Data::Hand(*hand_poi_id, *hand_agent_id),
+                                Data::Rest(*agent_id),
+                            ],
+                            0.1,
+                            vec![],
+                        );
+                        println!("Rest Transition: {:?}", transition);
+                        new_rest_transitions.push(transition);
+                    }
+                    _ => {}
+                }
+            }
+        }
+        new_rest_transitions.iter().for_each(|transition| {
+            net.transitions.insert(transition.id, transition.clone());
+        });
+
         // Refine the task transitions to include only those POIs defined in the task (if applicable)
         net.transitions.retain(|_, transition| {
             if transition
