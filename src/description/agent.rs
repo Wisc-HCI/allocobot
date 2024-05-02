@@ -185,7 +185,7 @@ impl CostProfiler for HumanInfo {
                     let weight = target_info.weight();
                     let mvc = get_force_mvc(transition, magnitude, self, job, weight);
                     ergo_cost_set.push(Cost {
-                        frequency: CostFrequency::PerTime,
+                        frequency: CostFrequency::Extrapolated,
                         value: mvc * execution_time,
                         category: CostCategory::Ergonomic
                     });
@@ -230,7 +230,7 @@ impl CostProfiler for HumanInfo {
 
                     let mvc = weight / denom;
                     ergo_cost_set.push(Cost {
-                        frequency: CostFrequency::PerTime,
+                        frequency: CostFrequency::Extrapolated,
                         value: mvc * execution_time,
                         category: CostCategory::Ergonomic
                     });
@@ -353,7 +353,7 @@ impl CostProfiler for HumanInfo {
                     let mvc = weight / denom;
 
                     ergo_cost_set.push(Cost {
-                        frequency: CostFrequency::PerTime,
+                        frequency: CostFrequency::Extrapolated,
                         value: mvc * execution_time,
                         category: CostCategory::Ergonomic
                     });
@@ -376,7 +376,7 @@ impl CostProfiler for HumanInfo {
                     let mvc = weight / denom;
 
                     ergo_cost_set.push(Cost {
-                        frequency: CostFrequency::PerTime,
+                        frequency: CostFrequency::Extrapolated,
                         value: mvc * execution_time,
                         category: CostCategory::Ergonomic
                     });
@@ -413,7 +413,7 @@ impl CostProfiler for HumanInfo {
                     let mvc = weight / denom;
 
                     ergo_cost_set.push(Cost {
-                        frequency: CostFrequency::PerTime,
+                        frequency: CostFrequency::Extrapolated,
                         value: mvc * execution_time,
                         category: CostCategory::Ergonomic
                     });
@@ -421,225 +421,6 @@ impl CostProfiler for HumanInfo {
                 _ => {}
             }
         }
-
-        let cost = match (assigned_primitives.len(), assigned_primitives.first()) {
-            // if there is no assigned primitive
-            (0, _) => {
-                // This is a no-op, so just return 0
-                0.0
-            }
-            (1, None) => {
-                // Technically impossible, but we cover it anyway. Return 0
-                0.0
-            }
-            (
-                1,
-                Some(Primitive::Carry {
-                    target,
-                    from_standing,
-                    to_standing,
-                    from_hand,
-                    to_hand,
-                    ..
-                }),
-            ) => {
-                // Retrieve data
-                let target_info = job.targets.get(target).unwrap();
-                let from_standing_info = job.points_of_interest.get(from_standing).unwrap();
-                let to_standing_info = job.points_of_interest.get(to_standing).unwrap();
-                let from_hand_info = job.points_of_interest.get(from_hand).unwrap();
-                let to_hand_info = job.points_of_interest.get(to_hand).unwrap();
-                // Compute carry cost
-
-                let starting_standing_vector = from_standing_info.position();
-                let end_standing_vector = to_standing_info.position();
-
-                let starting_hand_vector = from_hand_info.position();
-                let end_hand_vector = to_hand_info.position();
-
-                let acromial_vector: Vector3<f64> =
-                    Vector3::new(0.0, 0.0, self.acromial_height);
-                let starting_acromial: Vector3<f64> = starting_standing_vector + acromial_vector;
-                let end_acromial = end_standing_vector + acromial_vector;
-
-                let walking_travel_vector: Vector3<f64> =
-                    to_standing_info.position() - from_standing_info.position();
-
-                // Compute grade
-                // 0% is flat, 100% is 90 degrees
-                let grade = get_grade(starting_standing_vector, end_standing_vector);
-
-                let walking_travel_distance = walking_travel_vector.norm();
-
-                let comfortable_distance = 0.2 + target_info.size() / 2.0;
-
-                let starting_distance = (starting_hand_vector - starting_acromial).norm();
-                let ending_distance = (end_hand_vector - end_acromial).norm();
-
-                let starting_travel_distance = (starting_distance - comfortable_distance).abs();
-                let end_travel_distance = (ending_distance - comfortable_distance).abs();
-
-                let float_retrieve_cost =
-                    0.01 * starting_travel_distance * (3.57 + 1.23 * target_info.weight());
-
-                let float_interim_cost = 0.01 * (68.0 + 0.23 * self.weight);
-
-                let float_deposit_cost =
-                    0.01 * end_travel_distance * (3.57 + 1.23 * target_info.weight());
-
-                let carry_cost =
-                    float_retrieve_cost + float_interim_cost + float_deposit_cost;
-
-                carry_cost
-            }
-            (
-                1,
-                Some(Primitive::Move {
-                    target,
-                    standing,
-                    from_hand,
-                    to_hand,
-                    ..
-                }),
-            ) => {
-                // Retrieve data
-                let target_info = job.targets.get(target).unwrap();
-                let standing_info = job.points_of_interest.get(standing).unwrap();
-                let from_hand_info = job.points_of_interest.get(from_hand).unwrap();
-                let to_hand_info = job.points_of_interest.get(to_hand).unwrap();
-                // Compute carry cost
-                0.0
-            }
-            (
-                1,
-                Some(Primitive::Travel {
-                    from_standing,
-                    to_standing,
-                    from_hand,
-                    to_hand,
-                    ..
-                }),
-            ) => {
-                // Retrieve data
-                let from_standing_info = job.points_of_interest.get(from_standing).unwrap();
-                let to_standing_info = job.points_of_interest.get(to_standing).unwrap();
-                let from_hand_info = job.points_of_interest.get(from_hand).unwrap();
-                let to_hand_info = job.points_of_interest.get(to_hand).unwrap();
-                // Compute carry cost
-                0.0
-            }
-            (
-                1,
-                Some(Primitive::Reach {
-                    standing,
-                    from_hand,
-                    to_hand,
-                    ..
-                }),
-            ) => {
-                // Retrieve data
-                let standing_info = job.points_of_interest.get(standing).unwrap();
-                let from_hand_info = job.points_of_interest.get(from_hand).unwrap();
-                let to_hand_info = job.points_of_interest.get(to_hand).unwrap();
-                // Compute carry cost
-                0.0
-            }
-            _ => {
-                // There is some non-zero number of assigned primitives. Compute them independently and sum them
-                let mut total_cost = 0.0;
-                for assigned_primitive in assigned_primitives {
-                    match assigned_primitive {
-                        Primitive::Hold { target, .. } => {
-                            let force_on_hold_target =
-                                force_magnitude_on_target.get(target).unwrap_or(&0.0);
-                            let mut hand_poi: &PointOfInterest;
-                            let mut standing_poi: &PointOfInterest;
-                            for meta_datum in transition.meta_data.iter() {
-                                match meta_datum {
-                                    Data::Hand(poi_id, agent_id) => {
-                                        hand_poi = job.points_of_interest.get(&poi_id).unwrap();
-                                    }
-                                    Data::Standing(poi_id, agent_id) => {
-                                        standing_poi = job.points_of_interest.get(&poi_id).unwrap();
-                                    }
-                                    _ => {
-                                        // Handled elsewhere
-                                    }
-                                }
-                            }
-                            // let target_poi = job.points_of_interest
-
-                            if force_on_hold_target == &0.0 {
-                                // // A static hold.
-                                // /*
-                                // Incremental Energy Function:
-                                // dE = .01(
-                                //         80 +
-                                //         2.43*body_weight*(walking_speed)^2 +
-                                //         4.63*(target_weight)*(walking_speed)^2 +
-                                //         4.62*(target_weight)
-                                //     )*(duration) +
-                                //     .379(
-                                //         (target_weight) +
-                                //         body_weight
-                                //     )*(grade)*(walking_speed)*(duration)
-                                //  */
-                                // let target_info = job.targets.get(target).unwrap();
-
-                                // let incremental_energy = 0.01 * (
-                                //     80.0 +
-                                //     2.43 * self.weight * 1.0 +//self.mobile_speed.powi(2) +
-                                //     4.63 * target_info.weight() * 1.0 +//self.mobile_speed.powi(2) +
-                                //     4.62 * target_info.weight()
-                                // ) * execution_time as f64;
-                                // // The remainder cancels out because there is no grade
-                                // println!("Incremental Energy: {}", incremental_energy);
-                                // total_cost += incremental_energy as usize;
-                            } else {
-                                // Compute the cost of holding the object while applying force
-                            }
-                        }
-                        Primitive::Position { target, .. } => {}
-                        Primitive::Use { target, .. } => {}
-                        _ => {
-                            // Handled elsewhere
-                        }
-                    }
-                }
-
-                total_cost
-            }
-        };
-        // if there is one assigned and it is a carry
-        /*
-            - Compute the cost of bringing the object to a comfortable holding position, based on the standing/hand pois
-            - Compute the cost of moving the object while in a comfortable holding position from old standing to new standing
-            - Compute the cost of bringing the object from a comfortable holding position to the new hand poi.
-        */
-
-        // if there is one assigned and it is a move
-        /*
-            - Compute the cost of moving the object directly from old hand to new hand
-        */
-
-        // if there is one assigned and it is a travel
-        /*
-            - Compute the cost of bringing the hands to a comfortable holding position, based on the standing/hand pois
-            - Compute the cost of moving the hands while in a comfortable holding position from old standing to new standing
-            - Compute the cost of bringing the hands from a comfortable holding position to the new hand poi.
-        */
-
-        // if there is one assigned and it is a reach
-        /*
-            - Compute the cost of moving the hands directly from old hand to new hand poi
-        */
-
-        // cost
-        ergo_cost_set.push(Cost {
-            frequency: CostFrequency::Once,
-            value: cost,
-            category: CostCategory::Ergonomic
-        });
 
         ergo_cost_set
     }
@@ -1175,25 +956,32 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
             // take the cube root of the object's size (this is making the assumption that the item has a cuboid shape for the volume/size)
             let w = f64::powf(target_object.size(), 1.0 / 3.0);
 
-            let mut hand_location = None;
-            let mut stand_location = None;
+            let mut d = 0.0;
+            let mut vector_point = Vector3::new(0.0, 0.0, 0.0);
             // TODO. look at data to compare hand location to object location
             for data in transition.meta_data.iter() {
                 match data {
                     Data::Hand(poi_id, agent_id) => {
                         if *agent_id == agent.id {
-                            hand_location = Some(job.points_of_interest.get(poi_id).unwrap());
+                            if (vector_point.x == 0.0 && vector_point.y == 0.0 && vector_point.z == 0.0) {
+                                vector_point = job.points_of_interest.get(poi_id).unwrap().position().clone();
+                            } else {
+                                d = vector3_distance_f64(vector_point, job.points_of_interest.get(poi_id).unwrap().position().clone());
+                            }
                         }
                     },
                     Data::Standing(poi_id, agent_id) => {
                         if *agent_id == agent.id {
-                            stand_location = Some(job.points_of_interest.get(poi_id).unwrap());
+                            if (vector_point.x == 0.0 && vector_point.y == 0.0 && vector_point.z == 0.0) {
+                                vector_point = job.points_of_interest.get(poi_id).unwrap().position().clone();
+                            } else {
+                                d = vector3_distance_f64(vector_point, job.points_of_interest.get(poi_id).unwrap().position().clone());
+                            }
                         }
                     },
                     _ => {}
                 }
             }
-            let d = 0.0;
 
             // use fitts law as an estimate for time to travel to select object
             let fitts_law_difficulty = (2.0 * d / w).log2();

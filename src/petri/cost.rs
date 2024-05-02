@@ -6,7 +6,7 @@ use std::vec::Vec;
 #[serde(rename_all = "camelCase")]
 pub enum CostFrequency {
     Once,
-    PerTime,
+    Extrapolated,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -27,7 +27,7 @@ pub type CostSet = Vec<Cost>;
 
 pub fn add_cost_sets(a: &CostSet, b: &CostSet) -> CostSet {
     let mut result = vec![];
-    for freq in vec![CostFrequency::Once, CostFrequency::PerTime].iter() {
+    for freq in vec![CostFrequency::Once, CostFrequency::Extrapolated].iter() {
         for cat in vec![CostCategory::Ergonomic, CostCategory::Monetary].iter() {
             let mut sum = 0.0;
             for cost in a
