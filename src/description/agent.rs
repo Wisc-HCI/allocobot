@@ -922,6 +922,7 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
             Some(Primitive::Position {
                 id, 
                 target,
+                degrees,
                 ..
             }),
         ) => {
@@ -933,14 +934,11 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
 
             // upper bounding by 360 degrees
             if weight < 0.91 {
-                // 1.4927 + 0.043878*360
-                tmu += 17.28878;
+                tmu += 1.4927 + 0.043878*degrees;
             } else  if weight < 4.54 {
-                // 2.3463636 + 0.0689090*360
-                tmu += 27.1536036;
+                tmu += 2.3463636 + 0.0689090*degrees;
             } else {
-                // 4.4781818 + 0.131636*360
-                tmu += 51.8671418;
+                tmu += 4.4781818 + 0.131636*degrees;
             }
 
             // Convert TMU to seconds
@@ -1094,7 +1092,7 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
             }),
         ) => {
             return match assigned_primitives.last() {
-                Some(Primitive::Position { id, target }) => {
+                Some(Primitive::Position { id, target , degrees}) => {
                     let target_info = job.targets.get(target).unwrap();
                     let weight = target_info.weight();
                     let mut tmu = 0.0;
@@ -1305,6 +1303,7 @@ fn get_robot_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
             Some(Primitive::Position {
                 id, 
                 target,
+                degrees,
                 ..
             }),
         ) => {
@@ -1362,7 +1361,7 @@ fn get_robot_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
             }),
         ) => {
             return match assigned_primitives.last() {
-                Some(Primitive::Position { id, target }) => {
+                Some(Primitive::Position { id, target , degrees}) => {
                     0.0
                 },
                 _ => {

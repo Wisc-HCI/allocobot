@@ -56,11 +56,11 @@ fn main() -> std::io::Result<()> {
     job.add_task_primitive(t1, Primitive::new_selection(part2, Rating::High));
     job.add_task_primitive(t1, Primitive::new_use(tool0));
     job.add_task_primitive(t1, Primitive::new_hold(part2));
-    job.add_task_primitive(t1, Primitive::new_position(part2));
+    job.add_task_primitive(t1, Primitive::new_position(part2, 360.0));
     job.add_task_primitive(t1, Primitive::new_force(part2, 10.0));
 
     job.add_task_primitive(t2, Primitive::new_force(part3, -5.0));
-    job.add_task_primitive(t2, Primitive::new_position(part3));
+    job.add_task_primitive(t2, Primitive::new_position(part3, 360.0));
     job.add_task_primitive(t2, Primitive::new_hold(part3));
 
     // job.add_task_point_of_interest(t1, p2);
