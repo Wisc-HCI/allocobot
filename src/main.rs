@@ -20,11 +20,11 @@ fn main() -> std::io::Result<()> {
     //     Rgb::new(100, 100, 200),
     // ];
 
-    let mut job = Job::new("Job 1".into());
+    let mut job = Job::new("Job 1".into(), 0.1);
 
     let _panda: Uuid =
-        job.create_robot_agent("Panda".into(), 0.855, 3.0, Rating::Medium, 2.0, 0.0001, Rating::Medium, 0.1);
-    let _charlie: Uuid = job.create_human_agent("Charlie".into(), 75.0, 1.45, 2.0, 0.77, 84.0, Rating::High);
+        job.create_robot_agent("Panda".into(), 0.855, 3.0, Rating::Medium, 2.0, 0.0001, Rating::Medium, 0.1, 13000.0, 300.0, 5000.0);
+    let _charlie: Uuid = job.create_human_agent("Charlie".into(), 75.0, 1.45, 2.0, 0.77, 84.0, Rating::High, 24.0);
 
     let _p1: Uuid = job.create_hand_point_of_interest("POI1".into(), 0.0, 1.0, 0.1, Some(Rating::High), Some(Rating::High));
     let p2: Uuid = job.create_hand_point_of_interest("POI2".into(), 1.0, 1.0, 0.4, Some(Rating::Low), Some(Rating::Low));
@@ -56,11 +56,11 @@ fn main() -> std::io::Result<()> {
     job.add_task_primitive(t1, Primitive::new_selection(part2, Rating::High));
     job.add_task_primitive(t1, Primitive::new_use(tool0));
     job.add_task_primitive(t1, Primitive::new_hold(part2));
-    job.add_task_primitive(t1, Primitive::new_position(part2, 360.0));
+    job.add_task_primitive(t1, Primitive::new_position(part2, 180.0));
     job.add_task_primitive(t1, Primitive::new_force(part2, 10.0));
 
     job.add_task_primitive(t2, Primitive::new_force(part3, -5.0));
-    job.add_task_primitive(t2, Primitive::new_position(part3, 360.0));
+    job.add_task_primitive(t2, Primitive::new_position(part3, 180.0));
     job.add_task_primitive(t2, Primitive::new_hold(part3));
 
     // job.add_task_point_of_interest(t1, p2);

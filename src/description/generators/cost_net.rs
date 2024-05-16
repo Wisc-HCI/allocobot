@@ -114,7 +114,41 @@ impl Job {
                         net.transitions.insert(id, transition);
                     }
                 }
-                _ => { /* No Ergo calculations for robots */ }
+                Agent::Robot(robot) => {
+                    // Create a new place to store updated transitions.
+                    // This will be merged into the other transitions at the end.
+                    let mut updated_transitions: HashMap<Uuid, Transition> = HashMap::new();
+
+                    // Find all transitions that are relevant to this agent
+                    for transition in net.query_transitions(&vec![
+                        Query::Data(Data::Agent(*id)),
+                    ]) {
+                        // If we already updated this transition, use the updated version
+                        let mut transition_copy = match updated_transitions.get(&transition.id) {
+                            Some(t) => t.clone(),
+                            None => transition.clone(),
+                        };
+
+                        let cost_set: CostSet = robot.cost_set(&transition, &self);
+                        let execution_time: Time = robot.execution_time(&transition, &self);
+
+                        let time: Time;
+                        if transition_copy.time < execution_time {
+                            time = transition_copy.time;
+                        } else {
+                            time = execution_time;
+                        }
+                        transition_copy.time = time;
+                        transition_copy.cost = add_cost_sets(&transition.cost, &cost_set);
+
+                        updated_transitions.insert(transition.id, transition_copy);
+                    }
+
+                    // Update the transitions with the new versions
+                    for (id, transition) in updated_transitions {
+                        net.transitions.insert(id, transition);
+                    }
+                }
             }
             // Add a place for each ergo bin
         }

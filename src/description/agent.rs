@@ -1,10 +1,10 @@
-use crate::constants::{DISTANCE_PER_PACE, TMU_PER_SECOND};
+use crate::constants::{DISTANCE_PER_PACE, SEC_PER_HOUR, TMU_PER_SECOND};
 use crate::description::job::Job;
 use crate::description::primitive::Primitive;
 use crate::description::rating::Rating;
 use crate::description::poi::PointOfInterest;
 use crate::description::units::Time;
-use crate::petri::data::{Data, DataTag};
+use crate::petri::data::{Data, DataTag, Query};
 use crate::petri::transition::Transition;
 use crate::petri::cost::{CostSet, CostFrequency, CostCategory, Cost};
 use crate::util::{vector2_distance_f64, vector3_distance_f64};
@@ -16,7 +16,7 @@ use enum_tag::EnumTag;
 use uuid::Uuid;
 
 use super::target;
-use super::units::TokenCount;
+use super::units::{TokenCount, Watts, USD};
 
 
 
@@ -37,6 +37,9 @@ impl Agent {
         precision: f64,    // m (repeatability)
         sensing: Rating,      // rating 0-1
         mobile_speed: f64, // m/s
+        purchase_price: USD, // dollars
+        energy_consumption: Watts, // watts
+        annual_maintenance_cost: USD, //dollars
     ) -> Self {
         return Agent::Robot(RobotInfo {
             id: Uuid::new_v4(),
@@ -48,6 +51,9 @@ impl Agent {
             precision,
             sensing,
             mobile_speed,
+            purchase_price,
+            energy_consumption,
+            annual_maintenance_cost
         });
     }
 
@@ -59,6 +65,7 @@ impl Agent {
         reach: f64,           // meters
         weight: f64,          // kg
         skill: Rating,
+        hourly_wage: USD,
     ) -> Self {
         return Agent::Human(HumanInfo {
             id: Uuid::new_v4(),
@@ -68,7 +75,8 @@ impl Agent {
             height,
             reach,
             weight,
-            skill
+            skill,
+            hourly_wage
         });
     }
 
@@ -98,6 +106,9 @@ pub struct RobotInfo {
     pub precision: f64,
     pub sensing: Rating,
     pub mobile_speed: f64,
+    pub purchase_price: USD,
+    pub energy_consumption: Watts,
+    pub annual_maintenance_cost: USD,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -111,7 +122,8 @@ pub struct HumanInfo {
     pub height: f64,
     pub reach: f64,
     pub weight: f64,
-    pub skill: Rating
+    pub skill: Rating,
+    pub hourly_wage: USD,
 }
 
 pub trait CostProfiler {
@@ -161,6 +173,13 @@ impl CostProfiler for HumanInfo {
         let mut ergo_cost_set = CostSet::new();
 
         let execution_time = self.execution_time(transition, job);
+        if execution_time > 0.0 {
+            ergo_cost_set.push(Cost {
+                frequency: CostFrequency::Extrapolated,
+                value: self.hourly_wage * execution_time / SEC_PER_HOUR,
+                category: CostCategory::Monetary
+            });
+        }
 
         let force_magnitude_on_target: HashMap<Uuid, f64> = assigned_primitives
             .iter()
@@ -478,7 +497,32 @@ impl CostProfiler for RobotInfo {
     }
 
     fn cost_set(&self, transition: &Transition, job: &Job) -> CostSet {
-        vec![]
+
+        let mut ergo_cost_set = CostSet::new();
+
+        // Add electricity cost
+        let execution_time = self.execution_time(transition, job);
+        if execution_time > 0.0 {
+            ergo_cost_set.push(Cost {
+                frequency: CostFrequency::Extrapolated,
+                value: (self.energy_consumption * execution_time / SEC_PER_HOUR) * job.kwh_cost , // cost is $/kWh
+                category: CostCategory::Monetary
+            });
+        }
+
+        // Add maintenance cost
+        // TODO
+
+        // Add one-time purchasing cost (if the transition adds the agent)
+        if transition.has_data(&vec![Query::Data(Data::AgentAdd(self.id))]) {
+            ergo_cost_set.push(Cost {
+                frequency: CostFrequency::Once,
+                value: self.purchase_price,
+                category: CostCategory::Monetary
+            });
+        }
+
+        ergo_cost_set
     }
 
     fn ergo_cost_whole(&self, transition: &Transition, job: &Job) -> TokenCount {

@@ -106,7 +106,7 @@ pub fn test_split() {
     let inspect = Primitive::Inspect { id: Uuid::new_v4(), target: target1, skill: Rating::High };
     let force = Primitive::Force { id: Uuid::new_v4(), target: target1, magnitude: 3.0 };
     let hold = Primitive::Hold { id: Uuid::new_v4(), target: target1 };
-    let position = Primitive::Position { id: Uuid::new_v4(), target: target1 };
+    let position = Primitive::Position { id: Uuid::new_v4(), target: target1, degrees: 180.0 };
 
     let primitives = vec![
         &inspect,
