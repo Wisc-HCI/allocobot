@@ -1,12 +1,12 @@
 use crate::constants::{DISTANCE_PER_PACE, TMU_PER_SECOND};
 use crate::description::job::Job;
+use crate::description::poi::PointOfInterest;
 use crate::description::primitive::Primitive;
 use crate::description::rating::Rating;
-use crate::description::poi::PointOfInterest;
 use crate::description::units::Time;
+use crate::petri::cost::{Cost, CostCategory, CostFrequency, CostSet};
 use crate::petri::data::{Data, DataTag};
 use crate::petri::transition::Transition;
-use crate::petri::cost::{CostSet, CostFrequency, CostCategory, Cost};
 use crate::util::{vector2_distance_f64, vector3_distance_f64};
 use nalgebra::{Vector2, Vector3};
 use serde::{Deserialize, Serialize};
@@ -18,8 +18,6 @@ use uuid::Uuid;
 
 use super::target;
 use super::units::TokenCount;
-
-
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "camelCase")]
@@ -33,10 +31,10 @@ impl Agent {
         name: String,
         reach: f64,        // meters
         payload: f64,      // kg
-        agility: Rating,      // rating 0-1
+        agility: Rating,   // rating 0-1
         speed: f64,        // m/s
         precision: f64,    // m (repeatability)
-        sensing: Rating,      // rating 0-1
+        sensing: Rating,   // rating 0-1
         mobile_speed: f64, // m/s
     ) -> Self {
         return Agent::Robot(RobotInfo {
@@ -56,7 +54,7 @@ impl Agent {
         name: String,
         age: f64,             // Years
         acromial_height: f64, // meters
-        height: f64, // meters
+        height: f64,          // meters
         reach: f64,           // meters
         weight: f64,          // kg
         skill: Rating,
@@ -69,7 +67,7 @@ impl Agent {
             height,
             reach,
             weight,
-            skill
+            skill,
         });
     }
 
@@ -112,7 +110,7 @@ pub struct HumanInfo {
     pub height: f64,
     pub reach: f64,
     pub weight: f64,
-    pub skill: Rating
+    pub skill: Rating,
 }
 
 pub trait CostProfiler {
@@ -129,7 +127,7 @@ pub trait CostProfiler {
 impl CostProfiler for HumanInfo {
     fn execution_time(&self, transition: &Transition, job: &Job) -> Time {
         let assigned_primitives = get_assigned_primitives(transition, job, self.id);
-        
+
         let mut max_time = 0.0;
 
         for primitive in assigned_primitives.iter() {
@@ -141,7 +139,7 @@ impl CostProfiler for HumanInfo {
 
             for primitive_two in assigned_primitives.iter() {
                 let temp_vec = vec![*primitive, *primitive_two];
-                let doubles_time = get_human_time_for_primitive(temp_vec, transition,  job, self);
+                let doubles_time = get_human_time_for_primitive(temp_vec, transition, job, self);
                 if doubles_time > max_time {
                     max_time = doubles_time;
                 }
@@ -177,9 +175,7 @@ impl CostProfiler for HumanInfo {
             // for primitive in &assigned_primitives {
             match *primitive {
                 Primitive::Force {
-                    target,
-                    magnitude,
-                    ..
+                    target, magnitude, ..
                 } => {
                     let target_info = job.targets.get(target).unwrap();
                     let weight = target_info.weight();
@@ -187,25 +183,26 @@ impl CostProfiler for HumanInfo {
                     ergo_cost_set.push(Cost {
                         frequency: CostFrequency::Extrapolated,
                         value: mvc * execution_time,
-                        category: CostCategory::Ergonomic
+                        category: CostCategory::Ergonomic,
                     });
-                },
-                Primitive::Carry { 
-                    target,  
+                }
+                Primitive::Carry {
+                    target,
                     to_standing,
-                    to_hand ,
+                    to_hand,
                     ..
                 } => {
                     let target_info = job.targets.get(target).unwrap();
                     let weight = target_info.weight();
-                    let (hand_location, stand_location) = get_hand_stand_locations(transition, self, job);                    
+                    let (hand_location, stand_location) =
+                        get_hand_stand_locations(transition, self, job);
                     let is_one_hand = is_one_hand_task(hand_location, stand_location, weight);
-                    
+
                     // let from_standing_info = job.points_of_interest.get(from_standing).unwrap();
                     let to_standing_info = job.points_of_interest.get(to_standing).unwrap();
                     let to_hand_info = job.points_of_interest.get(to_hand).unwrap();
                     // let from_hand_info = job.points_of_interest.get(from_hand).unwrap();
-                    
+
                     let hand_travel_vector = to_hand_info.position() - to_standing_info.position();
                     let hand_travel_distance = hand_travel_vector.norm();
 
@@ -232,9 +229,9 @@ impl CostProfiler for HumanInfo {
                     ergo_cost_set.push(Cost {
                         frequency: CostFrequency::Extrapolated,
                         value: mvc * execution_time,
-                        category: CostCategory::Ergonomic
+                        category: CostCategory::Ergonomic,
                     });
-                },
+                }
                 Primitive::Move {
                     target,
                     standing,
@@ -248,15 +245,21 @@ impl CostProfiler for HumanInfo {
 
                     let target_info = job.targets.get(target).unwrap();
                     let weight = target_info.weight();
-                    
+
                     let to_hand_pos = to_hand_info.position();
                     let from_hand_pos = from_hand_info.position();
                     let standing_pos = standing_info.position();
 
                     let is_one_hand = is_one_hand_task(to_hand_pos, standing_pos, weight);
 
-                    let horizontal_distance = vector2_distance_f64(Vector2::new(to_hand_pos.x, to_hand_pos.y), Vector2::new(from_hand_pos.x, from_hand_pos.y));
-                    let horizontal_hand_shoulder_distance = vector2_distance_f64(Vector2::new(to_hand_pos.x, to_hand_pos.y), Vector2::new(standing_pos.x, standing_pos.y));
+                    let horizontal_distance = vector2_distance_f64(
+                        Vector2::new(to_hand_pos.x, to_hand_pos.y),
+                        Vector2::new(from_hand_pos.x, from_hand_pos.y),
+                    );
+                    let horizontal_hand_shoulder_distance = vector2_distance_f64(
+                        Vector2::new(to_hand_pos.x, to_hand_pos.y),
+                        Vector2::new(standing_pos.x, standing_pos.y),
+                    );
                     let vertical_distance = to_hand_pos.z - from_hand_pos.z;
 
                     let is_arm_work = is_arm_work(horizontal_hand_shoulder_distance);
@@ -355,13 +358,10 @@ impl CostProfiler for HumanInfo {
                     ergo_cost_set.push(Cost {
                         frequency: CostFrequency::Extrapolated,
                         value: mvc * execution_time,
-                        category: CostCategory::Ergonomic
+                        category: CostCategory::Ergonomic,
                     });
-                },
-                Primitive::Use { 
-                    target,
-                    ..
-                } => {
+                }
+                Primitive::Use { target, .. } => {
                     let target_info = job.targets.get(target).unwrap();
                     let size = target_info.size();
                     let weight = target_info.weight();
@@ -378,20 +378,20 @@ impl CostProfiler for HumanInfo {
                     ergo_cost_set.push(Cost {
                         frequency: CostFrequency::Extrapolated,
                         value: mvc * execution_time,
-                        category: CostCategory::Ergonomic
+                        category: CostCategory::Ergonomic,
                     });
-
-                },
-                Primitive::Hold {
-                    target,
-                    ..
-                } => {
+                }
+                Primitive::Hold { target, .. } => {
                     let target_info = job.targets.get(target).unwrap();
                     let weight = target_info.weight();
-                    let (hand_location, stand_location) = get_hand_stand_locations(transition, self, job);                    
+                    let (hand_location, stand_location) =
+                        get_hand_stand_locations(transition, self, job);
                     let is_one_hand = is_one_hand_task(hand_location, stand_location, weight);
 
-                    let horizontal_hand_shoulder_distance = vector2_distance_f64(Vector2::new(hand_location.x, hand_location.y), Vector2::new(stand_location.x, stand_location.y));
+                    let horizontal_hand_shoulder_distance = vector2_distance_f64(
+                        Vector2::new(hand_location.x, hand_location.y),
+                        Vector2::new(stand_location.x, stand_location.y),
+                    );
                     let is_hand_work = horizontal_hand_shoulder_distance < 0.05;
 
                     let mut denom = 0.0;
@@ -415,9 +415,9 @@ impl CostProfiler for HumanInfo {
                     ergo_cost_set.push(Cost {
                         frequency: CostFrequency::Extrapolated,
                         value: mvc * execution_time,
-                        category: CostCategory::Ergonomic
+                        category: CostCategory::Ergonomic,
                     });
-                },
+                }
                 _ => {}
             }
         }
@@ -508,10 +508,14 @@ const HUMAN_WEIGHT_FACTORS_MAPPING: [(f64, f64, f64, f64); 9] = [
     (12.5, 14.74, 1.33, 10.8),
     (14.74, 17.0, 1.39, 12.5),
     (17.0, 19.29, 1.44, 14.3),
-    (19.29, f64::INFINITY, 1.5, 16.0)
+    (19.29, f64::INFINITY, 1.5, 16.0),
 ];
 
-fn get_assigned_primitives<'t>(transition: &'t Transition, job: &'t Job, agent_id: Uuid) -> Vec<&'t Primitive> {
+fn get_assigned_primitives<'t>(
+    transition: &'t Transition,
+    job: &'t Job,
+    agent_id: Uuid,
+) -> Vec<&'t Primitive> {
     transition
         .meta_data
         .iter()
@@ -520,7 +524,12 @@ fn get_assigned_primitives<'t>(transition: &'t Transition, job: &'t Job, agent_i
         .collect()
 }
 
-fn get_is_within_neutral_reach(standing_poi: &PointOfInterest, hand_poi: &PointOfInterest, acromial_height: f64, reach: f64) -> bool {
+fn get_is_within_neutral_reach(
+    standing_poi: &PointOfInterest,
+    hand_poi: &PointOfInterest,
+    acromial_height: f64,
+    reach: f64,
+) -> bool {
     let standing_vector = standing_poi.position();
     let hand_vector = hand_poi.position();
     let acromial_vector = Vector3::new(0.0, 0.0, acromial_height);
@@ -530,10 +539,14 @@ fn get_is_within_neutral_reach(standing_poi: &PointOfInterest, hand_poi: &PointO
 }
 
 fn is_arm_work(horizontal_distance: f64) -> bool {
-    return horizontal_distance < 0.45
+    return horizontal_distance < 0.45;
 }
 
-fn is_one_hand_task(hand_location: Vector3<f64>, stand_location: Vector3<f64>, weight: f64) -> bool {
+fn is_one_hand_task(
+    hand_location: Vector3<f64>,
+    stand_location: Vector3<f64>,
+    weight: f64,
+) -> bool {
     // Check whether this is a 1 or 2 handed activity
     let mut is_one_hand = true;
     let horizontal_distance = hand_location.x - stand_location.x;
@@ -549,10 +562,14 @@ fn is_one_hand_task(hand_location: Vector3<f64>, stand_location: Vector3<f64>, w
     return is_one_hand;
 }
 
-fn get_hand_stand_locations(transition: &Transition, agent: &HumanInfo, job: &Job) -> (Vector3<f64>, Vector3<f64>) {
-    let mut hand_location = Vector3::new(0.0,0.0,0.0);
-    let mut stand_location = Vector3::new(0.0,0.0,0.0);
-    
+fn get_hand_stand_locations(
+    transition: &Transition,
+    agent: &HumanInfo,
+    job: &Job,
+) -> (Vector3<f64>, Vector3<f64>) {
+    let mut hand_location = Vector3::new(0.0, 0.0, 0.0);
+    let mut stand_location = Vector3::new(0.0, 0.0, 0.0);
+
     for data in transition.meta_data.iter() {
         match data {
             Data::Hand(poi_id, agent_id) => {
@@ -560,21 +577,26 @@ fn get_hand_stand_locations(transition: &Transition, agent: &HumanInfo, job: &Jo
                     let hand_poi = job.points_of_interest.get(poi_id).unwrap();
                     hand_location = hand_poi.position().clone();
                 }
-            },
+            }
             Data::Standing(poi_id, agent_id) => {
                 if *agent_id == agent.id {
                     let stand_poi = job.points_of_interest.get(poi_id).unwrap();
                     stand_location = stand_poi.position().clone();
                 }
-            },
+            }
             _ => {}
         }
     }
-    return (hand_location, stand_location)
+    return (hand_location, stand_location);
 }
 
-fn get_force_mvc(transition: &Transition, magnitude: &f64, agent: &HumanInfo, job: &Job, weight: f64) -> f64 {
-    
+fn get_force_mvc(
+    transition: &Transition,
+    magnitude: &f64,
+    agent: &HumanInfo,
+    job: &Job,
+    weight: f64,
+) -> f64 {
     let (hand_location, stand_location) = get_hand_stand_locations(transition, agent, job);
 
     let is_one_hand = is_one_hand_task(hand_location, stand_location, weight);
@@ -620,16 +642,21 @@ fn get_force_mvc(transition: &Transition, magnitude: &f64, agent: &HumanInfo, jo
     return mvc;
 }
 
-fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transition: &Transition, job: &Job, agent: &HumanInfo) -> Time {
+fn get_human_time_for_primitive(
+    assigned_primitives: Vec<&Primitive>,
+    transition: &Transition,
+    job: &Job,
+    agent: &HumanInfo,
+) -> Time {
     return match (assigned_primitives.len(), assigned_primitives.first()) {
         (0, _) => {
             // This is a no-op, so just return 0
             0.0
-        },
+        }
         (1, None) => {
             // Technically impossible, but we cover it anyway. Return 0
             0.0
-        },
+        }
         (
             1,
             Some(Primitive::Carry {
@@ -655,19 +682,27 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
             tmu += 2.0;
 
             // If the source hand is below the reachable area, based on standing location, add a time penalty
-            if get_is_within_neutral_reach(from_standing_info, from_hand_info, agent.acromial_height, agent.reach) {
+            if get_is_within_neutral_reach(
+                from_standing_info,
+                from_hand_info,
+                agent.acromial_height,
+                agent.reach,
+            ) {
                 tmu += 30.5;
             }
 
-            
             // Compute travel vector/distance
             let travel_vector = to_standing_info.position() - from_standing_info.position();
             let travel_distance = travel_vector.norm();
-            tmu += 17.0 * (travel_distance/1.19);
-
+            tmu += 17.0 * (travel_distance / 1.19);
 
             // If the target hand is below the reachable area, based on standing location, add a tmu penalty
-            if get_is_within_neutral_reach(to_standing_info, to_hand_info, agent.acromial_height, agent.reach) {
+            if get_is_within_neutral_reach(
+                to_standing_info,
+                to_hand_info,
+                agent.acromial_height,
+                agent.reach,
+            ) {
                 tmu += 30.5;
             }
 
@@ -678,7 +713,7 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
             let time = tmu * TMU_PER_SECOND;
 
             return time;
-        }, 
+        }
         (
             1,
             Some(Primitive::Move {
@@ -713,7 +748,12 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
             }
 
             // If the source hand is below the reachable area, based on standing location, add a tmu penalty
-            if get_is_within_neutral_reach(standing_info, from_hand_info, agent.acromial_height, agent.reach) {
+            if get_is_within_neutral_reach(
+                standing_info,
+                from_hand_info,
+                agent.acromial_height,
+                agent.reach,
+            ) {
                 tmu += 30.5;
             }
 
@@ -724,33 +764,36 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
                     if motion_distance < 0.0254 {
                         movement_tmu += 2.0
                     } else if 0.0254 <= motion_distance && motion_distance <= 0.1016 {
-                        movement_tmu += 3.6866*motion_distance.powf(0.6146)
+                        movement_tmu += 3.6866 * motion_distance.powf(0.6146)
                     } else if 0.1016 <= motion_distance && motion_distance <= 0.762 {
-                        movement_tmu += 5.959169 + 0.690797*motion_distance
+                        movement_tmu += 5.959169 + 0.690797 * motion_distance
                     } else {
-                        movement_tmu += 5.959169 + 0.690797*motion_distance + 0.7*(motion_distance - 0.762)
+                        movement_tmu +=
+                            5.959169 + 0.690797 * motion_distance + 0.7 * (motion_distance - 0.762)
                     }
-                },
+                }
                 Rating::Medium => {
                     if motion_distance < 0.0254 {
                         movement_tmu += 2.0
                     } else if 0.0254 <= motion_distance && motion_distance <= 0.1016 {
-                        movement_tmu += 2.5*motion_distance.powf(0.681)
+                        movement_tmu += 2.5 * motion_distance.powf(0.681)
                     } else if 0.1016 <= motion_distance && motion_distance <= 0.762 {
-                        movement_tmu += 4.309488 + 0.71666*motion_distance
+                        movement_tmu += 4.309488 + 0.71666 * motion_distance
                     } else {
-                        movement_tmu += 4.309488 + 0.71666*motion_distance + 0.7*(motion_distance - 0.762)
+                        movement_tmu +=
+                            4.309488 + 0.71666 * motion_distance + 0.7 * (motion_distance - 0.762)
                     }
-                },
+                }
                 Rating::Low => {
                     if motion_distance < 0.0254 {
                         movement_tmu += 2.0
                     } else if 0.0254 <= motion_distance && motion_distance <= 0.0762 {
-                        movement_tmu += 2.5*motion_distance.powf(0.681)
+                        movement_tmu += 2.5 * motion_distance.powf(0.681)
                     } else if 0.0762 <= motion_distance && motion_distance <= 0.762 {
-                        movement_tmu += 4.333601 + 0.440266*motion_distance
+                        movement_tmu += 4.333601 + 0.440266 * motion_distance
                     } else {
-                        movement_tmu += 4.333601 + 0.440266*motion_distance + 0.4*(motion_distance - 0.762)
+                        movement_tmu +=
+                            4.333601 + 0.440266 * motion_distance + 0.4 * (motion_distance - 0.762)
                     }
                 }
             }
@@ -759,23 +802,28 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
             let weight = target_info.weight();
             for (lower, upper, factor, constant) in HUMAN_WEIGHT_FACTORS_MAPPING {
                 if lower < weight && weight <= upper {
-                    movement_tmu += factor*weight + constant;
+                    movement_tmu += factor * weight + constant;
                     break;
                 }
             }
             tmu += movement_tmu;
 
-            if get_is_within_neutral_reach(standing_info, to_hand_info, agent.acromial_height, agent.reach) {
+            if get_is_within_neutral_reach(
+                standing_info,
+                to_hand_info,
+                agent.acromial_height,
+                agent.reach,
+            ) {
                 tmu += 30.5;
             }
-            
+
             // Release tmu
             tmu += 2.0;
 
             let time = tmu * TMU_PER_SECOND;
 
             return time;
-        },
+        }
         (
             1,
             Some(Primitive::Travel {
@@ -797,14 +845,12 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
             let travel_distance = travel_vector.norm();
 
             // Compute carry time
-            return (15.0 * (travel_distance / DISTANCE_PER_PACE)) * TMU_PER_SECOND
-        },
+            return (15.0 * (travel_distance / DISTANCE_PER_PACE)) * TMU_PER_SECOND;
+        }
         (
             1,
             Some(Primitive::Reach {
-                from_hand,
-                to_hand,
-                ..
+                from_hand, to_hand, ..
             }),
         ) => {
             // Consider Reach Calculation
@@ -821,41 +867,50 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
                     if motion_distance < 0.0254 {
                         2.0 * TMU_PER_SECOND
                     } else if 0.0254 <= motion_distance && motion_distance <= 0.1016 {
-                        3.6866*39.37*motion_distance.powf(0.6146) * TMU_PER_SECOND
+                        3.6866 * 39.37 * motion_distance.powf(0.6146) * TMU_PER_SECOND
                     } else if 0.1016 <= motion_distance && motion_distance <= 0.762 {
-                        (5.959169 + 0.690797*39.37*motion_distance) * TMU_PER_SECOND
+                        (5.959169 + 0.690797 * 39.37 * motion_distance) * TMU_PER_SECOND
                     } else {
-                        (5.959169 + 0.690797*39.37*motion_distance + 0.7*(39.37*motion_distance - 0.762)) * TMU_PER_SECOND
+                        (5.959169
+                            + 0.690797 * 39.37 * motion_distance
+                            + 0.7 * (39.37 * motion_distance - 0.762))
+                            * TMU_PER_SECOND
                     }
-                },
+                }
                 Rating::Medium => {
                     if motion_distance < 0.0254 {
                         2.0 * TMU_PER_SECOND
                     } else if 0.0254 <= motion_distance && motion_distance <= 0.1016 {
-                        2.5*39.37*motion_distance.powf(0.681) * TMU_PER_SECOND
+                        2.5 * 39.37 * motion_distance.powf(0.681) * TMU_PER_SECOND
                     } else if 0.1016 <= motion_distance && motion_distance <= 0.762 {
-                        (4.309488 + 0.71666*39.37*motion_distance) * TMU_PER_SECOND
+                        (4.309488 + 0.71666 * 39.37 * motion_distance) * TMU_PER_SECOND
                     } else {
-                        (4.309488 + 0.71666*38.37*motion_distance + 0.7*(39.37*motion_distance - 0.762)) * TMU_PER_SECOND
+                        (4.309488
+                            + 0.71666 * 38.37 * motion_distance
+                            + 0.7 * (39.37 * motion_distance - 0.762))
+                            * TMU_PER_SECOND
                     }
-                },
+                }
                 Rating::Low => {
                     if motion_distance < 0.0254 {
                         2.0 * TMU_PER_SECOND
                     } else if 0.0254 <= motion_distance && motion_distance <= 0.0762 {
-                        2.5*39.37*motion_distance.powf(0.681) * TMU_PER_SECOND
+                        2.5 * 39.37 * motion_distance.powf(0.681) * TMU_PER_SECOND
                     } else if 0.0762 <= motion_distance && motion_distance <= 0.762 {
-                        (4.333601 + 0.440266*39.37*motion_distance) * TMU_PER_SECOND
+                        (4.333601 + 0.440266 * 39.37 * motion_distance) * TMU_PER_SECOND
                     } else {
-                        (4.333601 + 0.440266*39.37*motion_distance + 0.4*(39.37*motion_distance - 0.762)) * TMU_PER_SECOND
+                        (4.333601
+                            + 0.440266 * 39.37 * motion_distance
+                            + 0.4 * (39.37 * motion_distance - 0.762))
+                            * TMU_PER_SECOND
                     }
                 }
-            }
-        },
+            };
+        }
         (
             1,
             Some(Primitive::Force {
-                id, 
+                id,
                 target,
                 magnitude,
                 ..
@@ -900,15 +955,8 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
             let time = tmu * TMU_PER_SECOND;
 
             return time;
-        },
-        (
-            1,
-            Some(Primitive::Position {
-                id, 
-                target,
-                ..
-            }),
-        ) => {
+        }
+        (1, Some(Primitive::Position { id, target, .. })) => {
             // Consider Force Calculation
             let mut tmu: f64 = 0.0;
 
@@ -919,7 +967,7 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
             if weight < 0.91 {
                 // 1.4927 + 0.043878*360
                 tmu += 17.28878;
-            } else  if weight < 4.54 {
+            } else if weight < 4.54 {
                 // 2.3463636 + 0.0689090*360
                 tmu += 27.1536036;
             } else {
@@ -931,27 +979,17 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
             let time = tmu * TMU_PER_SECOND;
 
             return time;
-        },
+        }
         (
             1,
             Some(Primitive::Inspect {
-                id, 
-                target,
-                skill,
-                ..
+                id, target, skill, ..
             }),
         ) => {
             // this primitive's time will be based on the time of the primitives coupled with it
             0.0
-        },
-        (
-            1,
-            Some(Primitive::Selection {
-                target,
-                ..
-            }),
-        ) => {
-            
+        }
+        (1, Some(Primitive::Selection { target, .. })) => {
             let target_object = job.targets.get(target).unwrap();
             // take the cube root of the object's size (this is making the assumption that the item has a cuboid shape for the volume/size)
             let w = f64::powf(target_object.size(), 1.0 / 3.0);
@@ -963,22 +1001,52 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
                 match data {
                     Data::Hand(poi_id, agent_id) => {
                         if *agent_id == agent.id {
-                            if (vector_point.x == 0.0 && vector_point.y == 0.0 && vector_point.z == 0.0) {
-                                vector_point = job.points_of_interest.get(poi_id).unwrap().position().clone();
+                            if (vector_point.x == 0.0
+                                && vector_point.y == 0.0
+                                && vector_point.z == 0.0)
+                            {
+                                vector_point = job
+                                    .points_of_interest
+                                    .get(poi_id)
+                                    .unwrap()
+                                    .position()
+                                    .clone();
                             } else {
-                                d = vector3_distance_f64(vector_point, job.points_of_interest.get(poi_id).unwrap().position().clone());
+                                d = vector3_distance_f64(
+                                    vector_point,
+                                    job.points_of_interest
+                                        .get(poi_id)
+                                        .unwrap()
+                                        .position()
+                                        .clone(),
+                                );
                             }
                         }
-                    },
+                    }
                     Data::Standing(poi_id, agent_id) => {
                         if *agent_id == agent.id {
-                            if (vector_point.x == 0.0 && vector_point.y == 0.0 && vector_point.z == 0.0) {
-                                vector_point = job.points_of_interest.get(poi_id).unwrap().position().clone();
+                            if (vector_point.x == 0.0
+                                && vector_point.y == 0.0
+                                && vector_point.z == 0.0)
+                            {
+                                vector_point = job
+                                    .points_of_interest
+                                    .get(poi_id)
+                                    .unwrap()
+                                    .position()
+                                    .clone();
                             } else {
-                                d = vector3_distance_f64(vector_point, job.points_of_interest.get(poi_id).unwrap().position().clone());
+                                d = vector3_distance_f64(
+                                    vector_point,
+                                    job.points_of_interest
+                                        .get(poi_id)
+                                        .unwrap()
+                                        .position()
+                                        .clone(),
+                                );
                             }
                         }
-                    },
+                    }
                     _ => {}
                 }
             }
@@ -988,18 +1056,14 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
 
             // calculate time
             15.2 * fitts_law_difficulty * TMU_PER_SECOND
-
-        },
-        (
-            2,
-            Some(Primitive::Position {
-                id, 
-                target,
-                ..
-            }),
-        ) => {
+        }
+        (2, Some(Primitive::Position { id, target, .. })) => {
             return match assigned_primitives.last() {
-                Some(Primitive::Force { id, target, magnitude }) => {
+                Some(Primitive::Force {
+                    id,
+                    target,
+                    magnitude,
+                }) => {
                     let target_info = job.targets.get(target).unwrap();
                     let weight = target_info.weight();
                     let mut tmu = 0.0;
@@ -1017,14 +1081,14 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
                                 } else {
                                     tmu += 11.2;
                                 }
-                            },
+                            }
                             Rating::Medium => {
                                 if weight < 1.13 {
                                     tmu += 9.1;
                                 } else {
                                     tmu += 14.7;
                                 }
-                            },
+                            }
                             Rating::Low => {
                                 if weight < 1.13 {
                                     tmu += 10.4;
@@ -1041,14 +1105,14 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
                                 } else {
                                     tmu += 21.8;
                                 }
-                            },
+                            }
                             Rating::Medium => {
                                 if weight < 1.13 {
                                     tmu += 19.7;
                                 } else {
                                     tmu += 25.3;
                                 }
-                            },
+                            }
                             Rating::Low => {
                                 if weight < 1.13 {
                                     tmu += 21.0;
@@ -1065,14 +1129,14 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
                                 } else {
                                     tmu += 48.6;
                                 }
-                            },
+                            }
                             Rating::Medium => {
                                 if weight < 1.13 {
                                     tmu += 46.5;
                                 } else {
                                     tmu += 52.1;
                                 }
-                            },
+                            }
                             Rating::Low => {
                                 if weight < 1.13 {
                                     tmu += 47.8;
@@ -1090,16 +1154,14 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
                     let time = tmu * TMU_PER_SECOND;
 
                     return time;
-                },
-                _ => {
-                    0.0
                 }
-            }
-        },
+                _ => 0.0,
+            };
+        }
         (
             2,
             Some(Primitive::Force {
-                id, 
+                id,
                 target,
                 magnitude,
                 ..
@@ -1124,14 +1186,14 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
                                 } else {
                                     tmu += 11.2;
                                 }
-                            },
+                            }
                             Rating::Medium => {
                                 if weight < 1.13 {
                                     tmu += 9.1;
                                 } else {
                                     tmu += 14.7;
                                 }
-                            },
+                            }
                             Rating::Low => {
                                 if weight < 1.13 {
                                     tmu += 10.4;
@@ -1148,14 +1210,14 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
                                 } else {
                                     tmu += 21.8;
                                 }
-                            },
+                            }
                             Rating::Medium => {
                                 if weight < 1.13 {
                                     tmu += 19.7;
                                 } else {
                                     tmu += 25.3;
                                 }
-                            },
+                            }
                             Rating::Low => {
                                 if weight < 1.13 {
                                     tmu += 21.0;
@@ -1172,14 +1234,14 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
                                 } else {
                                     tmu += 48.6;
                                 }
-                            },
+                            }
                             Rating::Medium => {
                                 if weight < 1.13 {
                                     tmu += 46.5;
                                 } else {
                                     tmu += 52.1;
                                 }
-                            },
+                            }
                             Rating::Low => {
                                 if weight < 1.13 {
                                     tmu += 47.8;
@@ -1197,12 +1259,10 @@ fn get_human_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
                     let time = tmu * TMU_PER_SECOND;
 
                     return time;
-                },
-                _ => {
-                    0.0
                 }
-            }
-        },
+                _ => 0.0,
+            };
+        }
         (_, _) => {
             // There is some non-zero number of assigned primitives. Compute them independently and run the max on them
             0.0
