@@ -11,6 +11,8 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use uuid::Uuid;
 
+use super::units::{Watts, USD};
+
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Job {
@@ -26,10 +28,11 @@ pub struct Job {
     pub poi_net: Option<PetriNet>,
     pub cost_net: Option<PetriNet>,
     pub weights: Weights,
+    pub kwh_cost: USD, // USD per hour
 }
 
 impl Job {
-    pub fn new(name: String) -> Self {
+    pub fn new(name: String, kwh_cost: USD) -> Self {
         Self {
             id: Uuid::new_v4(),
             name,
@@ -42,8 +45,8 @@ impl Job {
             agent_net: None,
             poi_net: None,
             cost_net: None,
-            weights: Weights::default()
-            
+            weights: Weights::default(),
+            kwh_cost
         }
     }
 
@@ -107,6 +110,9 @@ impl Job {
         precision: f64,    // m (repeatability)
         sensing: Rating,   // rating
         mobile_speed: f64, // m/s (zero if not mobile)
+        purchase_price: USD, // dollars
+        energy_consumption: Watts, // watts
+        annual_maintenance_cost: USD, // dollars
     ) -> Uuid {
         let agent = Agent::new_robot(
             name,
@@ -117,6 +123,9 @@ impl Job {
             precision,
             sensing,
             mobile_speed,
+            purchase_price, 
+            energy_consumption,
+            annual_maintenance_cost
         );
         let uuid = agent.id();
         self.add_agent(agent);
@@ -131,7 +140,8 @@ impl Job {
         height: f64,
         reach: f64,
         weight: f64,
-        skill: Rating
+        skill: Rating,
+        hourly_wage: USD,
     ) -> Uuid {
         let agent = Agent::new_human(
             name,
@@ -140,7 +150,8 @@ impl Job {
             height,
             reach,
             weight,
-            skill
+            skill,
+            hourly_wage
         );
         let uuid = agent.id();
         self.add_agent(agent);
