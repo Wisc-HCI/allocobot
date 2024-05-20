@@ -80,8 +80,8 @@ impl PointOfInterest {
             Agent::Robot(robot_info) => {
                 return distance <= robot_info.reach && distance >= robot_info.reach * 0.05;
             },
-            Agent::Human(_human_info) => {
-                return true;
+            Agent::Human(human_info) => {
+                return distance <= human_info.reach;
             }
         }
     }

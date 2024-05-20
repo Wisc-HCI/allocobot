@@ -118,6 +118,7 @@ impl Job {
         sensing: Rating,              // rating
         mobile_speed: f64,            // m/s (zero if not mobile)
         purchase_price: USD,          // dollars
+        integration_cost: USD,        // dollars
         energy_consumption: Watts,    // watts
         annual_maintenance_cost: USD, // dollars
     ) -> Uuid {
@@ -131,6 +132,7 @@ impl Job {
             sensing,
             mobile_speed,
             purchase_price,
+            integration_cost,
             energy_consumption,
             annual_maintenance_cost,
         );
@@ -149,6 +151,7 @@ impl Job {
         weight: f64,
         skill: Rating,
         hourly_wage: USD,
+        labor_cost: USD,
     ) -> Uuid {
         let agent = Agent::new_human(
             name,
@@ -159,6 +162,7 @@ impl Job {
             weight,
             skill,
             hourly_wage,
+            labor_cost
         );
         let uuid = agent.id();
         self.add_agent(agent);

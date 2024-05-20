@@ -100,6 +100,10 @@ impl Transition {
     pub fn has_data(&self, query_vec: &Vec<Query>) -> bool {
         data_query(&self.meta_data, query_vec)
     }
+
+    pub fn add_data(&mut self, new_data: Data) {
+        self.meta_data.push(new_data);
+    }
 }
 
 #[test]

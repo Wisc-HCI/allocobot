@@ -32,6 +32,7 @@ fn main() -> std::io::Result<()> {
         Rating::Medium,
         0.1,
         13000.0,
+        20000.0,
         300.0,
         5000.0,
     );
@@ -44,6 +45,7 @@ fn main() -> std::io::Result<()> {
         84.0,
         Rating::High,
         24.0,
+        500.0
     );
 
     let p1: Uuid = job.create_hand_point_of_interest(
@@ -54,7 +56,7 @@ fn main() -> std::io::Result<()> {
         Some(Rating::High),
         Some(Rating::High),
     );
-    let p2: Uuid = job.create_hand_point_of_interest(
+    let _p2: Uuid = job.create_hand_point_of_interest(
         "POI2".into(),
         1.0,
         1.0,
@@ -62,13 +64,23 @@ fn main() -> std::io::Result<()> {
         Some(Rating::Low),
         Some(Rating::Low),
     );
-    let p3: Uuid = job.create_hand_point_of_interest(
+    let _p3: Uuid = job.create_hand_point_of_interest(
         "POI3".into(),
         0.5,
         0.0,
         0.4,
         Some(Rating::Medium),
         Some(Rating::High),
+    );
+
+    // Additional test location to verify move primitive
+    let _p6: Uuid = job.create_hand_point_of_interest(
+        "POI6".into(),
+        0.05,
+        0.0,
+        0.05,
+        Some(Rating::Medium),
+        Some(Rating::High)
     );
 
     let _p4: Uuid = job.create_standing_point_of_interest(

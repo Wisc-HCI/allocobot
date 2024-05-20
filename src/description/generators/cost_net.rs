@@ -64,37 +64,42 @@ impl Job {
                         };
 
                         // let meta_data = transition.meta_data.clone();
-                        for (ergo_idx, ergo_type) in ergo_cost_data.iter().enumerate() {
-                            let recovery: usize = match ergo_type.tag() {
-                                DataTag::ErgoWholeBody => {
-                                    human.ergo_recovery_whole(&transition, &self)
-                                }
-                                DataTag::ErgoArm => human.ergo_recovery_arm(&transition, &self),
-                                DataTag::ErgoHand => human.ergo_recovery_hand(&transition, &self),
-                                _ => 0,
-                            };
-                            let cost: usize = match ergo_type.tag() {
-                                DataTag::ErgoWholeBody => human.ergo_cost_whole(&transition, &self),
-                                DataTag::ErgoArm => human.ergo_cost_arm(&transition, &self),
-                                DataTag::ErgoHand => human.ergo_cost_hand(&transition, &self),
-                                _ => 0,
-                            };
+                        // for (ergo_idx, ergo_type) in ergo_cost_data.iter().enumerate() {
+                        //     let recovery: usize = match ergo_type.tag() {
+                        //         DataTag::ErgoWholeBody => {
+                        //             human.ergo_recovery_whole(&transition, &self)
+                        //         }
+                        //         DataTag::ErgoArm => human.ergo_recovery_arm(&transition, &self),
+                        //         DataTag::ErgoHand => human.ergo_recovery_hand(&transition, &self),
+                        //         _ => 0,
+                        //     };
+                        //     let cost: usize = match ergo_type.tag() {
+                        //         DataTag::ErgoWholeBody => human.ergo_cost_whole(&transition, &self),
+                        //         DataTag::ErgoArm => human.ergo_cost_arm(&transition, &self),
+                        //         DataTag::ErgoHand => human.ergo_cost_hand(&transition, &self),
+                        //         _ => 0,
+                        //     };
 
-                            if recovery > 0 {
-                                transition_copy.input.insert(
-                                    ergo_cost_place_ids[ergo_idx],
-                                    Signature::Range(0, recovery),
-                                );
-                            }
+                        //     if recovery > 0 {
+                        //         transition_copy.input.insert(
+                        //             ergo_cost_place_ids[ergo_idx],
+                        //             Signature::Range(0, recovery),
+                        //         );
+                        //     }
 
-                            if cost > 0 {
-                                transition_copy
-                                    .output
-                                    .insert(ergo_cost_place_ids[ergo_idx], Signature::Static(1));
-                            }
+                        //     if cost > 0 {
+                        //         transition_copy
+                        //             .output
+                        //             .insert(ergo_cost_place_ids[ergo_idx], Signature::Static(1));
+                        //     }
+                        // }
+
+                        let (cost_set, new_ergo_meta_data): (CostSet, Vec<Data>) = human.cost_set(&transition, &self);
+                        // Add the new meta data flags to the copy of the transition
+                        for ergo_meta_data in new_ergo_meta_data.iter() {
+                            transition_copy.add_data(ergo_meta_data.clone());
                         }
 
-                        let cost_set: CostSet = human.cost_set(&transition, &self);
                         let execution_time: Time = human.execution_time(&transition, &self);
 
                         let time: Time;
@@ -129,7 +134,7 @@ impl Job {
                             None => transition.clone(),
                         };
 
-                        let cost_set: CostSet = robot.cost_set(&transition, &self);
+                        let (cost_set, _new_ergo_meta_data): (CostSet, Vec<Data>) = robot.cost_set(&transition, &self);
                         let execution_time: Time = robot.execution_time(&transition, &self);
 
                         let time: Time;
