@@ -4,6 +4,7 @@ use crate::description::poi::PointOfInterest;
 use crate::description::primitive::Primitive;
 use crate::description::rating::Rating;
 use crate::description::units::Time;
+use crate::petri::cost::{Cost, CostCategory, CostFrequency, CostSet};
 use crate::petri::data::{Data, DataTag, Query};
 use crate::petri::transition::Transition;
 use crate::util::{vector2_distance_f64, vector3_distance_f64};
@@ -17,8 +18,6 @@ use uuid::Uuid;
 use super::target;
 use super::units::{TokenCount, Watts, USD};
 
-
-
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "camelCase")]
 pub enum Agent {
@@ -29,15 +28,15 @@ pub enum Agent {
 impl Agent {
     pub fn new_robot(
         name: String,
-        reach: f64,        // meters
-        payload: f64,      // kg
-        agility: Rating,   // rating 0-1
-        speed: f64,        // m/s
-        precision: f64,    // m (repeatability)
-        sensing: Rating,   // rating 0-1
-        mobile_speed: f64, // m/s
-        purchase_price: USD, // dollars
-        energy_consumption: Watts, // watts
+        reach: f64,                   // meters
+        payload: f64,                 // kg
+        agility: Rating,              // rating 0-1
+        speed: f64,                   // m/s
+        precision: f64,               // m (repeatability)
+        sensing: Rating,              // rating 0-1
+        mobile_speed: f64,            // m/s
+        purchase_price: USD,          // dollars
+        energy_consumption: Watts,    // watts
         annual_maintenance_cost: USD, //dollars
     ) -> Self {
         return Agent::Robot(RobotInfo {
@@ -52,7 +51,7 @@ impl Agent {
             mobile_speed,
             purchase_price,
             energy_consumption,
-            annual_maintenance_cost
+            annual_maintenance_cost,
         });
     }
 
@@ -75,7 +74,7 @@ impl Agent {
             reach,
             weight,
             skill,
-            hourly_wage
+            hourly_wage,
         });
     }
 
@@ -176,7 +175,7 @@ impl CostProfiler for HumanInfo {
             ergo_cost_set.push(Cost {
                 frequency: CostFrequency::Extrapolated,
                 value: self.hourly_wage * execution_time / SEC_PER_HOUR,
-                category: CostCategory::Monetary
+                category: CostCategory::Monetary,
             });
         }
 
@@ -473,9 +472,8 @@ impl CostProfiler for HumanInfo {
 
 impl CostProfiler for RobotInfo {
     fn execution_time(&self, transition: &Transition, job: &Job) -> Time {
-        
         let assigned_primitives = get_assigned_primitives(transition, job, self.id);
-        
+
         let mut max_time = 0.0;
 
         for primitive in assigned_primitives.iter() {
@@ -487,7 +485,7 @@ impl CostProfiler for RobotInfo {
 
             for primitive_two in assigned_primitives.iter() {
                 let temp_vec = vec![*primitive, *primitive_two];
-                let doubles_time = get_robot_time_for_primitive(temp_vec, transition,  job, self);
+                let doubles_time = get_robot_time_for_primitive(temp_vec, transition, job, self);
                 if doubles_time > max_time {
                     max_time = doubles_time;
                 }
@@ -498,7 +496,6 @@ impl CostProfiler for RobotInfo {
     }
 
     fn cost_set(&self, transition: &Transition, job: &Job) -> CostSet {
-
         let mut ergo_cost_set = CostSet::new();
 
         // Add electricity cost
@@ -506,8 +503,8 @@ impl CostProfiler for RobotInfo {
         if execution_time > 0.0 {
             ergo_cost_set.push(Cost {
                 frequency: CostFrequency::Extrapolated,
-                value: (self.energy_consumption * execution_time / SEC_PER_HOUR) * job.kwh_cost , // cost is $/kWh
-                category: CostCategory::Monetary
+                value: (self.energy_consumption * execution_time / SEC_PER_HOUR) * job.kwh_cost, // cost is $/kWh
+                category: CostCategory::Monetary,
             });
         }
 
@@ -519,7 +516,7 @@ impl CostProfiler for RobotInfo {
             ergo_cost_set.push(Cost {
                 frequency: CostFrequency::Once,
                 value: self.purchase_price,
-                category: CostCategory::Monetary
+                category: CostCategory::Monetary,
             });
         }
 
@@ -1016,11 +1013,11 @@ fn get_human_time_for_primitive(
             let time = tmu * TMU_PER_SECOND;
 
             return time;
-        },
+        }
         (
             1,
             Some(Primitive::Position {
-                id, 
+                id,
                 target,
                 degrees,
                 ..
@@ -1034,11 +1031,11 @@ fn get_human_time_for_primitive(
 
             // upper bounding by 360 degrees
             if weight < 0.91 {
-                tmu += 1.4927 + 0.043878*degrees;
-            } else  if weight < 4.54 {
-                tmu += 2.3463636 + 0.0689090*degrees;
+                tmu += 1.4927 + 0.043878 * degrees;
+            } else if weight < 4.54 {
+                tmu += 2.3463636 + 0.0689090 * degrees;
             } else {
-                tmu += 4.4781818 + 0.131636*degrees;
+                tmu += 4.4781818 + 0.131636 * degrees;
             }
 
             // Convert TMU to seconds
@@ -1060,22 +1057,19 @@ fn get_human_time_for_primitive(
             let target_size = target_object.size();
 
             if target_size < 0.00635 {
-                return 12.9 * TMU_PER_SECOND
+                return 12.9 * TMU_PER_SECOND;
             } else if target_size < 0.0254 {
-                return 9.1 * TMU_PER_SECOND
+                return 9.1 * TMU_PER_SECOND;
             }
-            return 7.3 * TMU_PER_SECOND
-        },
-        (
-            2,
-            Some(Primitive::Position {
-                id, 
-                target,
-                ..
-            }),
-        ) => {
+            return 7.3 * TMU_PER_SECOND;
+        }
+        (2, Some(Primitive::Position { id, target, .. })) => {
             return match assigned_primitives.last() {
-                Some(Primitive::Force { id, target, magnitude }) => {
+                Some(Primitive::Force {
+                    id,
+                    target,
+                    magnitude,
+                }) => {
                     let target_info = job.targets.get(target).unwrap();
                     let weight = target_info.weight();
                     let mut tmu = 0.0;
@@ -1180,7 +1174,11 @@ fn get_human_time_for_primitive(
             }),
         ) => {
             return match assigned_primitives.last() {
-                Some(Primitive::Position { id, target , degrees}) => {
+                Some(Primitive::Position {
+                    id,
+                    target,
+                    degrees,
+                }) => {
                     let target_info = job.targets.get(target).unwrap();
                     let weight = target_info.weight();
                     let mut tmu = 0.0;
@@ -1271,12 +1269,10 @@ fn get_human_time_for_primitive(
                     let time = tmu * TMU_PER_SECOND;
 
                     return time;
-                },
-                _ => {
-                    0.0
                 }
-            }
-        },
+                _ => 0.0,
+            };
+        }
         (_, _) => {
             // There is some non-zero number of assigned primitives. Compute them independently and run the max on them
             0.0
@@ -1284,16 +1280,21 @@ fn get_human_time_for_primitive(
     };
 }
 
-fn get_robot_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transition: &Transition, job: &Job, agent: &RobotInfo) -> Time {
+fn get_robot_time_for_primitive(
+    assigned_primitives: Vec<&Primitive>,
+    transition: &Transition,
+    job: &Job,
+    agent: &RobotInfo,
+) -> Time {
     return match (assigned_primitives.len(), assigned_primitives.first()) {
         (0, _) => {
             // This is a no-op, so just return 0
             0.0
-        },
+        }
         (1, None) => {
             // Technically impossible, but we cover it anyway. Return 0
             0.0
-        },
+        }
         (
             1,
             Some(Primitive::Carry {
@@ -1311,7 +1312,7 @@ fn get_robot_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
             let standing_vector = from_standing_info.position() - to_standing_info.position();
             let standing_distance = standing_vector.norm();
             let standing_travel_time = standing_distance / agent.mobile_speed;
-            
+
             // Calculate manipulator travel distance
             let from_hand_info = job.points_of_interest.get(from_hand).unwrap();
             let to_hand_info = job.points_of_interest.get(to_hand).unwrap();
@@ -1321,7 +1322,7 @@ fn get_robot_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
 
             // TODO: should this be max or additive?
             return standing_travel_time + hand_travel_time;
-        }, 
+        }
         (
             1,
             Some(Primitive::Move {
@@ -1339,7 +1340,7 @@ fn get_robot_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
             let hand_distance = hand_vector.norm();
             let hand_travel_time = hand_distance / agent.speed;
             return hand_travel_time;
-        },
+        }
         (
             1,
             Some(Primitive::Travel {
@@ -1357,13 +1358,11 @@ fn get_robot_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
             let standing_distance = standing_vector.norm();
             let standing_travel_time = standing_distance / agent.mobile_speed;
             return standing_travel_time;
-        },
+        }
         (
             1,
             Some(Primitive::Reach {
-                from_hand,
-                to_hand,
-                ..
+                from_hand, to_hand, ..
             }),
         ) => {
             // Calculate manipulator travel distance
@@ -1373,11 +1372,11 @@ fn get_robot_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
             let hand_distance = hand_vector.norm();
             let hand_travel_time = hand_distance / agent.speed;
             return hand_travel_time;
-        },
+        }
         (
             1,
             Some(Primitive::Force {
-                id, 
+                id,
                 target,
                 magnitude,
                 ..
@@ -1385,11 +1384,11 @@ fn get_robot_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
         ) => {
             // TODO
             0.0
-        },
+        }
         (
             1,
             Some(Primitive::Position {
-                id, 
+                id,
                 target,
                 degrees,
                 ..
@@ -1397,66 +1396,53 @@ fn get_robot_time_for_primitive(assigned_primitives: Vec<&Primitive>,  transitio
         ) => {
             // TODO
             0.0
-        },
+        }
         (
             1,
             Some(Primitive::Inspect {
-                id, 
-                target,
-                skill,
-                ..
+                id, target, skill, ..
             }),
         ) => {
             // this primitive's time will be based on sensor rating
             0.0
-        },
+        }
         (
             1,
             Some(Primitive::Selection {
-                id, 
-                target,
-                skill,
-                ..
+                id, target, skill, ..
             }),
         ) => {
             // this primitive's time will be based on sensor rating
             0.0
-        },
-        (
-            2,
-            Some(Primitive::Position {
-                id, 
-                target,
-                ..
-            }),
-        ) => {
+        }
+        (2, Some(Primitive::Position { id, target, .. })) => {
             return match assigned_primitives.last() {
-                Some(Primitive::Force { id, target, magnitude }) => {
-                    0.0
-                },
-                _ => {
-                    0.0
-                }
+                Some(Primitive::Force {
+                    id,
+                    target,
+                    magnitude,
+                }) => 0.0,
+                _ => 0.0,
             }
-        },
+        }
         (
             2,
             Some(Primitive::Force {
-                id, 
+                id,
                 target,
                 magnitude,
                 ..
             }),
         ) => {
             return match assigned_primitives.last() {
-                Some(Primitive::Position { id, target , degrees}) => {
-                    0.0
-                },
-                _ => {
-                    0.0
-                }
+                Some(Primitive::Position {
+                    id,
+                    target,
+                    degrees,
+                }) => 0.0,
+                _ => 0.0,
             }
-        },
+        }
         (_, _) => {
             // There is some non-zero number of assigned primitives. Compute them independently and run the max on them
             0.0

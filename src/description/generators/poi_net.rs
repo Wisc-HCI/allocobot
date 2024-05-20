@@ -373,11 +373,12 @@ impl Job {
                 .unwrap()
                 .id;
 
-            // Split that node by all the hand locations.
+            // Split that node by all the valid hand locations.
             let (new_places, _) = net.split_place(
                 &target_place_id,
                 hand_pois
                     .iter()
+                    .filter(|hpoi| target.pois().is_empty() || target.pois().contains(&hpoi.id()))
                     .map(|hand_poi| vec![Data::Hand(hand_poi.id(), *target_id)])
                     .collect::<Vec<Vec<Data>>>(),
                 |transition, split_data| {

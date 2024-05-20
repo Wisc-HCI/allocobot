@@ -1,9 +1,9 @@
 use crate::description::agent::Agent;
 use crate::description::poi::PointOfInterest;
 use crate::description::primitive::Primitive;
+use crate::description::rating::Rating;
 use crate::description::target::Target;
 use crate::description::task::Task;
-use crate::description::rating::Rating;
 use crate::description::weights::Weights;
 use crate::petri::net::PetriNet;
 use enum_tag::EnumTag;
@@ -46,7 +46,7 @@ impl Job {
             poi_net: None,
             cost_net: None,
             weights: Weights::default(),
-            kwh_cost
+            kwh_cost,
         }
     }
 
@@ -84,7 +84,7 @@ impl Job {
         y: f64,
         z: f64,
         variability: Option<Rating>,
-        structure: Option<Rating>
+        structure: Option<Rating>,
     ) -> Uuid {
         let poi = PointOfInterest::new_standing(name, x, y, z, variability, structure);
         let uuid = poi.id();
@@ -92,8 +92,15 @@ impl Job {
         uuid
     }
 
-    pub fn create_hand_point_of_interest(&mut self, name: String, x: f64, y: f64, z: f64, variability: Option<Rating>,
-        structure: Option<Rating>) -> Uuid {
+    pub fn create_hand_point_of_interest(
+        &mut self,
+        name: String,
+        x: f64,
+        y: f64,
+        z: f64,
+        variability: Option<Rating>,
+        structure: Option<Rating>,
+    ) -> Uuid {
         let poi = PointOfInterest::new_hand(name, x, y, z, variability, structure);
         let uuid = poi.id();
         self.add_point_of_interest(poi);
@@ -103,15 +110,15 @@ impl Job {
     pub fn create_robot_agent(
         &mut self,
         name: String,
-        reach: f64,        // meters
-        payload: f64,      // kg
-        agility: Rating,   // rating
-        speed: f64,        // m/s
-        precision: f64,    // m (repeatability)
-        sensing: Rating,   // rating
-        mobile_speed: f64, // m/s (zero if not mobile)
-        purchase_price: USD, // dollars
-        energy_consumption: Watts, // watts
+        reach: f64,                   // meters
+        payload: f64,                 // kg
+        agility: Rating,              // rating
+        speed: f64,                   // m/s
+        precision: f64,               // m (repeatability)
+        sensing: Rating,              // rating
+        mobile_speed: f64,            // m/s (zero if not mobile)
+        purchase_price: USD,          // dollars
+        energy_consumption: Watts,    // watts
         annual_maintenance_cost: USD, // dollars
     ) -> Uuid {
         let agent = Agent::new_robot(
@@ -123,9 +130,9 @@ impl Job {
             precision,
             sensing,
             mobile_speed,
-            purchase_price, 
+            purchase_price,
             energy_consumption,
-            annual_maintenance_cost
+            annual_maintenance_cost,
         );
         let uuid = agent.id();
         self.add_agent(agent);
@@ -151,39 +158,74 @@ impl Job {
             reach,
             weight,
             skill,
-            hourly_wage
+            hourly_wage,
         );
         let uuid = agent.id();
         self.add_agent(agent);
         uuid
-    } 
+    }
 
-    pub fn create_precursor_target(&mut self, name: String, size: f64, weight: f64, symmetry: Rating) -> Uuid {
-        let target = Target::new_precursor(name, size, weight, symmetry);
+    pub fn create_precursor_target(
+        &mut self,
+        name: String,
+        size: f64,
+        weight: f64,
+        symmetry: Rating,
+        pois: Vec<Uuid>,
+    ) -> Uuid {
+        let target = Target::new_precursor(name, size, weight, symmetry, pois);
         let uuid = target.id();
         self.add_target(target);
         uuid
     }
 
-    pub fn create_intermediate_target(&mut self, name: String, size: f64, weight: f64, symmetry: Rating) -> Uuid {
-        let target = Target::new_intermediate(name, size, weight, symmetry);
+    pub fn create_intermediate_target(
+        &mut self,
+        name: String,
+        size: f64,
+        weight: f64,
+        symmetry: Rating,
+        pois: Vec<Uuid>,
+    ) -> Uuid {
+        let target = Target::new_intermediate(name, size, weight, symmetry, pois);
         let uuid = target.id();
         self.add_target(target);
         uuid
     }
 
-    pub fn create_product_target(&mut self, name: String, size: f64, weight: f64, symmetry: Rating) -> Uuid {
-        let target = Target::new_product(name, size, weight, symmetry);
+    pub fn create_product_target(
+        &mut self,
+        name: String,
+        size: f64,
+        weight: f64,
+        symmetry: Rating,
+        pois: Vec<Uuid>,
+    ) -> Uuid {
+        let target = Target::new_product(name, size, weight, symmetry, pois);
         let uuid = target.id();
         self.add_target(target);
         uuid
     }
 
-    pub fn create_reusable_target(&mut self, name: String, size: f64, weight: f64, symmetry: Rating) -> Uuid {
-        let target = Target::new_reusable(name, size, weight, symmetry);
+    pub fn create_reusable_target(
+        &mut self,
+        name: String,
+        size: f64,
+        weight: f64,
+        symmetry: Rating,
+        pois: Vec<Uuid>,
+    ) -> Uuid {
+        let target = Target::new_reusable(name, size, weight, symmetry, pois);
         let uuid = target.id();
         self.add_target(target);
         uuid
+    }
+
+    pub fn add_target_point_of_interest(&mut self, target: Uuid, poi: Uuid) {
+        match self.targets.get_mut(&target) {
+            Some(target_obj) => target_obj.add_point_of_interest(&poi),
+            None => {}
+        }
     }
 
     pub fn add_task_dependency(&mut self, task: Uuid, target: Uuid, count: usize) {

@@ -5,6 +5,8 @@ use uuid::Uuid;
 
 use crate::description::rating::Rating;
 
+use super::poi::PointOfInterest;
+
 #[derive(Clone, Debug, PartialEq, EnumTag, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "camelCase")]
 pub enum Target {
@@ -14,6 +16,7 @@ pub enum Target {
         size: f64,
         weight: f64,
         symmetry: Rating,
+        pois: Vec<Uuid>,
     },
     Intermediate {
         id: Uuid,
@@ -21,6 +24,7 @@ pub enum Target {
         size: f64,
         weight: f64,
         symmetry: Rating,
+        pois: Vec<Uuid>,
     },
     Product {
         id: Uuid,
@@ -28,6 +32,7 @@ pub enum Target {
         size: f64,
         weight: f64,
         symmetry: Rating,
+        pois: Vec<Uuid>,
     },
     Reusable {
         id: Uuid,
@@ -35,47 +40,76 @@ pub enum Target {
         size: f64,
         weight: f64,
         symmetry: Rating,
+        pois: Vec<Uuid>,
     },
 }
 
 impl Target {
-    pub fn new_precursor(name: String, size: f64, weight: f64, symmetry: Rating) -> Target {
+    pub fn new_precursor(
+        name: String,
+        size: f64,
+        weight: f64,
+        symmetry: Rating,
+        pois: Vec<Uuid>,
+    ) -> Target {
         Target::Precursor {
             id: Uuid::new_v4(),
             name,
             size,
             weight,
             symmetry,
+            pois,
         }
     }
 
-    pub fn new_intermediate(name: String, size: f64, weight: f64, symmetry: Rating) -> Target {
+    pub fn new_intermediate(
+        name: String,
+        size: f64,
+        weight: f64,
+        symmetry: Rating,
+        pois: Vec<Uuid>,
+    ) -> Target {
         Target::Intermediate {
             id: Uuid::new_v4(),
             name,
             size,
             weight,
             symmetry,
+            pois,
         }
     }
 
-    pub fn new_product(name: String, size: f64, weight: f64, symmetry: Rating) -> Target {
+    pub fn new_product(
+        name: String,
+        size: f64,
+        weight: f64,
+        symmetry: Rating,
+        pois: Vec<Uuid>,
+    ) -> Target {
         Target::Product {
             id: Uuid::new_v4(),
             name,
             size,
             weight,
             symmetry,
+            pois,
         }
     }
 
-    pub fn new_reusable(name: String, size: f64, weight: f64, symmetry: Rating) -> Target {
+    pub fn new_reusable(
+        name: String,
+        size: f64,
+        weight: f64,
+        symmetry: Rating,
+        pois: Vec<Uuid>,
+    ) -> Target {
         Target::Reusable {
             id: Uuid::new_v4(),
             name,
             size,
             weight,
             symmetry,
+            pois,
         }
     }
 
@@ -127,12 +161,30 @@ impl Target {
         }
     }
 
+    pub fn pois(&self) -> Vec<Uuid> {
+        match self {
+            Target::Precursor { pois, .. } => pois.clone(),
+            Target::Intermediate { pois, .. } => pois.clone(),
+            Target::Product { pois, .. } => pois.clone(),
+            Target::Reusable { pois, .. } => pois.clone(),
+        }
+    }
+
     pub fn symmetry(&self) -> Rating {
         match self {
             Target::Precursor { symmetry, .. } => symmetry.clone(),
             Target::Intermediate { symmetry, .. } => symmetry.clone(),
             Target::Product { symmetry, .. } => symmetry.clone(),
             Target::Reusable { symmetry, .. } => symmetry.clone(),
+        }
+    }
+
+    pub fn add_point_of_interest(&mut self, poi: &Uuid) {
+        match self {
+            Target::Precursor { pois, .. } => pois.push(*poi),
+            Target::Intermediate { pois, .. } => pois.push(*poi),
+            Target::Product { pois, .. } => pois.push(*poi),
+            Target::Reusable { pois, .. } => pois.push(*poi),
         }
     }
 }
