@@ -22,20 +22,20 @@ fn main() -> std::io::Result<()> {
 
     let mut job = Job::new("Half Shaft".into(), 0.1);
 
-    let _panda: Uuid = job.create_robot_agent(
-        "Panda".into(),
-        0.855,
-        3.0,
-        Rating::Medium,
-        2.0,
-        0.0001,
-        Rating::Medium,
-        0.1,
-        13000.0,
-        20000.0,
-        300.0,
-        5000.0,
-    );
+    // let _panda: Uuid = job.create_robot_agent(
+    //     "Panda".into(),
+    //     0.855,
+    //     3.0,
+    //     Rating::Medium,
+    //     2.0,
+    //     0.0001,
+    //     Rating::Medium,
+    //     0.1,
+    //     13000.0,
+    //     20000.0,
+    //     300.0,
+    //     5000.0,
+    // );
     let _charlie: Uuid = job.create_human_agent(
         "Charlie".into(),
         75.0,
@@ -66,20 +66,11 @@ fn main() -> std::io::Result<()> {
         Some(Rating::High),
     );
 
-    // let _hand_p3: Uuid = job.create_hand_point_of_interest(
-    //     "H: Half Shaft".into(),
-    //     -0.4,
-    //     1.2192,
-    //     1.45,
-    //     Some(Rating::High),
-    //     Some(Rating::High),
-    // );
-
-    let _hand_p4: Uuid = job.create_hand_point_of_interest(
-        "H: Test_Location".into(),
-        0.4,
-        0.0,
-        0.1,
+    let _hand_p3: Uuid = job.create_hand_point_of_interest(
+        "H: Half Shaft".into(),
+        -0.4,
+        1.2192,
+        1.45,
         Some(Rating::High),
         Some(Rating::High),
     );

@@ -81,7 +81,6 @@ impl PointOfInterest {
                 return distance <= robot_info.reach && distance >= robot_info.reach * 0.05;
             },
             Agent::Human(human_info) => {
-                return true;
                 let mut offset_pos = self.position().clone();
                 offset_pos.z += human_info.acromial_height;
 
