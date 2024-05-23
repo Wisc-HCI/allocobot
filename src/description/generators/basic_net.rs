@@ -36,14 +36,41 @@ impl Job {
                     net.initial_marking.insert(place_id, 0);
                 }
                 Target::Precursor { name, .. } => {
-                    let place = Place::new(
-                        format!("Target: {}", name),
+                    let infinite_source = Place::new(
+                        format!("Target: {} (source)", name),
                         TokenSet::Infinite,
-                        vec![Data::Target(*target_id), Data::TargetSituated(*target_id)],
+                        vec![Data::Target(*target_id), Data::TargetUnplaced(*target_id)],
                     );
-                    let place_id = place.id;
-                    net.places.insert(place_id, place);
-                    net.initial_marking.insert(place_id, 0);
+
+                    let spawn = Place::new(
+                        format!("Target: {} (spawn)", name),
+                        TokenSet::Finite,
+                        vec![Data::Target(*target_id), Data::TargetLocationSelected(*target_id), Data::TargetSituated(*target_id)],
+                    );
+
+                    let infinite_source_id = infinite_source.id;
+                    let spawn_id = spawn.id;
+                    net.places.insert(spawn_id, spawn);
+                    net.places.insert(infinite_source_id, infinite_source);
+                    net.initial_marking.insert(infinite_source_id, 0);
+                    let spawn_transition = Transition::new(
+                        format!("Spawn Part: {}", name),
+                        vec![(infinite_source_id, Signature::Static(1))]
+                            .into_iter()
+                            .collect(),
+                        vec![(spawn_id, Signature::Static(1))].into_iter().collect(),
+                        vec![
+                            Data::Simulation,
+                            Data::Target(*target_id),
+                            Data::TargetSituated(*target_id),
+                            Data::TargetLocationSelected(*target_id),
+                            Data::AgentAgnostic,
+                        ],
+                        0.0,
+                        vec![],
+                    );
+                    net.transitions
+                        .insert(spawn_transition.id, spawn_transition);
                 }
                 Target::Reusable { name, .. } => {
                     let pre_place = Place::new(

@@ -299,6 +299,13 @@ impl Job {
             }
         }
 
+
+        println!(
+            "Agent Net: Places {:?}, Transitions {:?}",
+            net.places.len(),
+            net.transitions.len()
+        );
+
         net
     }
 }

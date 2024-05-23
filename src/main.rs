@@ -20,7 +20,7 @@ fn main() -> std::io::Result<()> {
     //     Rgb::new(100, 100, 200),
     // ];
 
-    let mut job = Job::new("Job 1".into(), 0.1);
+    let mut job = Job::new("Half Shaft".into(), 0.1);
 
     let _panda: Uuid = job.create_robot_agent(
         "Panda".into(),
@@ -48,67 +48,181 @@ fn main() -> std::io::Result<()> {
         500.0
     );
 
-    let p1: Uuid = job.create_hand_point_of_interest(
-        "POI1".into(),
+    let _hand_p1: Uuid = job.create_hand_point_of_interest(
+        "H: Blue Protector".into(),
+        -0.4,
         0.0,
-        1.0,
+        1.45,
+        Some(Rating::Medium),
+        Some(Rating::Medium),
+    );
+
+    let _hand_p2: Uuid = job.create_hand_point_of_interest(
+        "H: Bolt/Harness Bracket".into(),
+        -0.4,
+        -0.3,
+        1.45,
+        Some(Rating::Low),
+        Some(Rating::High),
+    );
+
+    // let _hand_p3: Uuid = job.create_hand_point_of_interest(
+    //     "H: Half Shaft".into(),
+    //     -0.4,
+    //     1.2192,
+    //     1.45,
+    //     Some(Rating::High),
+    //     Some(Rating::High),
+    // );
+
+    let _hand_p4: Uuid = job.create_hand_point_of_interest(
+        "H: Test_Location".into(),
+        0.4,
+        0.0,
         0.1,
         Some(Rating::High),
         Some(Rating::High),
     );
-    let _p2: Uuid = job.create_hand_point_of_interest(
-        "POI2".into(),
-        1.0,
-        1.0,
-        0.4,
-        Some(Rating::Low),
-        Some(Rating::Low),
-    );
-    let _p3: Uuid = job.create_hand_point_of_interest(
-        "POI3".into(),
-        0.5,
+
+    let _stand_p1: Uuid = job.create_standing_point_of_interest(
+        "S: Bolts & Brackets Shelf".into(),
         0.0,
-        0.4,
+        0.0,
+        0.0,
         Some(Rating::Medium),
         Some(Rating::High),
     );
 
-    // Additional test location to verify move primitive
-    let _p6: Uuid = job.create_hand_point_of_interest(
-        "POI6".into(),
-        0.05,
+    let _stand_p2: Uuid = job.create_standing_point_of_interest(
+        "S: Half Shaft".into(),
         0.0,
-        0.05,
-        Some(Rating::Medium),
-        Some(Rating::High)
-    );
-
-    let _p4: Uuid = job.create_standing_point_of_interest(
-        "POI4".into(),
-        0.0,
-        0.0,
-        0.0,
-        Some(Rating::Medium),
-        Some(Rating::Medium),
-    );
-    let _p5: Uuid = job.create_standing_point_of_interest(
-        "POI5".into(),
-        0.2,
-        0.2,
+        1.2192,
         0.0,
         Some(Rating::High),
-        Some(Rating::Low),
+        Some(Rating::High),
     );
 
-    let part1: Uuid = job.create_precursor_target("Part1".into(), 5.0, 5.0, Rating::High, vec![p1]);
+    // let _stand_p3: Uuid = job.create_standing_point_of_interest(
+    //     "S: Tool x Retention".into(),
+    //     0.2,
+    //     0.2,
+    //     0.0,
+    //     Some(Rating::High),
+    //     Some(Rating::Low),
+    // );
+
+    // let _stand_p4: Uuid = job.create_standing_point_of_interest(
+    //     "S: Scanner".into(),
+    //     0.2,
+    //     0.2,
+    //     0.0,
+    //     Some(Rating::High),
+    //     Some(Rating::Low),
+    // );
+
+    // let _stand_p5: Uuid = job.create_standing_point_of_interest(
+    //     "S: Manual Tool x Retention & Scan Engine".into(),
+    //     0.2,
+    //     0.2,
+    //     0.0,
+    //     Some(Rating::High),
+    //     Some(Rating::Low),
+    // );
+
+    // let _stand_p6: Uuid = job.create_standing_point_of_interest(
+    //     "S: Harness".into(),
+    //     0.2,
+    //     0.2,
+    //     0.0,
+    //     Some(Rating::High),
+    //     Some(Rating::Low),
+    // );
+
+    // let _stand_p7: Uuid = job.create_standing_point_of_interest(
+    //     "S: Bolts".into(),
+    //     0.2,
+    //     0.2,
+    //     0.0,
+    //     Some(Rating::High),
+    //     Some(Rating::Low),
+    // );
+
+    // let _stand_p8: Uuid = job.create_standing_point_of_interest(
+    //     "S: Half Shaft Install".into(),
+    //     0.2,
+    //     0.2,
+    //     0.0,
+    //     Some(Rating::High),
+    //     Some(Rating::Low),
+    // );
+
+
+
+
+
+
+    // let p1: Uuid = job.create_hand_point_of_interest(
+    //     "POI1".into(),
+    //     0.0,
+    //     1.0,
+    //     0.1,
+    //     Some(Rating::High),
+    //     Some(Rating::High),
+    // );
+
+    // let _p2: Uuid = job.create_hand_point_of_interest(
+    //     "POI2".into(),
+    //     1.0,
+    //     1.0,
+    //     0.4,
+    //     Some(Rating::Low),
+    //     Some(Rating::Low),
+    // );
+    // let _p3: Uuid = job.create_hand_point_of_interest(
+    //     "POI3".into(),
+    //     0.5,
+    //     0.0,
+    //     0.4,
+    //     Some(Rating::Medium),
+    //     Some(Rating::High),
+    // );
+
+    // // Additional test location to verify move primitive
+    // let _p6: Uuid = job.create_hand_point_of_interest(
+    //     "POI6".into(),
+    //     0.05,
+    //     0.0,
+    //     0.05,
+    //     Some(Rating::Medium),
+    //     Some(Rating::High)
+    // );
+
+    // let _p4: Uuid = job.create_standing_point_of_interest(
+    //     "POI4".into(),
+    //     0.0,
+    //     0.0,
+    //     0.0,
+    //     Some(Rating::Medium),
+    //     Some(Rating::Medium),
+    // );
+    // let _p5: Uuid = job.create_standing_point_of_interest(
+    //     "POI5".into(),
+    //     0.2,
+    //     0.2,
+    //     0.0,
+    //     Some(Rating::High),
+    //     Some(Rating::Low),
+    // );
+
+    let part1: Uuid = job.create_precursor_target("Part1".into(), 5.0, 5.0, Rating::High, Vec::new());
     let part2: Uuid =
         job.create_precursor_target("Part2".into(), 1.0, 3.0, Rating::Medium, Vec::new());
     let part3: Uuid =
         job.create_intermediate_target("Part3".into(), 6.0, 2.0, Rating::Low, Vec::new());
-    let part4: Uuid =
-        job.create_precursor_target("Part4".into(), 14.0, 1.0, Rating::High, Vec::new());
-    let part5: Uuid =
-        job.create_product_target("Part5".into(), 4.0, 1.0, Rating::Medium, Vec::new());
+    // let part4: Uuid =
+    //     job.create_precursor_target("Part4".into(), 14.0, 1.0, Rating::High, Vec::new());
+    // let part5: Uuid =
+    //     job.create_product_target("Part5".into(), 4.0, 1.0, Rating::Medium, Vec::new());
     let part6: Uuid =
         job.create_product_target("Part6".into(), 10.0, 3.0, Rating::Medium, Vec::new());
     let tool0: Uuid =
@@ -121,8 +235,8 @@ fn main() -> std::io::Result<()> {
     job.add_task_dependency(t1, part2, 1);
     job.add_task_output(t1, part3, 1);
     job.add_task_dependency(t2, part3, 1);
-    job.add_task_dependency(t2, part4, 1);
-    job.add_task_output(t2, part5, 1);
+    // job.add_task_dependency(t2, part4, 1);
+    // job.add_task_output(t2, part5, 1);
     job.add_task_output(t2, part6, 1);
     job.add_task_reusable(t1, tool0, 1);
 
@@ -160,18 +274,11 @@ fn main() -> std::io::Result<()> {
 
     jobfile.write_all(serde_json::to_string_pretty(&job).unwrap().as_bytes())?;
 
-    basicfile.write_all(job.basic_net.unwrap().get_dot().as_bytes())?;
-
-    // let agent_net = AgentNet::from((basic_net, agents));
-    agentfile.write_all(job.agent_net.clone().unwrap().get_dot().as_bytes())?;
-
     agent_net_file.write_all(
         serde_json::to_string_pretty(&job.agent_net.clone().unwrap())
             .unwrap()
             .as_bytes(),
     )?;
-
-    poifile.write_all(job.poi_net.clone().unwrap().get_dot().as_bytes())?;
 
     poi_net_file.write_all(
         serde_json::to_string_pretty(&job.poi_net.clone().unwrap())
@@ -179,13 +286,18 @@ fn main() -> std::io::Result<()> {
             .as_bytes(),
     )?;
 
-    costfile.write_all(job.cost_net.clone().unwrap().get_dot().as_bytes())?;
-
     cost_net_file.write_all(
         serde_json::to_string_pretty(&job.cost_net.clone().unwrap())
             .unwrap()
             .as_bytes(),
     )?;
 
+    basicfile.write_all(job.basic_net.unwrap().get_dot().as_bytes())?;
+
+    agentfile.write_all(job.agent_net.clone().unwrap().get_dot().as_bytes())?;
+
+    poifile.write_all(job.poi_net.clone().unwrap().get_dot().as_bytes())?;
+
+    costfile.write_all(job.cost_net.clone().unwrap().get_dot().as_bytes())?;
     Ok(())
 }

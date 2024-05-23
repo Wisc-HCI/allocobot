@@ -3,7 +3,8 @@ use crate::description::poi::PointOfInterest;
 use crate::description::primitive::Primitive;
 use crate::petri::data::{Data, DataTag, Query};
 use crate::petri::net::PetriNet;
-use crate::petri::transition::{Signature, Transition};
+use crate::petri::place::Place;
+use crate::petri::transition::{self, Signature, Transition};
 use enum_tag::EnumTag;
 use itertools::Itertools;
 use std::collections::HashMap;
@@ -594,6 +595,59 @@ impl Job {
                 });
         }
 
+        let mut new_places: Vec<Place> = vec![];
+        let all_transitions = net.transitions.clone();
+        for (target_id, target) in self.targets.iter() {
+            let spawn_transitions = all_transitions.values().filter(|t| t.has_data(&vec![Query::Data(Data::TargetLocationSelected(*target_id))]));
+            
+            if spawn_transitions.clone().count() > 0 {
+                let pre_place = Place::new(
+                    format!("Target: {} (pre placed)", target.name()),
+                    crate::petri::token::TokenSet::Finite,
+                    vec![Data::Target(*target_id), Data::TargetUnplaced(*target_id)],
+                );
+                let pre_place_id = pre_place.id;
+                net.places.insert(pre_place_id, pre_place);
+                net.initial_marking.insert(pre_place_id, 1);
+
+                for spawn_transition in spawn_transitions {
+                    let placement_place = Place::new(
+                        format!("Target: {} (placed)", target.name()),
+                        crate::petri::token::TokenSet::Finite,
+                        vec![Data::Target(*target_id), Data::TargetLocationSelected(*target_id)],);
+                    let placement_place_id = placement_place.id;
+
+                    let placement_alloc_transition = Transition::new(
+                        format!("Locate/Place Part: {}", target.name()),
+                        vec![(pre_place_id, Signature::Static(1))]
+                            .into_iter()
+                            .collect(),
+                        vec![(placement_place_id, Signature::Static(1))].into_iter().collect(),
+                        vec![
+                            Data::Setup,
+                            Data::Target(*target_id),
+                            Data::TargetLocationSelected(*target_id),
+                            Data::AgentAgnostic,
+                        ],
+                        0.0,
+                        vec![],
+                    );
+
+                    let new_spawn_transition = spawn_transition
+                        .clone()
+                        .add_input(&placement_place_id, 1)
+                        .add_output(&placement_place_id, 1);
+
+                    new_places.push(placement_place);
+                    new_transitions.push(placement_alloc_transition);
+                    new_transitions.push(new_spawn_transition);
+                }   
+            }
+        }
+
+        for new_place in new_places {
+            net.places.insert(new_place.id, new_place);
+        }
         for new_transition in new_transitions {
             net.transitions.insert(new_transition.id, new_transition);
         }

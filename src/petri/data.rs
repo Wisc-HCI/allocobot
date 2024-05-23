@@ -29,6 +29,7 @@ pub enum Data {
     Target(Uuid),
     TargetUnplaced(Uuid),
     TargetSituated(Uuid),
+    TargetLocationSelected(Uuid),
 
     // Contain POI UUID
     // Encoded as Poi UUID, Agent/Target UUID
@@ -75,6 +76,7 @@ impl Data {
             Data::Target(id) => Some(*id),
             Data::TargetUnplaced(id) => Some(*id),
             Data::TargetSituated(id) => Some(*id),
+            Data::TargetLocationSelected(id) => Some(*id),
             Data::Standing(id, _) => Some(*id),
             Data::Hand(id, _) => Some(*id),
             Data::FromStandingPOI(id, _) => Some(*id),
@@ -111,6 +113,7 @@ impl Data {
             Data::Target(_id) => None,
             Data::TargetUnplaced(_id) => None,
             Data::TargetSituated(_id) => None,
+            Data::TargetLocationSelected(_id) => None,
             Data::Standing(_, id) => Some(*id),
             Data::Hand(_, id) => Some(*id),
             Data::FromStandingPOI(_, id) => Some(*id),
@@ -147,6 +150,7 @@ impl Data {
             Data::Target(_id) => None,
             Data::TargetUnplaced(_id) => None,
             Data::TargetSituated(_id) => None,
+            Data::TargetLocationSelected(_id) => None,
             Data::Standing(_id, _) => None,
             Data::Hand(_id, _) => None,
             Data::FromStandingPOI(_id, _) => None,
