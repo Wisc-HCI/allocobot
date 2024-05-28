@@ -18,12 +18,40 @@ impl Job {
                 Target::Product { name, .. } => {
                     let place = Place::new(
                         format!("Target: {}", name),
+                        TokenSet::Finite,
+                        vec![Data::Target(*target_id), Data::TargetLocationSelected(*target_id), Data::TargetSituated(*target_id)],
+                    );
+
+                    let sink = Place::new(
+                        format!("Target: {} (sink)", name),
                         TokenSet::Sink,
-                        vec![Data::Target(*target_id), Data::TargetSituated(*target_id)],
+                        vec![Data::Target(*target_id), Data::TargetUnplaced(*target_id)],
                     );
                     let place_id = place.id;
                     net.places.insert(place_id, place);
+                    let sink_id = sink.id;
+                    net.places.insert(sink_id, sink);
                     net.initial_marking.insert(place_id, 0);
+                    net.initial_marking.insert(sink_id, 0);
+
+                    let sink_transition = Transition::new(
+                        format!("Sink Part: {}", name),
+                        vec![(place_id, Signature::Static(1))]
+                            .into_iter()
+                            .collect(),
+                        vec![(sink_id, Signature::Static(1))].into_iter().collect(),
+                        vec![
+                            Data::Simulation,
+                            Data::Target(*target_id),
+                            Data::TargetUnplaced(*target_id),
+                            Data::TargetLocationSelected(*target_id),
+                            Data::AgentAgnostic,
+                        ],
+                        0.0,
+                        vec![],
+                    );
+                    net.transitions
+                        .insert(sink_transition.id, sink_transition);
                 }
                 Target::Intermediate { name, .. } => {
                     let place = Place::new(

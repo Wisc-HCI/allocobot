@@ -383,7 +383,7 @@ impl Job {
                     .map(|hand_poi| vec![Data::Hand(hand_poi.id(), *target_id)])
                     .collect::<Vec<Vec<Data>>>(),
                 |transition, split_data| {
-                    if transition.has_data(&vec![Query::Data(Data::TargetSituated(*target_id))]) {
+                    if transition.has_any_data(&vec![Query::Data(Data::TargetSituated(*target_id)), Query::Data(Data::TargetLocationSelected(*target_id))]) {
                         return true;
                     }
                     let hand_poi_id = split_data

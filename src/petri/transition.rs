@@ -8,6 +8,8 @@ use crate::petri::data::DataTag;
 use std::ops::{Add,Sub};
 use crate::petri::cost::CostSet;
 
+use super::data::data_query_any;
+
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "type", content = "value", rename_all = "camelCase")]
 pub enum Signature {
@@ -99,6 +101,10 @@ impl Transition {
 
     pub fn has_data(&self, query_vec: &Vec<Query>) -> bool {
         data_query(&self.meta_data, query_vec)
+    }
+
+    pub fn has_any_data(&self, query_vec: &Vec<Query>) -> bool {
+        data_query_any(&self.meta_data, query_vec)
     }
 
     pub fn add_data(&mut self, new_data: Data) {

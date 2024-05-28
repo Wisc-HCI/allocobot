@@ -192,6 +192,25 @@ pub fn data_query(data: &Vec<Data>, query: &Vec<Query>) -> bool {
     })
 }
 
+pub fn data_query_any(data: &Vec<Data>, query: &Vec<Query>) -> bool {
+    query.iter().any(|q| match q {
+        Query::Data(d) => data.contains(d),
+        Query::Tag(t) => data.iter().any(|d| d.tag() == *t),
+        Query::PartialTagPrimary(t, id) => {
+            data.iter().any(|d| d.tag() == *t && d.id() == Some(*id))
+        }
+        Query::PartialTagSecondary(t, id) => data
+            .iter()
+            .any(|d| d.tag() == *t && d.secondary() == Some(*id)),
+        Query::PartialTagNumeric(t, numeric) => data
+            .iter()
+            .any(|d| d.tag() == *t && d.numeric() == Some(*numeric)),
+        Query::PartialTagPrimarySecondary(t, id1, id2) => data
+            .iter()
+            .any(|d| d.tag() == *t && d.id() == Some(*id1) && d.secondary() == Some(*id2)),
+    })
+}
+
 pub type DataTag = <Data as EnumTag>::Tag;
 
 pub enum Query {
