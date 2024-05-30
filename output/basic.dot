@@ -1,327 +1,8 @@
 digraph Half_Shaft {
 bgcolor="transparent"
 fontname="helvetica"
-// Place Target: Part3
-	185113953155780873899527727694158173352 [label=<<TABLE BORDER="0" CELLPADDING="7">
-    <TR>
-        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="64" COLOR="#333333">
-                <B>Target: Part3</B>
-            </FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#222222" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#dddddd">0</FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Target</FONT>
-        </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#8DD3C7" BORDER="4" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Part3</FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">TargetSituated</FONT>
-        </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#8DD3C7" BORDER="4" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Part3</FONT>
-        </TD>
-    </TR>
-</TABLE>>,fillcolor="#8DD3C7",style=filled,shape=circle,fontname="helvetica"];
-// Place Target: Tool0
-	25294785858057008211144998152951359648 [label=<<TABLE BORDER="0" CELLPADDING="7">
-    <TR>
-        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="64" COLOR="#333333">
-                <B>Target: Tool0</B>
-            </FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#222222" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#dddddd">0</FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Target</FONT>
-        </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FFED6F" BORDER="4" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Tool0</FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">TargetSituated</FONT>
-        </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FFED6F" BORDER="4" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Tool0</FONT>
-        </TD>
-    </TR>
-</TABLE>>,fillcolor="#FFED6F",style=filled,shape=circle,fontname="helvetica"];
-// Place Target: Part2 (spawn)
-	146483576869753540884677756852059450935 [label=<<TABLE BORDER="0" CELLPADDING="7">
-    <TR>
-        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="64" COLOR="#333333">
-                <B>Target: Part2 (spawn)</B>
-            </FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#222222" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#dddddd">0</FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Target</FONT>
-        </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FCCDE5" BORDER="4" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Part2</FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">TargetLocationSelected</FONT>
-        </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FCCDE5" BORDER="4" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Part2</FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">TargetSituated</FONT>
-        </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FCCDE5" BORDER="4" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Part2</FONT>
-        </TD>
-    </TR>
-</TABLE>>,fillcolor="#FCCDE5",style=filled,shape=circle,fontname="helvetica"];
-// Place Target: Part1 (source)
-	166153204737854732345833751515172952135 [label=<<TABLE BORDER="0" CELLPADDING="7">
-    <TR>
-        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="64" COLOR="#333333">
-                <B>Target: Part1 (source)</B>
-            </FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#222222" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#dddddd">∞</FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Target</FONT>
-        </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FDB462" BORDER="4" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Part1</FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">TargetUnplaced</FONT>
-        </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FDB462" BORDER="4" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Part1</FONT>
-        </TD>
-    </TR>
-</TABLE>>,fillcolor="#FDB462",style=filled,shape=circle,fontname="helvetica"];
-// Place Target: Part2 (source)
-	136983455207756569707229319520372631282 [label=<<TABLE BORDER="0" CELLPADDING="7">
-    <TR>
-        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="64" COLOR="#333333">
-                <B>Target: Part2 (source)</B>
-            </FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#222222" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#dddddd">∞</FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Target</FONT>
-        </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FCCDE5" BORDER="4" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Part2</FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">TargetUnplaced</FONT>
-        </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FCCDE5" BORDER="4" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Part2</FONT>
-        </TD>
-    </TR>
-</TABLE>>,fillcolor="#FCCDE5",style=filled,shape=circle,fontname="helvetica"];
-// Place Target: Part4 (spawn)
-	137237065966535731249823034346215926145 [label=<<TABLE BORDER="0" CELLPADDING="7">
-    <TR>
-        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="64" COLOR="#333333">
-                <B>Target: Part4 (spawn)</B>
-            </FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#222222" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#dddddd">0</FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Target</FONT>
-        </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#76B7B2" BORDER="4" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Part4</FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">TargetLocationSelected</FONT>
-        </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#76B7B2" BORDER="4" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Part4</FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">TargetSituated</FONT>
-        </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#76B7B2" BORDER="4" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Part4</FONT>
-        </TD>
-    </TR>
-</TABLE>>,fillcolor="#76B7B2",style=filled,shape=circle,fontname="helvetica"];
-// Place Target: Part5
-	254488025988105924613346541121829339298 [label=<<TABLE BORDER="0" CELLPADDING="7">
-    <TR>
-        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="64" COLOR="#333333">
-                <B>Target: Part5</B>
-            </FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#222222" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#dddddd">0</FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Target</FONT>
-        </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FFFFB3" BORDER="4" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Part5</FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">TargetLocationSelected</FONT>
-        </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FFFFB3" BORDER="4" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Part5</FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">TargetSituated</FONT>
-        </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FFFFB3" BORDER="4" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Part5</FONT>
-        </TD>
-    </TR>
-</TABLE>>,fillcolor="#FFFFB3",style=filled,shape=circle,fontname="helvetica"];
-// Place Target: Part6
-	224434386337919684485613597704261570867 [label=<<TABLE BORDER="0" CELLPADDING="7">
-    <TR>
-        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="64" COLOR="#333333">
-                <B>Target: Part6</B>
-            </FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#222222" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#dddddd">0</FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Target</FONT>
-        </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#CCEBC5" BORDER="4" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Part6</FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">TargetLocationSelected</FONT>
-        </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#CCEBC5" BORDER="4" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Part6</FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">TargetSituated</FONT>
-        </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#CCEBC5" BORDER="4" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Part6</FONT>
-        </TD>
-    </TR>
-</TABLE>>,fillcolor="#CCEBC5",style=filled,shape=circle,fontname="helvetica"];
-// Place Target: Part1 (spawn)
-	330340991388414696495111234513193549538 [label=<<TABLE BORDER="0" CELLPADDING="7">
-    <TR>
-        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="64" COLOR="#333333">
-                <B>Target: Part1 (spawn)</B>
-            </FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#222222" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#dddddd">0</FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Target</FONT>
-        </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FDB462" BORDER="4" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Part1</FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">TargetLocationSelected</FONT>
-        </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FDB462" BORDER="4" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Part1</FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">TargetSituated</FONT>
-        </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FDB462" BORDER="4" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Part1</FONT>
-        </TD>
-    </TR>
-</TABLE>>,fillcolor="#FDB462",style=filled,shape=circle,fontname="helvetica"];
 // Place Target: Part4 (source)
-	277390447340767292039483021654745755579 [label=<<TABLE BORDER="0" CELLPADDING="7">
+	112240506650680737871952924034804297781 [label=<<TABLE BORDER="0" CELLPADDING="7">
     <TR>
         <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
             <FONT POINT-SIZE="64" COLOR="#333333">
@@ -338,7 +19,7 @@ fontname="helvetica"
         <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
             <FONT POINT-SIZE="32" COLOR="#333333">Target</FONT>
         </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#76B7B2" BORDER="4" STYLE="rounded">
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#BC80BD" BORDER="4" STYLE="rounded">
             <FONT POINT-SIZE="32" COLOR="#333333">Part4</FONT>
         </TD>
     </TR>
@@ -346,23 +27,62 @@ fontname="helvetica"
         <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
             <FONT POINT-SIZE="32" COLOR="#333333">TargetUnplaced</FONT>
         </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#76B7B2" BORDER="4" STYLE="rounded">
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#BC80BD" BORDER="4" STYLE="rounded">
             <FONT POINT-SIZE="32" COLOR="#333333">Part4</FONT>
         </TD>
     </TR>
-</TABLE>>,fillcolor="#76B7B2",style=filled,shape=circle,fontname="helvetica"];
-// Place Target: Part5 (sink)
-	197853626204223366640611085255424561332 [label=<<TABLE BORDER="0" CELLPADDING="7">
+</TABLE>>,fillcolor="#BC80BD",style=filled,shape=circle,fontname="helvetica"];
+// Place Target: Part5
+	30512478751865429344051214772502055952 [label=<<TABLE BORDER="0" CELLPADDING="7">
     <TR>
         <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
             <FONT POINT-SIZE="64" COLOR="#333333">
-                <B>Target: Part5 (sink)</B>
+                <B>Target: Part5</B>
             </FONT>
         </TD>
     </TR>
     <TR>
         <TD COLSPAN="3" ALIGN="text" BGCOLOR="#222222" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#dddddd">sink</FONT>
+            <FONT POINT-SIZE="32" COLOR="#dddddd">0</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Target</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#CCEBC5" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part5</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">TargetLocationSelected</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#CCEBC5" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part5</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">TargetSituated</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#CCEBC5" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part5</FONT>
+        </TD>
+    </TR>
+</TABLE>>,fillcolor="#CCEBC5",style=filled,shape=circle,fontname="helvetica"];
+// Place Target: Tool0
+	332825898430459538860945512423093728972 [label=<<TABLE BORDER="0" CELLPADDING="7">
+    <TR>
+        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="64" COLOR="#333333">
+                <B>Target: Tool0</B>
+            </FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#222222" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#dddddd">0</FONT>
         </TD>
     </TR>
     <TR>
@@ -370,20 +90,20 @@ fontname="helvetica"
             <FONT POINT-SIZE="32" COLOR="#333333">Target</FONT>
         </TD>
         <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FFFFB3" BORDER="4" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Part5</FONT>
+            <FONT POINT-SIZE="32" COLOR="#333333">Tool0</FONT>
         </TD>
     </TR>
     <TR>
         <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">TargetUnplaced</FONT>
+            <FONT POINT-SIZE="32" COLOR="#333333">TargetSituated</FONT>
         </TD>
         <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FFFFB3" BORDER="4" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Part5</FONT>
+            <FONT POINT-SIZE="32" COLOR="#333333">Tool0</FONT>
         </TD>
     </TR>
 </TABLE>>,fillcolor="#FFFFB3",style=filled,shape=circle,fontname="helvetica"];
 // Place Target: Tool0 (pre)
-	85889849473685251292263623614867673613 [label=<<TABLE BORDER="0" CELLPADDING="7">
+	3353803168199194259358786002678786346 [label=<<TABLE BORDER="0" CELLPADDING="7">
     <TR>
         <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
             <FONT POINT-SIZE="64" COLOR="#333333">
@@ -400,7 +120,7 @@ fontname="helvetica"
         <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
             <FONT POINT-SIZE="32" COLOR="#333333">Target</FONT>
         </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FFED6F" BORDER="4" STYLE="rounded">
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FFFFB3" BORDER="4" STYLE="rounded">
             <FONT POINT-SIZE="32" COLOR="#333333">Tool0</FONT>
         </TD>
     </TR>
@@ -408,13 +128,106 @@ fontname="helvetica"
         <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
             <FONT POINT-SIZE="32" COLOR="#333333">TargetUnplaced</FONT>
         </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FFED6F" BORDER="4" STYLE="rounded">
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FFFFB3" BORDER="4" STYLE="rounded">
             <FONT POINT-SIZE="32" COLOR="#333333">Tool0</FONT>
         </TD>
     </TR>
+</TABLE>>,fillcolor="#FFFFB3",style=filled,shape=circle,fontname="helvetica"];
+// Place Target: Part3
+	270888521529010910364020585713539154051 [label=<<TABLE BORDER="0" CELLPADDING="7">
+    <TR>
+        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="64" COLOR="#333333">
+                <B>Target: Part3</B>
+            </FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#222222" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#dddddd">0</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Target</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FFED6F" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part3</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">TargetSituated</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FFED6F" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part3</FONT>
+        </TD>
+    </TR>
 </TABLE>>,fillcolor="#FFED6F",style=filled,shape=circle,fontname="helvetica"];
+// Place Target: Part2 (source)
+	272791240606026415894669668772595140524 [label=<<TABLE BORDER="0" CELLPADDING="7">
+    <TR>
+        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="64" COLOR="#333333">
+                <B>Target: Part2 (source)</B>
+            </FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#222222" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#dddddd">∞</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Target</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#E15759" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part2</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">TargetUnplaced</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#E15759" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part2</FONT>
+        </TD>
+    </TR>
+</TABLE>>,fillcolor="#E15759",style=filled,shape=circle,fontname="helvetica"];
+// Place Target: Part5 (sink)
+	135978780054002573430300035720862434289 [label=<<TABLE BORDER="0" CELLPADDING="7">
+    <TR>
+        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="64" COLOR="#333333">
+                <B>Target: Part5 (sink)</B>
+            </FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#222222" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#dddddd">sink</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Target</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#CCEBC5" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part5</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">TargetUnplaced</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#CCEBC5" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part5</FONT>
+        </TD>
+    </TR>
+</TABLE>>,fillcolor="#CCEBC5",style=filled,shape=circle,fontname="helvetica"];
 // Place Target: Part6 (sink)
-	145209180254555532266901131812945050723 [label=<<TABLE BORDER="0" CELLPADDING="7">
+	153780580565493709049965480957894442510 [label=<<TABLE BORDER="0" CELLPADDING="7">
     <TR>
         <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
             <FONT POINT-SIZE="64" COLOR="#333333">
@@ -431,7 +244,7 @@ fontname="helvetica"
         <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
             <FONT POINT-SIZE="32" COLOR="#333333">Target</FONT>
         </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#CCEBC5" BORDER="4" STYLE="rounded">
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FDB462" BORDER="4" STYLE="rounded">
             <FONT POINT-SIZE="32" COLOR="#333333">Part6</FONT>
         </TD>
     </TR>
@@ -439,38 +252,139 @@ fontname="helvetica"
         <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
             <FONT POINT-SIZE="32" COLOR="#333333">TargetUnplaced</FONT>
         </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#CCEBC5" BORDER="4" STYLE="rounded">
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FDB462" BORDER="4" STYLE="rounded">
             <FONT POINT-SIZE="32" COLOR="#333333">Part6</FONT>
         </TD>
     </TR>
-</TABLE>>,fillcolor="#CCEBC5",style=filled,shape=circle,fontname="helvetica"];
-// Transition Sink Part: Part6
-	28372894462519528160181484734699180303 [label=<<TABLE BORDER="0" CELLPADDING="7">
+</TABLE>>,fillcolor="#FDB462",style=filled,shape=circle,fontname="helvetica"];
+// Place Target: Part4 (spawn)
+	228660889017919193791315948211721954533 [label=<<TABLE BORDER="0" CELLPADDING="7">
     <TR>
         <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
             <FONT POINT-SIZE="64" COLOR="#333333">
-                <B>Sink Part: Part6</B>
+                <B>Target: Part4 (spawn)</B>
             </FONT>
         </TD>
     </TR>
     <TR>
-        <TD COLSPAN="8" ALIGN="text" BGCOLOR="#555555" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#ffffff">Simulation</FONT>
+        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#222222" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#dddddd">0</FONT>
         </TD>
     </TR>
     <TR>
         <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
             <FONT POINT-SIZE="32" COLOR="#333333">Target</FONT>
         </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#CCEBC5" BORDER="4" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Part6</FONT>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#BC80BD" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part4</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">TargetLocationSelected</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#BC80BD" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part4</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">TargetSituated</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#BC80BD" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part4</FONT>
+        </TD>
+    </TR>
+</TABLE>>,fillcolor="#BC80BD",style=filled,shape=circle,fontname="helvetica"];
+// Place Target: Part1 (spawn)
+	270150530820452235239260012939440141716 [label=<<TABLE BORDER="0" CELLPADDING="7">
+    <TR>
+        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="64" COLOR="#333333">
+                <B>Target: Part1 (spawn)</B>
+            </FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#222222" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#dddddd">0</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Target</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#BEBADA" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part1</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">TargetLocationSelected</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#BEBADA" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part1</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">TargetSituated</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#BEBADA" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part1</FONT>
+        </TD>
+    </TR>
+</TABLE>>,fillcolor="#BEBADA",style=filled,shape=circle,fontname="helvetica"];
+// Place Target: Part1 (source)
+	33757183272744131872518084339564564331 [label=<<TABLE BORDER="0" CELLPADDING="7">
+    <TR>
+        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="64" COLOR="#333333">
+                <B>Target: Part1 (source)</B>
+            </FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#222222" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#dddddd">∞</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Target</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#BEBADA" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part1</FONT>
         </TD>
     </TR>
     <TR>
         <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
             <FONT POINT-SIZE="32" COLOR="#333333">TargetUnplaced</FONT>
         </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#CCEBC5" BORDER="4" STYLE="rounded">
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#BEBADA" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part1</FONT>
+        </TD>
+    </TR>
+</TABLE>>,fillcolor="#BEBADA",style=filled,shape=circle,fontname="helvetica"];
+// Place Target: Part6
+	216056056413330587875161051916446707871 [label=<<TABLE BORDER="0" CELLPADDING="7">
+    <TR>
+        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="64" COLOR="#333333">
+                <B>Target: Part6</B>
+            </FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#222222" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#dddddd">0</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Target</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FDB462" BORDER="4" STYLE="rounded">
             <FONT POINT-SIZE="32" COLOR="#333333">Part6</FONT>
         </TD>
     </TR>
@@ -478,18 +392,60 @@ fontname="helvetica"
         <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
             <FONT POINT-SIZE="32" COLOR="#333333">TargetLocationSelected</FONT>
         </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#CCEBC5" BORDER="4" STYLE="rounded">
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FDB462" BORDER="4" STYLE="rounded">
             <FONT POINT-SIZE="32" COLOR="#333333">Part6</FONT>
         </TD>
     </TR>
     <TR>
-        <TD COLSPAN="8" ALIGN="text" BGCOLOR="#555555" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#ffffff">AgentAgnostic</FONT>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">TargetSituated</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FDB462" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part6</FONT>
         </TD>
     </TR>
-</TABLE>>,shape=box,style=filled,fillcolor="#000000",fontname="helvetica"];
+</TABLE>>,fillcolor="#FDB462",style=filled,shape=circle,fontname="helvetica"];
+// Place Target: Part2 (spawn)
+	154649986702250679285468466319501332390 [label=<<TABLE BORDER="0" CELLPADDING="7">
+    <TR>
+        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="64" COLOR="#333333">
+                <B>Target: Part2 (spawn)</B>
+            </FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#222222" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#dddddd">0</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Target</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#E15759" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part2</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">TargetLocationSelected</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#E15759" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part2</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">TargetSituated</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#E15759" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part2</FONT>
+        </TD>
+    </TR>
+</TABLE>>,fillcolor="#E15759",style=filled,shape=circle,fontname="helvetica"];
 // Transition Sink Part: Part5
-	233530640868788094473026841390811916802 [label=<<TABLE BORDER="0" CELLPADDING="7">
+	26010272699030436131265383150584643013 [label=<<TABLE BORDER="0" CELLPADDING="7">
     <TR>
         <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
             <FONT POINT-SIZE="64" COLOR="#333333">
@@ -506,7 +462,7 @@ fontname="helvetica"
         <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
             <FONT POINT-SIZE="32" COLOR="#333333">Target</FONT>
         </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FFFFB3" BORDER="4" STYLE="rounded">
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#CCEBC5" BORDER="4" STYLE="rounded">
             <FONT POINT-SIZE="32" COLOR="#333333">Part5</FONT>
         </TD>
     </TR>
@@ -514,7 +470,7 @@ fontname="helvetica"
         <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
             <FONT POINT-SIZE="32" COLOR="#333333">TargetUnplaced</FONT>
         </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FFFFB3" BORDER="4" STYLE="rounded">
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#CCEBC5" BORDER="4" STYLE="rounded">
             <FONT POINT-SIZE="32" COLOR="#333333">Part5</FONT>
         </TD>
     </TR>
@@ -522,75 +478,8 @@ fontname="helvetica"
         <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
             <FONT POINT-SIZE="32" COLOR="#333333">TargetLocationSelected</FONT>
         </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FFFFB3" BORDER="4" STYLE="rounded">
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#CCEBC5" BORDER="4" STYLE="rounded">
             <FONT POINT-SIZE="32" COLOR="#333333">Part5</FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="8" ALIGN="text" BGCOLOR="#555555" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#ffffff">AgentAgnostic</FONT>
-        </TD>
-    </TR>
-</TABLE>>,shape=box,style=filled,fillcolor="#000000",fontname="helvetica"];
-// Transition task2
-	271101291321685083977311732433043671033 [label=<<TABLE BORDER="0" CELLPADDING="7">
-    <TR>
-        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="64" COLOR="#333333">
-                <B>task2</B>
-            </FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="8" ALIGN="text" BGCOLOR="#555555" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#ffffff">Simulation</FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Task</FONT>
-        </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#80B1D3" BORDER="4" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">task2</FONT>
-        </TD>
-    </TR>
-</TABLE>>,shape=box,style=filled,fillcolor="#000000",fontname="helvetica"];
-// Transition Spawn Part: Part2
-	275625019492074408468395417376894668506 [label=<<TABLE BORDER="0" CELLPADDING="7">
-    <TR>
-        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="64" COLOR="#333333">
-                <B>Spawn Part: Part2</B>
-            </FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="8" ALIGN="text" BGCOLOR="#555555" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#ffffff">Simulation</FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Target</FONT>
-        </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FCCDE5" BORDER="4" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Part2</FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">TargetSituated</FONT>
-        </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FCCDE5" BORDER="4" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Part2</FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">TargetLocationSelected</FONT>
-        </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FCCDE5" BORDER="4" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Part2</FONT>
         </TD>
     </TR>
     <TR>
@@ -600,7 +489,7 @@ fontname="helvetica"
     </TR>
 </TABLE>>,shape=box,style=filled,fillcolor="#000000",fontname="helvetica"];
 // Transition Spawn Part: Part1
-	325932116343952462660911650662455939857 [label=<<TABLE BORDER="0" CELLPADDING="7">
+	100800970832781722984369073848188765819 [label=<<TABLE BORDER="0" CELLPADDING="7">
     <TR>
         <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
             <FONT POINT-SIZE="64" COLOR="#333333">
@@ -617,91 +506,24 @@ fontname="helvetica"
         <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
             <FONT POINT-SIZE="32" COLOR="#333333">Target</FONT>
         </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FDB462" BORDER="4" STYLE="rounded">
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#BEBADA" BORDER="4" STYLE="rounded">
             <FONT POINT-SIZE="32" COLOR="#333333">Part1</FONT>
         </TD>
     </TR>
     <TR>
         <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
             <FONT POINT-SIZE="32" COLOR="#333333">TargetSituated</FONT>
-        </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FDB462" BORDER="4" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Part1</FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">TargetLocationSelected</FONT>
-        </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FDB462" BORDER="4" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Part1</FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="8" ALIGN="text" BGCOLOR="#555555" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#ffffff">AgentAgnostic</FONT>
-        </TD>
-    </TR>
-</TABLE>>,shape=box,style=filled,fillcolor="#000000",fontname="helvetica"];
-// Transition task1
-	103025917645099631049036799110948239548 [label=<<TABLE BORDER="0" CELLPADDING="7">
-    <TR>
-        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="64" COLOR="#333333">
-                <B>task1</B>
-            </FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="8" ALIGN="text" BGCOLOR="#555555" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#ffffff">Simulation</FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Task</FONT>
         </TD>
         <TD COLSPAN="6" ALIGN="text" BGCOLOR="#BEBADA" BORDER="4" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">task1</FONT>
-        </TD>
-    </TR>
-</TABLE>>,shape=box,style=filled,fillcolor="#000000",fontname="helvetica"];
-// Transition Spawn Part: Part4
-	312863182297741360278046997210008676763 [label=<<TABLE BORDER="0" CELLPADDING="7">
-    <TR>
-        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="64" COLOR="#333333">
-                <B>Spawn Part: Part4</B>
-            </FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="8" ALIGN="text" BGCOLOR="#555555" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#ffffff">Simulation</FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Target</FONT>
-        </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#76B7B2" BORDER="4" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Part4</FONT>
-        </TD>
-    </TR>
-    <TR>
-        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">TargetSituated</FONT>
-        </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#76B7B2" BORDER="4" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Part4</FONT>
+            <FONT POINT-SIZE="32" COLOR="#333333">Part1</FONT>
         </TD>
     </TR>
     <TR>
         <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
             <FONT POINT-SIZE="32" COLOR="#333333">TargetLocationSelected</FONT>
         </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#76B7B2" BORDER="4" STYLE="rounded">
-            <FONT POINT-SIZE="32" COLOR="#333333">Part4</FONT>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#BEBADA" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part1</FONT>
         </TD>
     </TR>
     <TR>
@@ -711,7 +533,7 @@ fontname="helvetica"
     </TR>
 </TABLE>>,shape=box,style=filled,fillcolor="#000000",fontname="helvetica"];
 // Transition Situate: Tool0
-	213490530768681918272473635270482875706 [label=<<TABLE BORDER="0" CELLPADDING="7">
+	210659635752360519279693203710762118799 [label=<<TABLE BORDER="0" CELLPADDING="7">
     <TR>
         <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
             <FONT POINT-SIZE="64" COLOR="#333333">
@@ -728,7 +550,7 @@ fontname="helvetica"
         <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
             <FONT POINT-SIZE="32" COLOR="#333333">Target</FONT>
         </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FFED6F" BORDER="4" STYLE="rounded">
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FFFFB3" BORDER="4" STYLE="rounded">
             <FONT POINT-SIZE="32" COLOR="#333333">Tool0</FONT>
         </TD>
     </TR>
@@ -736,7 +558,7 @@ fontname="helvetica"
         <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
             <FONT POINT-SIZE="32" COLOR="#333333">TargetSituated</FONT>
         </TD>
-        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FFED6F" BORDER="4" STYLE="rounded">
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FFFFB3" BORDER="4" STYLE="rounded">
             <FONT POINT-SIZE="32" COLOR="#333333">Tool0</FONT>
         </TD>
     </TR>
@@ -746,26 +568,204 @@ fontname="helvetica"
         </TD>
     </TR>
 </TABLE>>,shape=box,style=filled,fillcolor="#000000",fontname="helvetica"];
-	224434386337919684485613597704261570867 -> 28372894462519528160181484734699180303 [label="Static(1)",color="#CCEBC5",fontcolor="#CCEBC5",fontname="helvetica",penwidth=10];
-	28372894462519528160181484734699180303 -> 145209180254555532266901131812945050723 [label="Static(1)",color="#CCEBC5",fontcolor="#CCEBC5",fontname="helvetica",penwidth=10];
-	254488025988105924613346541121829339298 -> 233530640868788094473026841390811916802 [label="Static(1)",color="#FFFFB3",fontcolor="#FFFFB3",fontname="helvetica",penwidth=10];
-	233530640868788094473026841390811916802 -> 197853626204223366640611085255424561332 [label="Static(1)",color="#FFFFB3",fontcolor="#FFFFB3",fontname="helvetica",penwidth=10];
-	185113953155780873899527727694158173352 -> 271101291321685083977311732433043671033 [label="Static(1)",color="#8DD3C7",fontcolor="#8DD3C7",fontname="helvetica",penwidth=10];
-	137237065966535731249823034346215926145 -> 271101291321685083977311732433043671033 [label="Static(1)",color="#76B7B2",fontcolor="#76B7B2",fontname="helvetica",penwidth=10];
-	271101291321685083977311732433043671033 -> 224434386337919684485613597704261570867 [label="Static(1)",color="#CCEBC5",fontcolor="#CCEBC5",fontname="helvetica",penwidth=10];
-	271101291321685083977311732433043671033 -> 254488025988105924613346541121829339298 [label="Static(1)",color="#FFFFB3",fontcolor="#FFFFB3",fontname="helvetica",penwidth=10];
-	136983455207756569707229319520372631282 -> 275625019492074408468395417376894668506 [label="Static(1)",color="#FCCDE5",fontcolor="#FCCDE5",fontname="helvetica",penwidth=10];
-	275625019492074408468395417376894668506 -> 146483576869753540884677756852059450935 [label="Static(1)",color="#FCCDE5",fontcolor="#FCCDE5",fontname="helvetica",penwidth=10];
-	166153204737854732345833751515172952135 -> 325932116343952462660911650662455939857 [label="Static(1)",color="#FDB462",fontcolor="#FDB462",fontname="helvetica",penwidth=10];
-	325932116343952462660911650662455939857 -> 330340991388414696495111234513193549538 [label="Static(1)",color="#FDB462",fontcolor="#FDB462",fontname="helvetica",penwidth=10];
-	146483576869753540884677756852059450935 -> 103025917645099631049036799110948239548 [label="Static(1)",color="#FCCDE5",fontcolor="#FCCDE5",fontname="helvetica",penwidth=10];
-	330340991388414696495111234513193549538 -> 103025917645099631049036799110948239548 [label="Static(1)",color="#FDB462",fontcolor="#FDB462",fontname="helvetica",penwidth=10];
-	25294785858057008211144998152951359648 -> 103025917645099631049036799110948239548 [label="Static(1)",color="#FFED6F",fontcolor="#FFED6F",fontname="helvetica",penwidth=10];
-	103025917645099631049036799110948239548 -> 185113953155780873899527727694158173352 [label="Static(1)",color="#8DD3C7",fontcolor="#8DD3C7",fontname="helvetica",penwidth=10];
-	103025917645099631049036799110948239548 -> 25294785858057008211144998152951359648 [label="Static(1)",color="#FFED6F",fontcolor="#FFED6F",fontname="helvetica",penwidth=10];
-	277390447340767292039483021654745755579 -> 312863182297741360278046997210008676763 [label="Static(1)",color="#76B7B2",fontcolor="#76B7B2",fontname="helvetica",penwidth=10];
-	312863182297741360278046997210008676763 -> 137237065966535731249823034346215926145 [label="Static(1)",color="#76B7B2",fontcolor="#76B7B2",fontname="helvetica",penwidth=10];
-	85889849473685251292263623614867673613 -> 213490530768681918272473635270482875706 [label="Static(1)",color="#FFED6F",fontcolor="#FFED6F",fontname="helvetica",penwidth=10];
-	213490530768681918272473635270482875706 -> 25294785858057008211144998152951359648 [label="Static(1)",color="#FFED6F",fontcolor="#FFED6F",fontname="helvetica",penwidth=10];
+// Transition Spawn Part: Part4
+	183849750106018308442658650977298015032 [label=<<TABLE BORDER="0" CELLPADDING="7">
+    <TR>
+        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="64" COLOR="#333333">
+                <B>Spawn Part: Part4</B>
+            </FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="8" ALIGN="text" BGCOLOR="#555555" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#ffffff">Simulation</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Target</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#BC80BD" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part4</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">TargetSituated</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#BC80BD" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part4</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">TargetLocationSelected</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#BC80BD" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part4</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="8" ALIGN="text" BGCOLOR="#555555" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#ffffff">AgentAgnostic</FONT>
+        </TD>
+    </TR>
+</TABLE>>,shape=box,style=filled,fillcolor="#000000",fontname="helvetica"];
+// Transition Spawn Part: Part2
+	233996915102523572111223970558814436127 [label=<<TABLE BORDER="0" CELLPADDING="7">
+    <TR>
+        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="64" COLOR="#333333">
+                <B>Spawn Part: Part2</B>
+            </FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="8" ALIGN="text" BGCOLOR="#555555" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#ffffff">Simulation</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Target</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#E15759" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part2</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">TargetSituated</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#E15759" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part2</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">TargetLocationSelected</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#E15759" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part2</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="8" ALIGN="text" BGCOLOR="#555555" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#ffffff">AgentAgnostic</FONT>
+        </TD>
+    </TR>
+</TABLE>>,shape=box,style=filled,fillcolor="#000000",fontname="helvetica"];
+// Transition task2
+	158994607064779515676236739779711650418 [label=<<TABLE BORDER="0" CELLPADDING="7">
+    <TR>
+        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="64" COLOR="#333333">
+                <B>task2</B>
+            </FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="8" ALIGN="text" BGCOLOR="#555555" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#ffffff">Simulation</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Task</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FB8072" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">task2</FONT>
+        </TD>
+    </TR>
+</TABLE>>,shape=box,style=filled,fillcolor="#000000",fontname="helvetica"];
+// Transition Sink Part: Part6
+	203317573980756008863406129887629954130 [label=<<TABLE BORDER="0" CELLPADDING="7">
+    <TR>
+        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="64" COLOR="#333333">
+                <B>Sink Part: Part6</B>
+            </FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="8" ALIGN="text" BGCOLOR="#555555" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#ffffff">Simulation</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Target</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FDB462" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part6</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">TargetUnplaced</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FDB462" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part6</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">TargetLocationSelected</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#FDB462" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Part6</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="8" ALIGN="text" BGCOLOR="#555555" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#ffffff">AgentAgnostic</FONT>
+        </TD>
+    </TR>
+</TABLE>>,shape=box,style=filled,fillcolor="#000000",fontname="helvetica"];
+// Transition task1
+	162988563574225882092687185297598092670 [label=<<TABLE BORDER="0" CELLPADDING="7">
+    <TR>
+        <TD COLSPAN="3" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="64" COLOR="#333333">
+                <B>task1</B>
+            </FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="8" ALIGN="text" BGCOLOR="#555555" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#ffffff">Simulation</FONT>
+        </TD>
+    </TR>
+    <TR>
+        <TD COLSPAN="2" ALIGN="text" BGCOLOR="#f0f0f0" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">Task</FONT>
+        </TD>
+        <TD COLSPAN="6" ALIGN="text" BGCOLOR="#B3DE69" BORDER="4" STYLE="rounded">
+            <FONT POINT-SIZE="32" COLOR="#333333">task1</FONT>
+        </TD>
+    </TR>
+</TABLE>>,shape=box,style=filled,fillcolor="#000000",fontname="helvetica"];
+	30512478751865429344051214772502055952 -> 26010272699030436131265383150584643013 [label="Static(1)",color="#CCEBC5",fontcolor="#CCEBC5",fontname="helvetica",penwidth=10];
+	26010272699030436131265383150584643013 -> 135978780054002573430300035720862434289 [label="Static(1)",color="#CCEBC5",fontcolor="#CCEBC5",fontname="helvetica",penwidth=10];
+	33757183272744131872518084339564564331 -> 100800970832781722984369073848188765819 [label="Static(1)",color="#BEBADA",fontcolor="#BEBADA",fontname="helvetica",penwidth=10];
+	100800970832781722984369073848188765819 -> 270150530820452235239260012939440141716 [label="Static(1)",color="#BEBADA",fontcolor="#BEBADA",fontname="helvetica",penwidth=10];
+	3353803168199194259358786002678786346 -> 210659635752360519279693203710762118799 [label="Static(1)",color="#FFFFB3",fontcolor="#FFFFB3",fontname="helvetica",penwidth=10];
+	210659635752360519279693203710762118799 -> 332825898430459538860945512423093728972 [label="Static(1)",color="#FFFFB3",fontcolor="#FFFFB3",fontname="helvetica",penwidth=10];
+	112240506650680737871952924034804297781 -> 183849750106018308442658650977298015032 [label="Static(1)",color="#BC80BD",fontcolor="#BC80BD",fontname="helvetica",penwidth=10];
+	183849750106018308442658650977298015032 -> 228660889017919193791315948211721954533 [label="Static(1)",color="#BC80BD",fontcolor="#BC80BD",fontname="helvetica",penwidth=10];
+	272791240606026415894669668772595140524 -> 233996915102523572111223970558814436127 [label="Static(1)",color="#E15759",fontcolor="#E15759",fontname="helvetica",penwidth=10];
+	233996915102523572111223970558814436127 -> 154649986702250679285468466319501332390 [label="Static(1)",color="#E15759",fontcolor="#E15759",fontname="helvetica",penwidth=10];
+	228660889017919193791315948211721954533 -> 158994607064779515676236739779711650418 [label="Static(1)",color="#BC80BD",fontcolor="#BC80BD",fontname="helvetica",penwidth=10];
+	270888521529010910364020585713539154051 -> 158994607064779515676236739779711650418 [label="Static(1)",color="#FFED6F",fontcolor="#FFED6F",fontname="helvetica",penwidth=10];
+	158994607064779515676236739779711650418 -> 216056056413330587875161051916446707871 [label="Static(1)",color="#FDB462",fontcolor="#FDB462",fontname="helvetica",penwidth=10];
+	158994607064779515676236739779711650418 -> 30512478751865429344051214772502055952 [label="Static(1)",color="#CCEBC5",fontcolor="#CCEBC5",fontname="helvetica",penwidth=10];
+	216056056413330587875161051916446707871 -> 203317573980756008863406129887629954130 [label="Static(1)",color="#FDB462",fontcolor="#FDB462",fontname="helvetica",penwidth=10];
+	203317573980756008863406129887629954130 -> 153780580565493709049965480957894442510 [label="Static(1)",color="#FDB462",fontcolor="#FDB462",fontname="helvetica",penwidth=10];
+	332825898430459538860945512423093728972 -> 162988563574225882092687185297598092670 [label="Static(1)",color="#FFFFB3",fontcolor="#FFFFB3",fontname="helvetica",penwidth=10];
+	154649986702250679285468466319501332390 -> 162988563574225882092687185297598092670 [label="Static(1)",color="#E15759",fontcolor="#E15759",fontname="helvetica",penwidth=10];
+	270150530820452235239260012939440141716 -> 162988563574225882092687185297598092670 [label="Static(1)",color="#BEBADA",fontcolor="#BEBADA",fontname="helvetica",penwidth=10];
+	162988563574225882092687185297598092670 -> 270888521529010910364020585713539154051 [label="Static(1)",color="#FFED6F",fontcolor="#FFED6F",fontname="helvetica",penwidth=10];
+	162988563574225882092687185297598092670 -> 332825898430459538860945512423093728972 [label="Static(1)",color="#FFFFB3",fontcolor="#FFFFB3",fontname="helvetica",penwidth=10];
 overlap=false
 }

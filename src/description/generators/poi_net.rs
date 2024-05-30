@@ -611,6 +611,11 @@ impl Job {
                 net.initial_marking.insert(pre_place_id, 1);
 
                 for spawn_transition in spawn_transitions {
+                    let hand_location_id = spawn_transition.meta_data.iter().find(|d| d.tag() == DataTag::Hand).unwrap().id().unwrap();
+                    if (!(target.pois().is_empty() || target.pois().contains(&hand_location_id))) {
+                        continue;
+                    }
+
                     let placement_place = Place::new(
                         format!("Target: {} (placed)", target.name()),
                         crate::petri::token::TokenSet::Finite,
