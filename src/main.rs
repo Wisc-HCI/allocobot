@@ -102,17 +102,17 @@ fn main() -> std::io::Result<()> {
         Some(Rating::Low),
     );
 
-    let part1: Uuid = job.create_precursor_target("Part1".into(), 5.0, 5.0, Rating::High, vec![p1]);
+    let part1: Uuid = job.create_precursor_target("Part1".into(), 5.0, 5.0, Rating::High, vec![p1], 10.0);
     let part2: Uuid =
-        job.create_precursor_target("Part2".into(), 1.0, 3.0, Rating::Medium, vec![p1]);
+        job.create_precursor_target("Part2".into(), 1.0, 3.0, Rating::Medium, vec![p1], 3.0);
     let part3: Uuid =
         job.create_intermediate_target("Part3".into(), 6.0, 2.0, Rating::Low, Vec::new());
     let part4: Uuid =
-        job.create_precursor_target("Part4".into(), 14.0, 1.0, Rating::High, Vec::new());
+        job.create_precursor_target("Part4".into(), 14.0, 1.0, Rating::High, Vec::new(), 5.0);
     let part5: Uuid =
-        job.create_product_target("Part5".into(), 4.0, 1.0, Rating::Medium, vec![p1, p6, p3]);
+        job.create_product_target("Part5".into(), 4.0, 1.0, Rating::Medium, vec![p1, p6, p3], 20.0);
     let part6: Uuid =
-        job.create_product_target("Part6".into(), 10.0, 3.0, Rating::Medium, vec![p1, p6, p3]);
+        job.create_product_target("Part6".into(), 10.0, 3.0, Rating::Medium, vec![p1, p6, p3], 15.0);
     let tool0: Uuid =
         job.create_reusable_target("Tool0".into(), 1.0, 1.0, Rating::High, Vec::new());
 

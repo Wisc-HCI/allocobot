@@ -197,6 +197,25 @@ impl CostProfiler for HumanInfo {
             });
         }
 
+        for data in transition.meta_data.iter() {
+            match *data {
+                Data::Spawn(_target_id, cost) => {
+                    ergo_cost_set.push(Cost {
+                        frequency: CostFrequency::Extrapolated,
+                        value: cost,
+                        category: CostCategory::Monetary
+                    });},
+                Data::Produce(_target_id, cost) => {
+                    ergo_cost_set.push(Cost {
+                        frequency: CostFrequency::Extrapolated,
+                        value: cost,
+                        category: CostCategory::Monetary
+                    });
+                },
+                _ => {}
+            }
+        }
+
         let mut new_ergo_meta_data: Vec<Data> = Vec::new();
 
         for primitive in assigned_primitives.iter() {
@@ -267,7 +286,7 @@ impl CostProfiler for HumanInfo {
                         category: CostCategory::Ergonomic
                     });
 
-                    new_ergo_meta_data.push(Data::ErgoArm(self.id, cost as usize));
+                    new_ergo_meta_data.push(Data::ErgoArm(self.id, cost));
                 },
                 Primitive::Move {
                     target,
@@ -705,13 +724,13 @@ fn get_force_mvc(
 fn vec_ergo_meta_data(agent: &HumanInfo, dist: f64, cost: f64) -> Vec<Data>{
     let mut result: Vec<Data> = Vec::new();
     if dist < 0.05 {
-        result.push(Data::ErgoHand(agent.id, cost as usize));
+        result.push(Data::ErgoHand(agent.id, cost));
     } else if dist < 0.45 {
-        result.push(Data::ErgoArm(agent.id, cost as usize));
+        result.push(Data::ErgoArm(agent.id, cost));
     } else if dist < 0.91 {
-        result.push(Data::ErgoShoulder(agent.id, cost as usize));
+        result.push(Data::ErgoShoulder(agent.id, cost));
     } else {
-        result.push(Data::ErgoWholeBody(agent.id, cost as usize));
+        result.push(Data::ErgoWholeBody(agent.id, cost));
     }
     return result;
 }

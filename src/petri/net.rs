@@ -338,6 +338,13 @@ impl PetriNet {
             .collect()
     }
 
+    pub fn query_transitions_any(&self, query_vec: &Vec<Query>) -> Vec<&Transition> {
+        self.transitions
+            .values()
+            .filter(|transition| transition.has_any_data(query_vec))
+            .collect()
+    }
+
     pub fn query_places(&self, query_vec: &Vec<Query>) -> Vec<&Place> {
         self.places
             .values()

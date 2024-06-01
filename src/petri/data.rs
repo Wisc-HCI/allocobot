@@ -48,12 +48,14 @@ pub enum Data {
     AgentAgnostic,
 
     // Cost-Related
+    Spawn(Uuid, f64), // Cost of spawn action
+    Produce(Uuid, f64), // Cost of produce action
     Action(Uuid), // A meta-data that includes tasks or anything physical, likely with a cost
     Rest(Uuid),   // A meta-data that specifies that the agent is resting
-    ErgoWholeBody(Uuid, usize),
-    ErgoShoulder(Uuid, usize),
-    ErgoArm(Uuid, usize),
-    ErgoHand(Uuid, usize),
+    ErgoWholeBody(Uuid, f64),
+    ErgoShoulder(Uuid, f64),
+    ErgoArm(Uuid, f64),
+    ErgoHand(Uuid, f64),
 }
 
 impl Data {
@@ -87,6 +89,8 @@ impl Data {
             Data::PrimitiveAssignment(id, _) => Some(*id),
             Data::AgentAgnostic => None,
             Data::AgentJoint => None,
+            Data::Spawn(id, _cost) => Some(*id),
+            Data::Produce(id, _cost) => Some(*id),
             Data::Action(id) => Some(*id),
             Data::Rest(id) => Some(*id),
             Data::ErgoWholeBody(id, _) => Some(*id),
@@ -124,6 +128,8 @@ impl Data {
             Data::PrimitiveAssignment(_, id) => Some(*id),
             Data::AgentAgnostic => None,
             Data::AgentJoint => None,
+            Data::Spawn(_id, _cost) => None,
+            Data::Produce(_id, _cost) => None,
             Data::Action(_id) => None,
             Data::Rest(_id) => None,
             Data::ErgoWholeBody(_, _) => None,
@@ -135,7 +141,7 @@ impl Data {
         }
     }
 
-    pub fn numeric(&self) -> Option<usize> {
+    pub fn numeric(&self) -> Option<f64> {
         match self {
             Data::Agent(_id) => None,
             Data::AgentPresent(_id) => None,
@@ -161,6 +167,8 @@ impl Data {
             Data::PrimitiveAssignment(_, _) => None,
             Data::AgentAgnostic => None,
             Data::AgentJoint => None,
+            Data::Spawn(_id, cost) => Some(*cost),
+            Data::Produce(_id, cost) => Some(*cost),
             Data::Action(_id) => None,
             Data::Rest(_id) => None,
             Data::ErgoWholeBody(_, n) => Some(*n),
@@ -218,7 +226,7 @@ pub enum Query {
     Tag(DataTag),
     PartialTagPrimary(DataTag, Uuid),
     PartialTagSecondary(DataTag, Uuid),
-    PartialTagNumeric(DataTag, usize),
+    PartialTagNumeric(DataTag, f64),
     PartialTagPrimarySecondary(DataTag, Uuid, Uuid),
 }
 

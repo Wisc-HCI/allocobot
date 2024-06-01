@@ -17,6 +17,7 @@ pub enum Target {
         weight: f64,
         symmetry: Rating,
         pois: Vec<Uuid>,
+        value: f64,
     },
     Intermediate {
         id: Uuid,
@@ -25,6 +26,7 @@ pub enum Target {
         weight: f64,
         symmetry: Rating,
         pois: Vec<Uuid>,
+        value: f64,
     },
     Product {
         id: Uuid,
@@ -33,6 +35,7 @@ pub enum Target {
         weight: f64,
         symmetry: Rating,
         pois: Vec<Uuid>,
+        value: f64,
     },
     Reusable {
         id: Uuid,
@@ -41,6 +44,7 @@ pub enum Target {
         weight: f64,
         symmetry: Rating,
         pois: Vec<Uuid>,
+        value: f64,
     },
 }
 
@@ -51,6 +55,7 @@ impl Target {
         weight: f64,
         symmetry: Rating,
         pois: Vec<Uuid>,
+        value: f64,
     ) -> Target {
         Target::Precursor {
             id: Uuid::new_v4(),
@@ -59,6 +64,7 @@ impl Target {
             weight,
             symmetry,
             pois,
+            value,
         }
     }
 
@@ -76,6 +82,7 @@ impl Target {
             weight,
             symmetry,
             pois,
+            value: 0.0,
         }
     }
 
@@ -85,6 +92,7 @@ impl Target {
         weight: f64,
         symmetry: Rating,
         pois: Vec<Uuid>,
+        value: f64,
     ) -> Target {
         Target::Product {
             id: Uuid::new_v4(),
@@ -93,6 +101,7 @@ impl Target {
             weight,
             symmetry,
             pois,
+            value,
         }
     }
 
@@ -110,6 +119,7 @@ impl Target {
             weight,
             symmetry,
             pois,
+            value: 0.0,
         }
     }
 
@@ -167,6 +177,15 @@ impl Target {
             Target::Intermediate { pois, .. } => pois.clone(),
             Target::Product { pois, .. } => pois.clone(),
             Target::Reusable { pois, .. } => pois.clone(),
+        }
+    }
+
+    pub fn value(&self) -> f64 {
+        match self {
+            Target::Precursor { value, .. } => *value,
+            Target::Intermediate { value, .. } => *value,
+            Target::Product { value, .. } => *value,
+            Target::Reusable { value, .. } => *value,
         }
     }
 

@@ -24,30 +24,30 @@ impl Job {
 
                     // For each ergo type, create a place for those tokens to go.
                     let ergo_cost_data = vec![
-                        Data::ErgoWholeBody(*id, 0),
-                        Data::ErgoArm(*id, 0),
-                        Data::ErgoHand(*id, 0),
+                        Data::ErgoWholeBody(*id, 0.0),
+                        Data::ErgoArm(*id, 0.0),
+                        Data::ErgoHand(*id, 0.0),
                     ];
 
-                    let ergo_cost_places: Vec<Place> = ergo_cost_data
-                        .iter()
-                        .map(|data| {
-                            Place::new(
-                                format!("{} {:?}", human.name, data.tag()),
-                                TokenSet::Finite,
-                                vec![data.clone()],
-                            )
-                        })
-                        .collect();
+                    // let ergo_cost_places: Vec<Place> = ergo_cost_data
+                    //     .iter()
+                    //     .map(|data| {
+                    //         Place::new(
+                    //             format!("{} {:?}", human.name, data.tag()),
+                    //             TokenSet::Finite,
+                    //             vec![data.clone()],
+                    //         )
+                    //     })
+                    //     .collect();
 
                     // Add them and set their initial marking values to 0
-                    for place in ergo_cost_places.iter() {
-                        net.places.insert(place.id, place.clone());
-                        net.initial_marking.insert(place.id, 0);
-                    }
+                    // for place in ergo_cost_places.iter() {
+                    //     net.places.insert(place.id, place.clone());
+                    //     net.initial_marking.insert(place.id, 0);
+                    // }
 
-                    let ergo_cost_place_ids: Vec<Uuid> =
-                        ergo_cost_places.iter().map(|p| p.id).collect();
+                    // let ergo_cost_place_ids: Vec<Uuid> =
+                    //     ergo_cost_places.iter().map(|p| p.id).collect();
 
                     // Find all action-based transitions that are relevant to this agent
                     for transition in net.query_transitions(&vec![
@@ -109,6 +109,25 @@ impl Job {
                             time = execution_time;
                         }
                         transition_copy.time = time;
+                        transition_copy.cost = add_cost_sets(&transition.cost, &cost_set);
+
+                        updated_transitions.insert(transition.id, transition_copy);
+                    }
+
+                    // Compute costs for spawned or produced parts
+                    for transition in net.query_transitions_any(&vec![
+                        Query::Tag(DataTag::Spawn),
+                        Query::Tag(DataTag::Produce),
+                        Query::Data(Data::AgentAdd(*id))
+                    ]) {
+                        // If we already updated this transition, use the updated version
+                        let mut transition_copy = match updated_transitions.get(&transition.id) {
+                            Some(t) => t.clone(),
+                            None => transition.clone(),
+                        };
+
+                        let (cost_set, _new_ergo_meta_data): (CostSet, Vec<Data>) = human.cost_set(&transition, &self);
+
                         transition_copy.cost = add_cost_sets(&transition.cost, &cost_set);
 
                         updated_transitions.insert(transition.id, transition_copy);

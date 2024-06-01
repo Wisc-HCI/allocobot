@@ -176,8 +176,9 @@ impl Job {
         weight: f64,
         symmetry: Rating,
         pois: Vec<Uuid>,
+        value: f64,
     ) -> Uuid {
-        let target = Target::new_precursor(name, size, weight, symmetry, pois);
+        let target = Target::new_precursor(name, size, weight, symmetry, pois, value);
         let uuid = target.id();
         self.add_target(target);
         uuid
@@ -204,8 +205,9 @@ impl Job {
         weight: f64,
         symmetry: Rating,
         pois: Vec<Uuid>,
+        value: f64,
     ) -> Uuid {
-        let target = Target::new_product(name, size, weight, symmetry, pois);
+        let target = Target::new_product(name, size, weight, symmetry, pois, value);
         let uuid = target.id();
         self.add_target(target);
         uuid
