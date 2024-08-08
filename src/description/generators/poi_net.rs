@@ -379,7 +379,7 @@ impl Job {
                 &target_place_id,
                 hand_pois
                     .iter()
-                    .filter(|hpoi| target.pois().is_empty() || target.pois().contains(&hpoi.id()))
+                    // .filter(|hpoi| target.pois().is_empty() || target.pois().contains(&hpoi.id()))
                     .map(|hand_poi| vec![Data::Hand(hand_poi.id(), *target_id)])
                     .collect::<Vec<Vec<Data>>>(),
                 |transition, split_data| {
@@ -612,40 +612,38 @@ impl Job {
 
                 for spawn_transition in spawn_transitions {
                     let hand_location_id = spawn_transition.meta_data.iter().find(|d| d.tag() == DataTag::Hand).unwrap().id().unwrap();
-                    if (!(target.pois().is_empty() || target.pois().contains(&hand_location_id))) {
-                        continue;
-                    }
+                        let placement_place = Place::new(
+                            format!("Target: {} (placed)", target.name()),
+                            crate::petri::token::TokenSet::Finite,
+                            vec![Data::Target(*target_id), Data::TargetLocationSelected(*target_id)],);
+                        let placement_place_id = placement_place.id;
 
-                    let placement_place = Place::new(
-                        format!("Target: {} (placed)", target.name()),
-                        crate::petri::token::TokenSet::Finite,
-                        vec![Data::Target(*target_id), Data::TargetLocationSelected(*target_id)],);
-                    let placement_place_id = placement_place.id;
+                        let placement_alloc_transition = Transition::new(
+                            format!("Locate/Place Part: {}", target.name()),
+                            vec![(pre_place_id, Signature::Static(1))]
+                                .into_iter()
+                                .collect(),
+                            vec![(placement_place_id, Signature::Static(1))].into_iter().collect(),
+                            vec![
+                                Data::Setup,
+                                Data::Target(*target_id),
+                                Data::TargetLocationSelected(*target_id),
+                                Data::AgentAgnostic,
+                            ],
+                            0.0,
+                            vec![],
+                        );
 
-                    let placement_alloc_transition = Transition::new(
-                        format!("Locate/Place Part: {}", target.name()),
-                        vec![(pre_place_id, Signature::Static(1))]
-                            .into_iter()
-                            .collect(),
-                        vec![(placement_place_id, Signature::Static(1))].into_iter().collect(),
-                        vec![
-                            Data::Setup,
-                            Data::Target(*target_id),
-                            Data::TargetLocationSelected(*target_id),
-                            Data::AgentAgnostic,
-                        ],
-                        0.0,
-                        vec![],
-                    );
+                        let new_spawn_transition = spawn_transition
+                            .clone()
+                            .add_input(&placement_place_id, 1)
+                            .add_output(&placement_place_id, 1);
 
-                    let new_spawn_transition = spawn_transition
-                        .clone()
-                        .add_input(&placement_place_id, 1)
-                        .add_output(&placement_place_id, 1);
-
-                    new_places.push(placement_place);
-                    new_transitions.push(placement_alloc_transition);
-                    new_transitions.push(new_spawn_transition);
+                        new_places.push(placement_place);
+                        if (target.pois().is_empty() || target.pois().contains(&hand_location_id)) {
+                            new_transitions.push(placement_alloc_transition);
+                        }
+                        new_transitions.push(new_spawn_transition);
                 }   
             }
         }

@@ -103,11 +103,11 @@ impl Job {
                         let execution_time: Time = human.execution_time(&transition, &self);
 
                         let time: Time;
-                        if transition_copy.time < execution_time {
-                            time = transition_copy.time;
-                        } else {
+                        // if transition_copy.time < execution_time {
+                        //     time = transition_copy.time;
+                        // } else {
                             time = execution_time;
-                        }
+                        // }
                         transition_copy.time = time;
                         transition_copy.cost = add_cost_sets(&transition.cost, &cost_set);
 
@@ -157,11 +157,11 @@ impl Job {
                         let execution_time: Time = robot.execution_time(&transition, &self);
 
                         let time: Time;
-                        if transition_copy.time < execution_time {
-                            time = transition_copy.time;
-                        } else {
+                        // if transition_copy.time < execution_time {
+                        //     time = transition_copy.time;
+                        // } else {
                             time = execution_time;
-                        }
+                        // }
                         transition_copy.time = time;
                         transition_copy.cost = add_cost_sets(&transition.cost, &cost_set);
 
