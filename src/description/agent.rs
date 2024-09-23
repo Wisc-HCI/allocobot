@@ -222,12 +222,15 @@ impl CostProfiler for HumanInfo {
             // for primitive in &assigned_primitives {
             match *primitive {
                 Primitive::Force {
-                    target, magnitude, ..
+                    target, 
+                    magnitude, 
+                    id,
+                    ..
                 } => {
                     let target_info = job.targets.get(target).unwrap();
                     let weight = target_info.weight();
 
-                    let (mvc, dist) = get_force_mvc(transition, magnitude, self, job, weight);
+                    let (mvc, dist, is_one_hand) = get_force_mvc(transition, magnitude, self, job, weight);
                     let cost = mvc * execution_time;
 
                     ergo_cost_set.push(Cost {
@@ -238,11 +241,15 @@ impl CostProfiler for HumanInfo {
 
                     let mut new_data = vec_ergo_meta_data(self, dist, cost);
                     new_ergo_meta_data.append(&mut new_data);
+                    new_ergo_meta_data.push(Data::MVC(*id, mvc));
+                    new_ergo_meta_data.push(Data::IsOneHanded(*id, if is_one_hand { 1.0 } else { 0.0 }));
                 },
                 Primitive::Carry { 
                     target,  
                     to_standing,
+                    from_standing,
                     to_hand,
+                    id,
                     ..
                 } => {
                     let target_info = job.targets.get(target).unwrap();
@@ -251,13 +258,14 @@ impl CostProfiler for HumanInfo {
                         get_hand_stand_locations(transition, self, job);
                     let is_one_hand = is_one_hand_task(hand_location, stand_location, weight);
 
-                    // let from_standing_info = job.points_of_interest.get(from_standing).unwrap();
+                    let from_standing_info = job.points_of_interest.get(from_standing).unwrap();
                     let to_standing_info = job.points_of_interest.get(to_standing).unwrap();
                     let to_hand_info = job.points_of_interest.get(to_hand).unwrap();
                     // let from_hand_info = job.points_of_interest.get(from_hand).unwrap();
 
                     let hand_travel_vector = to_hand_info.position() - to_standing_info.position();
                     let hand_travel_distance = hand_travel_vector.norm();
+                    let total_distance_traveled = (from_standing_info.position().clone() - to_standing_info.position().clone()).norm();
 
                     let mut denom = 0.0;
                     if is_one_hand {
@@ -287,12 +295,17 @@ impl CostProfiler for HumanInfo {
                     });
 
                     new_ergo_meta_data.push(Data::ErgoArm(self.id, cost));
+                    new_ergo_meta_data.push(Data::HandTravelDistance(*id, hand_travel_distance));
+                    new_ergo_meta_data.push(Data::StandTravelDistance(*id, total_distance_traveled));
+                    new_ergo_meta_data.push(Data::MVC(*id, mvc));
+                    new_ergo_meta_data.push(Data::IsOneHanded(*id, if is_one_hand { 1.0 } else { 0.0 }));
                 },
                 Primitive::Move {
                     target,
                     standing,
                     from_hand,
                     to_hand,
+                    id,
                     ..
                 } => {
                     let to_hand_info = job.points_of_interest.get(to_hand).unwrap();
@@ -420,10 +433,13 @@ impl CostProfiler for HumanInfo {
                         category: CostCategory::Ergonomic
                     });
 
-                    let mut new_data = vec_ergo_meta_data(self, horizontal_hand_shoulder_distance, cost);
+                    let mut new_data = vec_ergo_meta_data(self, horizontal_distance, cost);
                     new_ergo_meta_data.append(&mut new_data);
+                    new_ergo_meta_data.push(Data::HandTravelDistance(*id, horizontal_distance));
+                    new_ergo_meta_data.push(Data::MVC(*id, mvc));
+                    new_ergo_meta_data.push(Data::IsOneHanded(*id, if is_one_hand { 1.0 } else { 0.0 }));
                 },
-                Primitive::Use { target, .. } => {
+                Primitive::Use { target, id, .. } => {
                     let target_info = job.targets.get(target).unwrap();
                     let size = target_info.size();
                     let weight = target_info.weight();
@@ -451,8 +467,29 @@ impl CostProfiler for HumanInfo {
 
                     let mut new_data = vec_ergo_meta_data(self, horizontal_hand_shoulder_distance, cost);
                     new_ergo_meta_data.append(&mut new_data);
+                    new_ergo_meta_data.push(Data::HandTravelDistance(*id, horizontal_hand_shoulder_distance));
+                    new_ergo_meta_data.push(Data::MVC(*id, mvc));
                 },
-                Primitive::Hold { target, .. } => {
+                Primitive::Travel { 
+                    id,
+                    from_standing,
+                    to_standing,
+                    from_hand,
+                    to_hand,
+                    ..
+                } => {
+                    // Consider Travel Calculation
+        
+                    // Retrieve data
+                    let from_standing_info = job.points_of_interest.get(from_standing).unwrap();
+                    let to_standing_info = job.points_of_interest.get(to_standing).unwrap();
+        
+                    // Compute travel vector/distance
+                    let travel_vector = to_standing_info.position() - from_standing_info.position();
+                    let travel_distance = travel_vector.norm();
+                    new_ergo_meta_data.push(Data::StandTravelDistance(*id, travel_distance));
+                },
+                Primitive::Hold { target, id, .. } => {
                     let target_info = job.targets.get(target).unwrap();
                     let weight = target_info.weight();
                     let (hand_location, stand_location) =
@@ -492,6 +529,9 @@ impl CostProfiler for HumanInfo {
 
                     let mut new_data = vec_ergo_meta_data(self, horizontal_hand_shoulder_distance, cost);
                     new_ergo_meta_data.append(&mut new_data);
+                    new_ergo_meta_data.push(Data::HandTravelDistance(*id, horizontal_hand_shoulder_distance));
+                    new_ergo_meta_data.push(Data::MVC(*id, mvc));
+                    new_ergo_meta_data.push(Data::IsOneHanded(*id, if is_one_hand { 1.0 } else { 0.0 }));
                 },
                 _ => {}
             }
@@ -628,11 +668,11 @@ fn is_one_hand_task(
     // Check whether this is a 1 or 2 handed activity
     let mut is_one_hand = true;
     let horizontal_distance = hand_location.x - stand_location.x;
-    if horizontal_distance < 0.05 && weight > 1.0 {
+    if horizontal_distance < 0.05 && weight > 9.81 {
         is_one_hand = false;
-    } else if horizontal_distance < 0.15 && weight > 4.0 {
+    } else if horizontal_distance < 0.15 && weight > 39.24 {
         is_one_hand = false;
-    } else if horizontal_distance < 0.45 && weight > 8.0 {
+    } else if horizontal_distance < 0.45 && weight > 78.48 {
         is_one_hand = false;
     } else if horizontal_distance < 2.0 {
         is_one_hand = false;
@@ -674,16 +714,18 @@ fn get_force_mvc(
     agent: &HumanInfo,
     job: &Job,
     weight: f64,
-) -> (f64, f64) {
+) -> (f64, f64, bool) {
     let (hand_location, stand_location) = get_hand_stand_locations(transition, agent, job);
 
     let is_one_hand = is_one_hand_task(hand_location, stand_location, weight);
 
+    // let distance_between_hand_stand = vector3_distance_f64(hand_location, stand_location);
+    // TODO: use vertical offset
     let distance_between_hand_stand = vector3_distance_f64(hand_location, stand_location);
     let horizontal_hand_shoulder_distance = vector2_distance_f64(Vector2::new(hand_location.x, hand_location.y), Vector2::new(stand_location.x, stand_location.y));
 
     let mut denom = 0.0;
-    if !is_one_hand && *magnitude > 0.0 {
+    if !is_one_hand && *magnitude >= 0.0 {
         if distance_between_hand_stand < 0.5 {
             denom += 149.0;
         } else if distance_between_hand_stand < 1.0 {
@@ -718,7 +760,7 @@ fn get_force_mvc(
     }
 
     let mvc = *magnitude / denom;
-    return (mvc, horizontal_hand_shoulder_distance);
+    return (mvc, horizontal_hand_shoulder_distance, is_one_hand);
 }
 
 fn vec_ergo_meta_data(agent: &HumanInfo, dist: f64, cost: f64) -> Vec<Data>{
@@ -1013,9 +1055,10 @@ fn get_human_time_for_primitive(
                 return 10.6 * TMU_PER_SECOND;
             }
 
+            // grasp TMU
             tmu += 2.0;
 
-            let (mvc, _dist) = get_force_mvc(transition, magnitude, agent, job, weight);
+            let (mvc, _dist, _is_one_hand) = get_force_mvc(transition, magnitude, agent, job, weight);
 
             if mvc < 0.2 {
                 if weight < 1.13 {
@@ -1037,6 +1080,9 @@ fn get_human_time_for_primitive(
                 }
             }
 
+            // release TMU
+            tmu += 2.0;
+
             // Convert TMU to seconds
             let time = tmu * TMU_PER_SECOND;
 
@@ -1057,6 +1103,9 @@ fn get_human_time_for_primitive(
             let target_info = job.targets.get(target).unwrap();
             let weight = target_info.weight();
 
+            // Grasp tmu
+            tmu += 2.0;
+
             // upper bounding by 360 degrees
             if weight < 0.91 {
                 tmu += 1.4927 + 0.043878 * degrees;
@@ -1065,6 +1114,9 @@ fn get_human_time_for_primitive(
             } else {
                 tmu += 4.4781818 + 0.131636 * degrees;
             }
+            
+            // Release tmu
+            tmu += 2.0;
 
             // Convert TMU to seconds
             let time = tmu * TMU_PER_SECOND;
@@ -1105,7 +1157,7 @@ fn get_human_time_for_primitive(
                     // Grasp TMU
                     tmu += 2.0;
 
-                    let (mvc, _dist) = get_force_mvc(transition, magnitude, agent, job, weight);
+                    let (mvc, _dist, _is_one_hand) = get_force_mvc(transition, magnitude, agent, job, weight);
 
                     if mvc < 0.2 {
                         match target_info.symmetry() {
@@ -1214,7 +1266,7 @@ fn get_human_time_for_primitive(
                     // Grasp TMU
                     tmu += 2.0;
 
-                    let (mvc, _dist) = get_force_mvc(transition, magnitude, agent, job, weight);
+                    let (mvc, _dist, _is_one_hand) = get_force_mvc(transition, magnitude, agent, job, weight);
 
                     if mvc < 0.2 {
                         match target_info.symmetry() {

@@ -87,8 +87,9 @@ impl PointOfInterest {
                 let self_pos = Vector2::new(self.position().x, self.position().y);
                 let other_pos = Vector2::new(other.position().x, other.position().y);
 
-                let horizontal_distance: f64 = vector2_distance_f64(self_pos.clone(), other_pos.clone());
-                let total_distance: f64 = vector3_distance_f64(offset_pos, other.position());
+                let horizontal_distance: f64 = (self_pos.clone() - other_pos.clone()).norm();
+                let total_distance: f64 = (offset_pos.clone() - other.position().clone()).norm();
+                
                 // person can bend/reach down
                 if other.position().z <= offset_pos.z {
                     return horizontal_distance <= human_info.reach;

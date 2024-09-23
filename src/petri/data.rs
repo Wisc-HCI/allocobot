@@ -56,6 +56,10 @@ pub enum Data {
     ErgoShoulder(Uuid, f64),
     ErgoArm(Uuid, f64),
     ErgoHand(Uuid, f64),
+    HandTravelDistance(Uuid, f64),
+    StandTravelDistance(Uuid, f64),
+    MVC(Uuid, f64),
+    IsOneHanded(Uuid, f64)
 }
 
 impl Data {
@@ -97,6 +101,10 @@ impl Data {
             Data::ErgoShoulder(id, _) => Some(*id),
             Data::ErgoArm(id, _) => Some(*id),
             Data::ErgoHand(id, _) => Some(*id),
+            Data::HandTravelDistance(id, _) => Some(*id),
+            Data::StandTravelDistance(id, _) => Some(*id),
+            Data::MVC(id, _) => Some(*id),
+            Data::IsOneHanded(id, _) => Some(*id),
             Data::Setup => None,
             Data::Simulation => None,
         }
@@ -136,6 +144,10 @@ impl Data {
             Data::ErgoShoulder(_, _) => None,
             Data::ErgoArm(_, _) => None,
             Data::ErgoHand(_, _) => None,
+            Data::HandTravelDistance(_, _) => None,
+            Data::StandTravelDistance(_, _) => None,
+            Data::MVC(_, _) => None,
+            Data::IsOneHanded(_, _) => None,
             Data::Setup => None,
             Data::Simulation => None,
         }
@@ -175,6 +187,10 @@ impl Data {
             Data::ErgoShoulder(_, n) => Some(*n),
             Data::ErgoArm(_, n) => Some(*n),
             Data::ErgoHand(_, n) => Some(*n),
+            Data::HandTravelDistance(_, n) => Some(*n),
+            Data::StandTravelDistance(_, n) => Some(*n),
+            Data::MVC(_, n) => Some(*n),
+            Data::IsOneHanded(_, n) => Some(*n),
             Data::Setup => None,
             Data::Simulation => None,
         }

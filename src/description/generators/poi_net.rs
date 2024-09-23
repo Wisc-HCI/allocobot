@@ -460,7 +460,9 @@ impl Job {
                         let meta_data1: Vec<Data>;
                         let meta_data2: Vec<Data>;
 
+                        let mut is_move = false;
                         if standing_poi_id1 == standing_poi_id2 {
+                            is_move = true;
                             let primitive1 = Primitive::Move {
                                 id: Uuid::new_v4(),
                                 target: *target_id,
@@ -558,13 +560,19 @@ impl Job {
                         input1.insert(*place1_id, Signature::Static(1));
                         output1.insert(*place2_id, Signature::Static(1));
                         let transition1 = Transition::new(
-                            format!(
-                                "Transport:{}:{}:{}->{}",
+                            if is_move { format!(
+                                "Move:{}:{}:{}->{}",
                                 agent_name,
                                 target.name(),
                                 hand_poi1.name(),
                                 hand_poi2.name()
-                            ),
+                            )} else {format!(
+                                "Carry:{}:{}:{}->{}",
+                                agent_name,
+                                target.name(),
+                                hand_poi1.name(),
+                                hand_poi2.name()
+                            )},
                             input1,
                             output1,
                             meta_data1,
@@ -577,13 +585,19 @@ impl Job {
                         input2.insert(*place2_id, Signature::Static(1));
                         output2.insert(*place1_id, Signature::Static(1));
                         let transition2 = Transition::new(
-                            format!(
-                                "Transport:{}:{}:{}->{}",
+                            if is_move { format!(
+                                "Move:{}:{}:{}->{}",
                                 agent_name,
                                 target.name(),
-                                hand_poi2.name(),
-                                hand_poi1.name()
-                            ),
+                                hand_poi1.name(),
+                                hand_poi2.name()
+                            )} else {format!(
+                                "Carry:{}:{}:{}->{}",
+                                agent_name,
+                                target.name(),
+                                hand_poi1.name(),
+                                hand_poi2.name()
+                            )},
                             input2,
                             output2,
                             meta_data2,

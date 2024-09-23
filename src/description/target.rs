@@ -164,10 +164,10 @@ impl Target {
 
     pub fn weight(&self) -> f64 {
         match self {
-            Target::Precursor { weight, .. } => *weight,
-            Target::Intermediate { weight, .. } => *weight,
-            Target::Product { weight, .. } => *weight,
-            Target::Reusable { weight, .. } => *weight,
+            Target::Precursor { weight, .. } => *weight * 9.81,
+            Target::Intermediate { weight, .. } => *weight * 9.81,
+            Target::Product { weight, .. } => *weight * 9.81,
+            Target::Reusable { weight, .. } => *weight * 9.81,
         }
     }
 
