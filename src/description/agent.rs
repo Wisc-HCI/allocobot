@@ -29,6 +29,7 @@ impl Agent {
     pub fn new_robot(
         name: String,
         reach: f64,                   // meters
+        vertical_offset: f64,         // meters
         payload: f64,                 // kg
         agility: Rating,              // rating 0-1
         speed: f64,                   // m/s
@@ -44,6 +45,7 @@ impl Agent {
             id: Uuid::new_v4(),
             name,
             reach,
+            vertical_offset,
             payload,
             agility,
             speed,
@@ -102,6 +104,7 @@ pub struct RobotInfo {
     pub id: Uuid,
     pub name: String,
     pub reach: f64,
+    pub vertical_offset: f64,
     pub payload: f64,
     pub agility: Rating,
     pub speed: f64,
@@ -1495,7 +1498,7 @@ fn get_robot_time_for_primitive(
             // this primitive's time will be based on sensor rating
             0.0
         }
-        (2, Some(Primitive::Position { id, target, .. })) => {
+        (2, Some(Primitive::Position { id, target, degrees })) => {
             return match assigned_primitives.last() {
                 Some(Primitive::Force {
                     id,

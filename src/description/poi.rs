@@ -75,12 +75,15 @@ impl PointOfInterest {
         if (self.is_standing() && other.is_standing()) || (self.is_hand() && other.is_hand()) {
             return false;
         }
-        let distance: f64 = (&self.position() - &other.position()).norm();
         match agent {
             Agent::Robot(robot_info) => {
-                return distance <= robot_info.reach && distance >= robot_info.reach * 0.05;
+                let mut offset_pos = self.position().clone();
+                offset_pos.z += robot_info.vertical_offset;
+                let distance: f64 = (offset_pos.clone() - &other.position()).norm();
+                return distance <= robot_info.reach && distance >= (robot_info.reach * 0.05);
             },
             Agent::Human(human_info) => {
+                let distance: f64 = (&self.position() - &other.position()).norm();
                 let mut offset_pos = self.position().clone();
                 offset_pos.z += human_info.acromial_height;
 

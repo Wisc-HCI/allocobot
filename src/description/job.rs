@@ -111,6 +111,7 @@ impl Job {
         &mut self,
         name: String,
         reach: f64,                   // meters
+        vertical_offset: f64,         //meters
         payload: f64,                 // kg
         agility: Rating,              // rating
         speed: f64,                   // m/s
@@ -125,6 +126,7 @@ impl Job {
         let agent = Agent::new_robot(
             name,
             reach,
+            vertical_offset,
             payload,
             agility,
             speed,
