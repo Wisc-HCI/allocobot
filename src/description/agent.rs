@@ -1,4 +1,4 @@
-use crate::constants::{DISTANCE_PER_PACE, SEC_PER_HOUR, TMU_PER_SECOND};
+use crate::constants::{DISTANCE_PER_PACE, MAX_ARM_WORK_DISTANCE, MAX_HAND_WORK_DISTANCE, MAX_SHOULDER_WORK_DISTANCE, SEC_PER_HOUR, TMU_PER_SECOND};
 use crate::description::job::Job;
 use crate::description::poi::PointOfInterest;
 use crate::description::primitive::Primitive;
@@ -7,7 +7,6 @@ use crate::description::units::Time;
 use crate::petri::cost::{Cost, CostCategory, CostFrequency, CostSet};
 use crate::petri::data::{Data, DataTag, Query};
 use crate::petri::transition::Transition;
-use crate::util::{vector2_distance_f64, vector3_distance_f64};
 use nalgebra::{Vector2, Vector3};
 use serde::{Deserialize, Serialize};
 use std::{cmp, collections::HashMap, f64::consts::PI};
@@ -324,14 +323,8 @@ impl CostProfiler for HumanInfo {
 
                     let is_one_hand = is_one_hand_task(to_hand_pos, standing_pos, weight);
 
-                    let horizontal_distance = vector2_distance_f64(
-                        Vector2::new(to_hand_pos.x, to_hand_pos.y),
-                        Vector2::new(from_hand_pos.x, from_hand_pos.y),
-                    );
-                    let horizontal_hand_shoulder_distance = vector2_distance_f64(
-                        Vector2::new(to_hand_pos.x, to_hand_pos.y),
-                        Vector2::new(standing_pos.x, standing_pos.y),
-                    );
+                    let horizontal_distance = (Vector2::new(to_hand_pos.x, to_hand_pos.y) - Vector2::new(from_hand_pos.x, from_hand_pos.y)).norm();
+                    let horizontal_hand_shoulder_distance = (Vector2::new(to_hand_pos.x, to_hand_pos.y) - Vector2::new(standing_pos.x, standing_pos.y)).norm();
                     let vertical_distance = to_hand_pos.z - from_hand_pos.z;
 
                     let is_arm_work_bool = is_arm_work(horizontal_hand_shoulder_distance);
@@ -339,7 +332,7 @@ impl CostProfiler for HumanInfo {
                     // todo: might need to offset z by the acromial height
                     let mut shoulder_pos = standing_pos.clone();
                     shoulder_pos.z = shoulder_pos.z + self.acromial_height;
-                    let reach_distance = vector3_distance_f64(shoulder_pos, to_hand_pos);
+                    let reach_distance = (shoulder_pos - to_hand_pos).norm();
 
                     let mut denom = 0.0;
 
@@ -450,7 +443,7 @@ impl CostProfiler for HumanInfo {
                     let volume = 4.0 / 3.0 * PI * f64::powf(size, 3.0);
                     
                     let (hand_location, stand_location) = get_hand_stand_locations(transition, self, job);
-                    let horizontal_hand_shoulder_distance = vector2_distance_f64(Vector2::new(hand_location.x, hand_location.y), Vector2::new(stand_location.x, stand_location.y));
+                    let horizontal_hand_shoulder_distance = (Vector2::new(hand_location.x, hand_location.y) - Vector2::new(stand_location.x, stand_location.y)).norm();
 
                     let mut denom = 0.0;
                     if volume > 0.406 {
@@ -499,11 +492,8 @@ impl CostProfiler for HumanInfo {
                         get_hand_stand_locations(transition, self, job);
                     let is_one_hand = is_one_hand_task(hand_location, stand_location, weight);
 
-                    let horizontal_hand_shoulder_distance = vector2_distance_f64(
-                        Vector2::new(hand_location.x, hand_location.y),
-                        Vector2::new(stand_location.x, stand_location.y),
-                    );
-                    let is_hand_work = horizontal_hand_shoulder_distance < 0.05;
+                    let horizontal_hand_shoulder_distance = (Vector2::new(hand_location.x, hand_location.y) - Vector2::new(stand_location.x, stand_location.y)).norm();
+                    let is_hand_work = horizontal_hand_shoulder_distance < MAX_HAND_WORK_DISTANCE;
 
                     let mut denom = 0.0;
 
@@ -670,7 +660,7 @@ fn is_one_hand_task(
 ) -> bool {
     // Check whether this is a 1 or 2 handed activity
     let mut is_one_hand = true;
-    let horizontal_distance = hand_location.x - stand_location.x;
+    let horizontal_distance = (Vector2::new(hand_location.x, hand_location.y) - Vector2::new(stand_location.x, stand_location.y)).norm();
     if horizontal_distance < 0.05 && weight > 9.81 {
         is_one_hand = false;
     } else if horizontal_distance < 0.15 && weight > 39.24 {
@@ -722,10 +712,10 @@ fn get_force_mvc(
 
     let is_one_hand = is_one_hand_task(hand_location, stand_location, weight);
 
-    // let distance_between_hand_stand = vector3_distance_f64(hand_location, stand_location);
+    // let distance_between_hand_stand = (hand_location - stand_location).norm();
     // TODO: use vertical offset
-    let distance_between_hand_stand = vector3_distance_f64(hand_location, stand_location);
-    let horizontal_hand_shoulder_distance = vector2_distance_f64(Vector2::new(hand_location.x, hand_location.y), Vector2::new(stand_location.x, stand_location.y));
+    let distance_between_hand_stand = (hand_location - stand_location).norm();
+    let horizontal_hand_shoulder_distance = (Vector2::new(hand_location.x, hand_location.y) - Vector2::new(stand_location.x, stand_location.y)).norm();
 
     let mut denom = 0.0;
     if !is_one_hand && *magnitude >= 0.0 {
@@ -768,11 +758,11 @@ fn get_force_mvc(
 
 fn vec_ergo_meta_data(agent: &HumanInfo, dist: f64, cost: f64) -> Vec<Data>{
     let mut result: Vec<Data> = Vec::new();
-    if dist < 0.05 {
+    if dist < MAX_HAND_WORK_DISTANCE {
         result.push(Data::ErgoHand(agent.id, cost));
-    } else if dist < 0.45 {
+    } else if dist < MAX_ARM_WORK_DISTANCE {
         result.push(Data::ErgoArm(agent.id, cost));
-    } else if dist < 0.91 {
+    } else if dist < MAX_SHOULDER_WORK_DISTANCE {
         result.push(Data::ErgoShoulder(agent.id, cost));
     } else {
         result.push(Data::ErgoWholeBody(agent.id, cost));
@@ -1466,7 +1456,18 @@ fn get_robot_time_for_primitive(
             }),
         ) => {
             // TODO
-            0.0
+            let mut time_delta = 0.0;
+
+            // grasp time (based on precision)
+            time_delta += 5.0;
+
+            // duration of force
+            time_delta += 1.0;
+
+            // release time
+            time_delta += 1.0;
+
+            return time_delta;
         }
         (
             1,
@@ -1477,8 +1478,19 @@ fn get_robot_time_for_primitive(
                 ..
             }),
         ) => {
-            // TODO
-            0.0
+            // TODO: fix this
+            let mut time_delta = 0.0;
+
+            // grasp time (based on precision)
+            time_delta += 5.0;
+
+            // position time (by max speed)
+            time_delta += 0.5 + degrees / agent.speed;
+            
+            // release
+            time_delta += 1.0;
+
+            return time_delta
         }
         (
             1,
@@ -1487,7 +1499,13 @@ fn get_robot_time_for_primitive(
             }),
         ) => {
             // this primitive's time will be based on sensor rating
-            0.0
+            if agent.sensing == Rating::Low {
+                return 3.0;
+            } else if agent.sensing == Rating::Medium {
+                return 1.0;
+            } else {
+                return 0.5;
+            }
         }
         (
             1,
@@ -1495,8 +1513,16 @@ fn get_robot_time_for_primitive(
                 id, target, skill, ..
             }),
         ) => {
+            // TODO: have some base time for sensing and then time for movement
+
             // this primitive's time will be based on sensor rating
-            0.0
+            if agent.sensing == Rating::Low {
+                return 10.0;
+            } else if agent.sensing == Rating::Medium {
+                return 5.0;
+            } else {
+                return 2.5;
+            }
         }
         (2, Some(Primitive::Position { id, target, degrees })) => {
             return match assigned_primitives.last() {
@@ -1504,7 +1530,25 @@ fn get_robot_time_for_primitive(
                     id,
                     target,
                     magnitude,
-                }) => 0.0,
+                }) => {
+                    // TODO: based on magnitude of force and symmetry of object?????
+
+
+                    
+                    // TODO: fix this
+                    let mut time_delta = 0.0;
+        
+                    // grasp time (based on precision)
+                    time_delta += 5.0;
+        
+                    // position time (by max speed)
+                    time_delta += 0.5 + degrees / agent.speed;
+                    
+                    // release
+                    time_delta += 1.0;
+        
+                    return time_delta
+                },
                 _ => 0.0,
             }
         }
@@ -1522,7 +1566,25 @@ fn get_robot_time_for_primitive(
                     id,
                     target,
                     degrees,
-                }) => 0.0,
+                }) => {
+                    // TODO: based on magnitude of force and symmetry of object?????
+
+
+
+                    // TODO: fix this
+                    let mut time_delta = 0.0;
+        
+                    // grasp time (based on precision)
+                    time_delta += 5.0;
+        
+                    // position time (by max speed)
+                    time_delta += 0.5 + degrees / agent.speed;
+                    
+                    // release
+                    time_delta += 1.0;
+        
+                    return time_delta
+                },
                 _ => 0.0,
             }
         }

@@ -1,7 +1,7 @@
 use nalgebra::{Vector2, Vector3};
 use uuid::Uuid;
 use serde::{Serialize, Deserialize};
-use crate::{description::agent::Agent, util::{vector2_distance_f64, vector3_distance_f64}};
+use crate::{description::agent::Agent};
 
 use super::rating::Rating;
 
