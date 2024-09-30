@@ -146,6 +146,7 @@ impl Job {
                     .filter(|s| s.len() <= SPLIT_SIZE && s.len() > 0)
                 {
                     // println!("Agent Ids {:?}", agent_ids);
+                    // println!("Task Primitive Ids {:?}", task.primitives);
                     let agents = agent_ids
                         .iter()
                         .map(|id| self.agents.get(id).unwrap())
@@ -153,13 +154,14 @@ impl Job {
 
                     // Primitive Assignments are a mapping from agent to a set of primitives
 
-                    if agents.len() <= task.primitives.len() {
+                    if agents.len() > 1 && agents.len() <= task.primitives.len() {
                         // Assign at least one primitive to each agent
                         let primitive_set: Vec<&Primitive> = task
                             .primitives
                             .iter()
                             .map(|p| self.primitives.get(p).unwrap())
                             .collect();
+                        // println!("Task Primitive Set {:?}", primitive_set);
                         let splits = split_primitives(&primitive_set, agents.len());
                         // println!(
                         //     "Permutations {:?}",
