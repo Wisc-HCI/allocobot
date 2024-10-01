@@ -119,7 +119,6 @@ impl Job {
         sensing: Rating,              // rating
         mobile_speed: f64,            // m/s (zero if not mobile)
         purchase_price: USD,          // dollars
-        integration_cost: USD,        // dollars
         energy_consumption: Watts,    // watts
         annual_maintenance_cost: USD, // dollars
     ) -> Uuid {
@@ -134,7 +133,6 @@ impl Job {
             sensing,
             mobile_speed,
             purchase_price,
-            integration_cost,
             energy_consumption,
             annual_maintenance_cost,
         );

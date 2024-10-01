@@ -36,7 +36,6 @@ impl Agent {
         sensing: Rating,              // rating 0-1
         mobile_speed: f64,            // m/s
         purchase_price: USD,          // dollars
-        integration_cost: USD,        // dollars
         energy_consumption: Watts,    // watts
         annual_maintenance_cost: USD, //dollars
     ) -> Self {
@@ -52,7 +51,6 @@ impl Agent {
             sensing,
             mobile_speed,
             purchase_price,
-            integration_cost,
             energy_consumption,
             annual_maintenance_cost,
         });
@@ -111,7 +109,6 @@ pub struct RobotInfo {
     pub sensing: Rating,
     pub mobile_speed: f64,
     pub purchase_price: USD,
-    pub integration_cost: USD,
     pub energy_consumption: Watts,
     pub annual_maintenance_cost: USD,
 }
@@ -582,11 +579,6 @@ impl CostProfiler for RobotInfo {
                 frequency: CostFrequency::Once,
                 value: self.purchase_price,
                 category: CostCategory::Monetary,
-            });
-            ergo_cost_set.push(Cost {
-                frequency: CostFrequency::Once,
-                value: self.integration_cost,
-                category: CostCategory::Monetary
             });
         }
 
