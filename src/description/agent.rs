@@ -17,7 +17,7 @@ use std::{cmp, collections::HashMap, f64::consts::PI};
 use enum_tag::EnumTag;
 use uuid::Uuid;
 
-use super::target;
+use super::target::{self, Target};
 use super::units::{TokenCount, Watts, USD};
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -596,29 +596,33 @@ impl CostProfiler for RobotInfo {
             .map(|d| job.primitives.get(&d.secondary().unwrap()).unwrap())
             .collect();
 
-        let mut ergo_cost_set = CostSet::new();
+        let mut robot_cost_set = CostSet::new();
+        
+        // Add one-time purchasing cost (if the transition adds the agent)
+        if transition.has_data(&vec![Query::Data(Data::AgentAdd(self.id))]) {
+            robot_cost_set.push(Cost {
+                frequency: CostFrequency::Once,
+                value: self.purchase_price,
+                category: CostCategory::Monetary,
+            });
+        }
 
         // Add electricity cost
         let execution_time = self.execution_time(transition, job);
         if execution_time > 0.0 {
-            ergo_cost_set.push(Cost {
+            robot_cost_set.push(Cost {
                 frequency: CostFrequency::Extrapolated,
                 value: (self.energy_consumption * execution_time / SEC_PER_HOUR) * job.kwh_cost, // cost is $/kWh
                 category: CostCategory::Monetary,
             });
         }
 
+        let max_error_cost = get_produced_value(job);
+
         // Cost for integration
         // Cost for error
         for primitive in assigned_primitives.iter() {
             match *primitive {
-                Primitive::Force {
-                    id,
-                    target,
-                    magnitude,
-                } => {
-
-                }
                 Primitive::Carry {
                     id,
                     target,
@@ -627,7 +631,19 @@ impl CostProfiler for RobotInfo {
                     from_hand,
                     to_hand,
                 } => {
+                    let to_hand_info = job.points_of_interest.get(to_hand).unwrap();
+                    let cost = get_robot_error_rate_independent(to_hand_info.structure(), to_hand_info.variability(), self.sensing.clone()) * max_error_cost;
+                    // let cost = get_robot_error_rate_exponential(to_hand_info.structure(), to_hand_info.variability(), self.sensing);
+                    // let cost = get_robot_error_rate_multiplicative(to_hand_info.structure(), to_hand_info.variability(), self.sensing);
+                    
+                    // TODO: integration cost
 
+                    // error cost
+                    robot_cost_set.push(Cost {
+                        frequency: CostFrequency::Extrapolated,
+                        value: cost,
+                        category: CostCategory::Monetary,
+                    });
                 }
                 Primitive::Move {
                     id,
@@ -636,10 +652,19 @@ impl CostProfiler for RobotInfo {
                     from_hand,
                     to_hand,
                 } => {
+                    let to_hand_info = job.points_of_interest.get(to_hand).unwrap();
+                    let cost = get_robot_error_rate_independent(to_hand_info.structure(), to_hand_info.variability(), self.sensing.clone()) * max_error_cost;
+                    // let cost = get_robot_error_rate_exponential(to_hand_info.structure(), to_hand_info.variability(), self.sensing);
+                    // let cost = get_robot_error_rate_multiplicative(to_hand_info.structure(), to_hand_info.variability(), self.sensing);
+                    
+                    // TODO: integration cost
 
-                }
-                Primitive::Use { id, target } => {
-
+                    // error cost
+                    robot_cost_set.push(Cost {
+                        frequency: CostFrequency::Extrapolated,
+                        value: cost,
+                        category: CostCategory::Monetary,
+                    });
                 }
                 Primitive::Travel {
                     id,
@@ -648,25 +673,92 @@ impl CostProfiler for RobotInfo {
                     from_hand,
                     to_hand,
                 } => {
+                    let to_hand_info = job.points_of_interest.get(to_hand).unwrap();
+                    let cost = get_robot_error_rate_independent(to_hand_info.structure(), to_hand_info.variability(), self.sensing.clone()) * max_error_cost;
+                    // let cost = get_robot_error_rate_exponential(to_hand_info.structure(), to_hand_info.variability(), self.sensing);
+                    // let cost = get_robot_error_rate_multiplicative(to_hand_info.structure(), to_hand_info.variability(), self.sensing);
+                    
+                    // TODO: integration cost
 
+                    // error cost
+                    robot_cost_set.push(Cost {
+                        frequency: CostFrequency::Extrapolated,
+                        value: cost,
+                        category: CostCategory::Monetary,
+                    });
                 }
-                Primitive::Hold { id, target } => {}
+                Primitive::Inspect { skill, ..} => {
+                    let mut cost = 0.0;
+                    if *skill == Rating::High && self.sensing == Rating::High {
+                        cost += 0.01;
+                    } else if *skill == Rating::High && self.sensing == Rating::Medium {
+                        cost += 0.125;
+                    } else if *skill == Rating::High && self.sensing == Rating::Low {
+                        cost += 0.25;
+                    } else if *skill == Rating::Medium && self.sensing == Rating::High {
+                        cost += 0.0075;
+                    } else if *skill == Rating::Medium && self.sensing == Rating::Medium {
+                        cost += 0.06;
+                    } else if *skill == Rating::Medium && self.sensing == Rating::Low {
+                        cost += 0.1;
+                    } else if *skill == Rating::Low && self.sensing == Rating::High {
+                        cost += 0.005;
+                    } else if *skill == Rating::Low && self.sensing == Rating::Medium {
+                        cost += 0.015;
+                    } else if *skill == Rating::Low && self.sensing == Rating::Low {
+                        cost += 0.05;
+                    }
+                    cost *= max_error_cost;
+
+                    // TODO: integration cost
+
+                    // error cost
+                    robot_cost_set.push(Cost {
+                        frequency: CostFrequency::Extrapolated,
+                        value: cost,
+                        category: CostCategory::Monetary,
+                    });
+                }
+                Primitive::Selection { skill, ..} => {
+                    
+                    let mut cost = 0.0;
+                    if *skill == Rating::High && self.sensing == Rating::High {
+                        cost += 0.01;
+                    } else if *skill == Rating::High && self.sensing == Rating::Medium {
+                        cost += 0.125;
+                    } else if *skill == Rating::High && self.sensing == Rating::Low {
+                        cost += 0.25;
+                    } else if *skill == Rating::Medium && self.sensing == Rating::High {
+                        cost += 0.0075;
+                    } else if *skill == Rating::Medium && self.sensing == Rating::Medium {
+                        cost += 0.06;
+                    } else if *skill == Rating::Medium && self.sensing == Rating::Low {
+                        cost += 0.1;
+                    } else if *skill == Rating::Low && self.sensing == Rating::High {
+                        cost += 0.005;
+                    } else if *skill == Rating::Low && self.sensing == Rating::Medium {
+                        cost += 0.015;
+                    } else if *skill == Rating::Low && self.sensing == Rating::Low {
+                        cost += 0.05;
+                    }
+                    cost *= max_error_cost;
+
+                    // TODO: integration cost
+
+                    // error cost
+                    robot_cost_set.push(Cost {
+                        frequency: CostFrequency::Extrapolated,
+                        value: cost,
+                        category: CostCategory::Monetary,
+                    });
+                }
                 _ => {
 
                 }
             }
         }
 
-        // Add one-time purchasing cost (if the transition adds the agent)
-        if transition.has_data(&vec![Query::Data(Data::AgentAdd(self.id))]) {
-            ergo_cost_set.push(Cost {
-                frequency: CostFrequency::Once,
-                value: self.purchase_price,
-                category: CostCategory::Monetary,
-            });
-        }
-
-        (ergo_cost_set, vec![])
+        (robot_cost_set, vec![])
     }
 }
 
@@ -681,6 +773,130 @@ fn get_grade(point1: Vector3<f64>, point2: Vector3<f64>) -> f64 {
         return 1.0;
     } else {
         return 0.0;
+    }
+}
+
+fn get_produced_value(job: &Job) -> f64 {
+    let mut total_value = 0.0;
+    for (id, target) in job.targets.iter() {
+        if let Target::Product { id, name, size, weight, symmetry, pois, value } = target {
+            total_value += target.value();
+        }
+    }
+
+    return total_value;
+}
+
+fn robot_error_rate_base(structure: Rating, variability: Rating) -> f64 {
+    if structure == Rating::High && variability == Rating::High {
+        return 0.6;
+    } else if structure == Rating::High && variability == Rating::Medium {
+        return 0.3;
+    } else if structure == Rating::High && variability == Rating::Low {
+        return 0.1;
+    } else if structure == Rating::Medium && variability == Rating::High {
+        return 0.75;
+    } else if structure == Rating::Medium && variability == Rating::Medium {
+        return 0.5;
+    } else if structure == Rating::Medium && variability == Rating::Low {
+        return 0.25;
+    } else if structure == Rating::Low && variability == Rating::High {
+        return 1.0;
+    } else if structure == Rating::Low && variability == Rating::Medium {
+        return 0.75;
+    } else {
+        return 0.4;
+    }
+}
+
+fn get_robot_error_rate_multiplicative(structure: Rating, variability: Rating, sensing: Rating) -> f64 {
+    let base_value = robot_error_rate_base(structure, variability);
+
+    if sensing == Rating::Low {
+        return base_value;
+    } else if sensing == Rating::Medium {
+        return 0.1 * base_value;
+    }
+
+    return 0.01 * base_value;
+}
+
+fn rating_to_f64(rating: Rating) -> f64 {
+    if rating == Rating::Low {
+        return 3.0;
+    } else if rating == Rating::Medium {
+        return 2.0;
+    }
+
+    return 1.0;
+}
+
+fn get_robot_error_rate_exponential(structure: Rating, variability: Rating, sensing: Rating) -> f64 {
+    return ((-4.0+rating_to_f64(variability)).exp()) + (-rating_to_f64(structure)).exp() + (-rating_to_f64(sensing)).exp();
+}
+
+fn get_robot_error_rate_independent(structure: Rating, variability: Rating, sensing: Rating) -> f64 {
+    if sensing == Rating::Low {
+        if structure == Rating::High && variability == Rating::High {
+            return 0.6;
+        } else if structure == Rating::High && variability == Rating::Medium {
+            return 0.3;
+        } else if structure == Rating::High && variability == Rating::Low {
+            return 0.1;
+        } else if structure == Rating::Medium && variability == Rating::High {
+            return 0.75;
+        } else if structure == Rating::Medium && variability == Rating::Medium {
+            return 0.5;
+        } else if structure == Rating::Medium && variability == Rating::Low {
+            return 0.25;
+        } else if structure == Rating::Low && variability == Rating::High {
+            return 1.0;
+        } else if structure == Rating::Low && variability == Rating::Medium {
+            return 0.75;
+        } else {
+            return 0.4;
+        }
+    } else if sensing == Rating::Medium {
+        if structure == Rating::High && variability == Rating::High {
+            return 0.6;
+        } else if structure == Rating::High && variability == Rating::Medium {
+            return 0.3;
+        } else if structure == Rating::High && variability == Rating::Low {
+            return 0.1;
+        } else if structure == Rating::Medium && variability == Rating::High {
+            return 0.75;
+        } else if structure == Rating::Medium && variability == Rating::Medium {
+            return 0.5;
+        } else if structure == Rating::Medium && variability == Rating::Low {
+            return 0.25;
+        } else if structure == Rating::Low && variability == Rating::High {
+            return 1.0;
+        } else if structure == Rating::Low && variability == Rating::Medium {
+            return 0.75;
+        } else {
+            return 0.4;
+        }
+    } else {
+        
+        if structure == Rating::High && variability == Rating::High {
+            return 0.006;
+        } else if structure == Rating::High && variability == Rating::Medium {
+            return 0.003;
+        } else if structure == Rating::High && variability == Rating::Low {
+            return 0.001;
+        } else if structure == Rating::Medium && variability == Rating::High {
+            return 0.75;
+        } else if structure == Rating::Medium && variability == Rating::Medium {
+            return 0.5;
+        } else if structure == Rating::Medium && variability == Rating::Low {
+            return 0.25;
+        } else if structure == Rating::Low && variability == Rating::High {
+            return 1.0;
+        } else if structure == Rating::Low && variability == Rating::Medium {
+            return 0.75;
+        } else {
+            return 0.4;
+        }
     }
 }
 
@@ -831,7 +1047,7 @@ fn get_force_mvc(
         }
     }
 
-    let mvc = *magnitude / denom;
+    let mvc = (*magnitude).abs() / denom;
     return (mvc, horizontal_hand_shoulder_distance, is_one_hand);
 }
 
