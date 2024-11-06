@@ -254,6 +254,7 @@ impl CostProfiler for HumanInfo {
                     to_standing,
                     from_standing,
                     to_hand,
+                    from_hand,
                     id,
                     ..
                 } => {
@@ -266,12 +267,15 @@ impl CostProfiler for HumanInfo {
                     let from_standing_info = job.points_of_interest.get(from_standing).unwrap();
                     let to_standing_info = job.points_of_interest.get(to_standing).unwrap();
                     let to_hand_info = job.points_of_interest.get(to_hand).unwrap();
-                    // let from_hand_info = job.points_of_interest.get(from_hand).unwrap();
+                    let from_hand_info = job.points_of_interest.get(from_hand).unwrap();
 
-                    let hand_travel_vector = to_hand_info.position() - to_standing_info.position();
+                    let mut to_shoulder_pos = to_standing_info.position().clone();
+                    to_shoulder_pos.z = to_shoulder_pos.z + self.acromial_height;
+                    let mut from_shoulder_pos = from_standing_info.position().clone();
+                    from_shoulder_pos.z = from_shoulder_pos.z + self.acromial_height;
+                    let hand_travel_vector = to_hand_info.position() - to_shoulder_pos;
                     let hand_travel_distance = hand_travel_vector.norm();
-                    let total_distance_traveled = (from_standing_info.position().clone()
-                        - to_standing_info.position().clone())
+                    let total_distance_traveled = (to_standing_info.position().clone() - from_standing_info.position().clone())
                     .norm();
 
                     let mut denom = 0.0;
@@ -280,16 +284,20 @@ impl CostProfiler for HumanInfo {
                             denom += 101.0;
                         } else if hand_travel_distance < 0.4185 {
                             denom += 69.5;
-                        } else {
+                        } else if hand_travel_distance < 0.558 {
                             denom += 49.0
+                        } else {
+                            denom += 0.001;
                         }
                     } else {
                         if hand_travel_distance < 0.279 {
                             denom += 202.0;
                         } else if hand_travel_distance < 0.4185 {
                             denom += 139.0;
-                        } else {
+                        } else if hand_travel_distance < 0.558 {
                             denom += 98.0
+                        } else {
+                            denom += 0.001;
                         }
                     }
 
@@ -397,8 +405,10 @@ impl CostProfiler for HumanInfo {
                                     denom += 101.0;
                                 } else if reach_distance < 0.4185 {
                                     denom += 69.5;
-                                } else {
+                                } else if reach_distance < 0.558 {
                                     denom += 49.0;
+                                } else {
+                                    denom += 0.001;
                                 }
                             } else {
                                 if reach_distance < 0.279 {
@@ -416,8 +426,10 @@ impl CostProfiler for HumanInfo {
                                     denom += 202.0;
                                 } else if reach_distance < 0.4185 {
                                     denom += 139.0;
-                                } else {
+                                } else if reach_distance < 0.558 {
                                     denom += 98.0;
+                                } else {
+                                    denom += 0.001;
                                 }
                             } else {
                                 if reach_distance < 0.279 {
