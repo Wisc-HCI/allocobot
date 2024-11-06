@@ -59,7 +59,8 @@ pub enum Data {
     HandTravelDistance(Uuid, f64),
     StandTravelDistance(Uuid, f64),
     MVC(Uuid, f64),
-    IsOneHanded(Uuid, f64)
+    IsOneHanded(Uuid, f64),
+    IsHandWork(Uuid, f64)
 }
 
 impl Data {
@@ -105,6 +106,7 @@ impl Data {
             Data::StandTravelDistance(id, _) => Some(*id),
             Data::MVC(id, _) => Some(*id),
             Data::IsOneHanded(id, _) => Some(*id),
+            Data::IsHandWork(id, _) => Some(*id),
             Data::Setup => None,
             Data::Simulation => None,
         }
@@ -148,6 +150,7 @@ impl Data {
             Data::StandTravelDistance(_, _) => None,
             Data::MVC(_, _) => None,
             Data::IsOneHanded(_, _) => None,
+            Data::IsHandWork(_, _) => None,
             Data::Setup => None,
             Data::Simulation => None,
         }
@@ -191,6 +194,7 @@ impl Data {
             Data::StandTravelDistance(_, n) => Some(*n),
             Data::MVC(_, n) => Some(*n),
             Data::IsOneHanded(_, n) => Some(*n),
+            Data::IsHandWork(_, n) => Some(*n),
             Data::Setup => None,
             Data::Simulation => None,
         }

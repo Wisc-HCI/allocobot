@@ -566,6 +566,7 @@ impl CostProfiler for HumanInfo {
                     new_ergo_meta_data.push(Data::MVC(*id, mvc));
                     new_ergo_meta_data
                         .push(Data::IsOneHanded(*id, if is_one_hand { 1.0 } else { 0.0 }));
+                    new_ergo_meta_data.push(Data::IsHandWork(*id, if is_hand_work { 1.0 } else { 0.0 }));
                 }
                 _ => {}
             }
