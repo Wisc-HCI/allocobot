@@ -21,6 +21,7 @@ impl Job {
                     // Create a new place to store updated transitions.
                     // This will be merged into the other transitions at the end.
                     let mut updated_transitions: HashMap<Uuid, Transition> = HashMap::new();
+                    let mut remove_transitions: Vec<Uuid> = Vec::new();
 
                     // For each ergo type, create a place for those tokens to go.
                     let ergo_cost_data = vec![
@@ -95,9 +96,20 @@ impl Job {
                         // }
 
                         let (cost_set, new_ergo_meta_data): (CostSet, Vec<Data>) = human.cost_set(&transition, &self);
-                        // Add the new meta data flags to the copy of the transition
+
                         for ergo_meta_data in new_ergo_meta_data.iter() {
+                            // Add the new meta data flags to the copy of the transition
                             transition_copy.add_data(ergo_meta_data.clone());
+
+                            // If transition has MVC >= 150%, remove it.
+                            match ergo_meta_data {
+                                Data::MVC(_, n) => {
+                                    if *n >= 1.5 {
+                                        remove_transitions.push(transition.id);
+                                    }
+                                }
+                                _ => {}
+                            }
                         }
 
                         let execution_time: Time = human.execution_time(&transition, &self);
@@ -112,6 +124,7 @@ impl Job {
                         transition_copy.cost = add_cost_sets(&transition.cost, &cost_set);
 
                         updated_transitions.insert(transition.id, transition_copy);
+                        
                     }
 
                     // Compute costs for spawned or produced parts
@@ -136,6 +149,10 @@ impl Job {
                     // Update the transitions with the new versions
                     for (id, transition) in updated_transitions {
                         net.transitions.insert(id, transition);
+                    }
+
+                    for id in remove_transitions {
+                        net.delete_transition(id);
                     }
                 }
                 Agent::Robot(robot) => {
