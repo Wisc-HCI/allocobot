@@ -233,7 +233,7 @@ impl CostProfiler for HumanInfo {
                     let target_info = job.targets.get(target).unwrap();
                     let weight = target_info.weight();
 
-                    let (mvc, dist, is_one_hand) =
+                    let (mvc, hand_to_floor_dist, dist, is_one_hand) =
                         get_force_mvc(transition, magnitude, self, job, weight);
                     let cost = mvc * execution_time;
 
@@ -245,6 +245,7 @@ impl CostProfiler for HumanInfo {
 
                     let mut new_data = vec_ergo_meta_data(self, dist, cost);
                     new_ergo_meta_data.append(&mut new_data);
+                    new_ergo_meta_data.push(Data::HandDistanceToFloor(*id, hand_to_floor_dist));
                     new_ergo_meta_data.push(Data::MVC(*id, mvc));
                     new_ergo_meta_data
                         .push(Data::IsOneHanded(*id, if is_one_hand { 1.0 } else { 0.0 }));
@@ -310,7 +311,7 @@ impl CostProfiler for HumanInfo {
                     });
 
                     new_ergo_meta_data.push(Data::ErgoArm(self.id, cost));
-                    new_ergo_meta_data.push(Data::HandTravelDistance(*id, hand_travel_distance));
+                    new_ergo_meta_data.push(Data::ReachDistance(*id, hand_travel_distance));
                     new_ergo_meta_data
                         .push(Data::StandTravelDistance(*id, total_distance_traveled));
                     new_ergo_meta_data.push(Data::MVC(*id, mvc));
@@ -354,24 +355,26 @@ impl CostProfiler for HumanInfo {
                     shoulder_pos.z = shoulder_pos.z + self.acromial_height;
                     let reach_distance = (shoulder_pos - to_hand_pos).norm();
 
+                    let hand_distance_to_floor = to_hand_pos.z - standing_pos.z;
+
                     let mut denom = 0.0;
 
                     if vertical_distance == 0.0 {
                         if is_one_hand {
                             // push
                             if horizontal_distance > 0.0 {
-                                if to_hand_pos.z < 0.97 {
+                                if hand_distance_to_floor < 0.97 {
                                     denom += 89.0;
-                                } else if to_hand_pos.z < 1.296 {
+                                } else if hand_distance_to_floor < 1.296 {
                                     denom += 76.0;
                                 } else {
                                     denom += 78.0;
                                 }
                             // pull
                             } else {
-                                if to_hand_pos.z < 0.97 {
+                                if hand_distance_to_floor < 0.97 {
                                     denom += 91.0;
-                                } else if to_hand_pos.z < 1.296 {
+                                } else if hand_distance_to_floor < 1.296 {
                                     denom += 86.0;
                                 } else {
                                     denom += 99.0;
@@ -380,18 +383,18 @@ impl CostProfiler for HumanInfo {
                         } else {
                             // push
                             if horizontal_distance > 0.0 {
-                                if to_hand_pos.y < 0.5 {
+                                if hand_distance_to_floor < 0.5 {
                                     denom += 149.0;
-                                } else if to_hand_pos.y < 1.0 {
+                                } else if hand_distance_to_floor < 1.0 {
                                     denom += 109.0;
                                 } else {
                                     denom += 218.0;
                                 }
                             // pull
                             } else {
-                                if to_hand_pos.y < 0.5 {
+                                if hand_distance_to_floor < 0.5 {
                                     denom += 109.0;
-                                } else if to_hand_pos.y < 1.0 {
+                                } else if hand_distance_to_floor < 1.0 {
                                     denom += 228.0;
                                 } else {
                                     denom += 185.0;
@@ -455,7 +458,10 @@ impl CostProfiler for HumanInfo {
 
                     let mut new_data = vec_ergo_meta_data(self, horizontal_distance, cost);
                     new_ergo_meta_data.append(&mut new_data);
-                    new_ergo_meta_data.push(Data::HandTravelDistance(*id, horizontal_distance));
+                    new_ergo_meta_data.push(Data::HorizontalHandTravelDistance(*id, horizontal_distance));
+                    new_ergo_meta_data.push(Data::VerticalHandTravelDistance(*id, vertical_distance));
+                    new_ergo_meta_data.push(Data::ReachDistance(*id, reach_distance));
+                    new_ergo_meta_data.push(Data::HandDistanceToFloor(*id, hand_distance_to_floor));
                     new_ergo_meta_data.push(Data::MVC(*id, mvc));
                     new_ergo_meta_data
                         .push(Data::IsOneHanded(*id, if is_one_hand { 1.0 } else { 0.0 }));
@@ -493,10 +499,7 @@ impl CostProfiler for HumanInfo {
                     let mut new_data =
                         vec_ergo_meta_data(self, horizontal_hand_shoulder_distance, cost);
                     new_ergo_meta_data.append(&mut new_data);
-                    new_ergo_meta_data.push(Data::HandTravelDistance(
-                        *id,
-                        horizontal_hand_shoulder_distance,
-                    ));
+                    new_ergo_meta_data.push(Data::HorizontalHandTravelDistance(*id, horizontal_hand_shoulder_distance));
                     new_ergo_meta_data.push(Data::MVC(*id, mvc));
                 }
                 Primitive::Travel {
@@ -559,10 +562,7 @@ impl CostProfiler for HumanInfo {
                     let mut new_data =
                         vec_ergo_meta_data(self, horizontal_hand_shoulder_distance, cost);
                     new_ergo_meta_data.append(&mut new_data);
-                    new_ergo_meta_data.push(Data::HandTravelDistance(
-                        *id,
-                        horizontal_hand_shoulder_distance,
-                    ));
+                    new_ergo_meta_data.push(Data::ReachDistance(*id, horizontal_hand_shoulder_distance));
                     new_ergo_meta_data.push(Data::MVC(*id, mvc));
                     new_ergo_meta_data
                         .push(Data::IsOneHanded(*id, if is_one_hand { 1.0 } else { 0.0 }));
@@ -1013,47 +1013,46 @@ fn get_force_mvc(
     agent: &HumanInfo,
     job: &Job,
     weight: f64,
-) -> (f64, f64, bool) {
+) -> (f64, f64, f64, bool) {
     let (hand_location, stand_location) = get_hand_stand_locations(transition, agent, job);
 
     let is_one_hand = is_one_hand_task(hand_location, stand_location, weight);
 
-    // let distance_between_hand_stand = (hand_location - stand_location).norm();
     // TODO: use vertical offset
-    let distance_between_hand_stand = (hand_location - stand_location).norm();
+    let hand_distance_to_floor = hand_location.z - stand_location.z;
     let horizontal_hand_shoulder_distance = (Vector2::new(hand_location.x, hand_location.y)
         - Vector2::new(stand_location.x, stand_location.y))
     .norm();
 
     let mut denom = 0.0;
     if !is_one_hand && *magnitude >= 0.0 {
-        if distance_between_hand_stand < 0.5 {
+        if hand_distance_to_floor < 0.5 {
             denom += 149.0;
-        } else if distance_between_hand_stand < 1.0 {
+        } else if hand_distance_to_floor < 1.0 {
             denom += 109.0;
         } else {
             denom += 218.0;
         }
     } else if !is_one_hand && *magnitude < 0.0 {
-        if distance_between_hand_stand < 0.5 {
+        if hand_distance_to_floor < 0.5 {
             denom += 109.0;
-        } else if distance_between_hand_stand < 1.0 {
+        } else if hand_distance_to_floor < 1.0 {
             denom += 228.0;
         } else {
             denom += 185.0;
         }
     } else if *magnitude >= 0.0 {
-        if distance_between_hand_stand < 0.97 {
+        if hand_distance_to_floor < 0.97 {
             denom += 89.0;
-        } else if distance_between_hand_stand < 1.296 {
+        } else if hand_distance_to_floor < 1.296 {
             denom += 76.0;
         } else {
             denom += 78.0;
         }
     } else {
-        if distance_between_hand_stand < 0.97 {
+        if hand_distance_to_floor < 0.97 {
             denom += 91.0;
-        } else if distance_between_hand_stand < 1.296 {
+        } else if hand_distance_to_floor < 1.296 {
             denom += 86.0;
         } else {
             denom += 99.0;
@@ -1061,7 +1060,7 @@ fn get_force_mvc(
     }
 
     let mvc = (*magnitude).abs() / denom;
-    return (mvc, horizontal_hand_shoulder_distance, is_one_hand);
+    return (mvc, hand_distance_to_floor, horizontal_hand_shoulder_distance, is_one_hand);
 }
 
 fn vec_ergo_meta_data(agent: &HumanInfo, dist: f64, cost: f64) -> Vec<Data> {
@@ -1359,7 +1358,7 @@ fn get_human_time_for_primitive(
             // grasp TMU
             tmu += 2.0;
 
-            let (mvc, _dist, _is_one_hand) =
+            let (mvc, _hand_to_floor_dist, _dist, _is_one_hand) =
                 get_force_mvc(transition, magnitude, agent, job, weight);
 
             if mvc < 0.2 {
@@ -1459,7 +1458,7 @@ fn get_human_time_for_primitive(
                     // Grasp TMU
                     tmu += 2.0;
 
-                    let (mvc, _dist, _is_one_hand) =
+                    let (mvc, _hand_to_floor_dist, _dist, _is_one_hand) =
                         get_force_mvc(transition, magnitude, agent, job, weight);
 
                     if mvc < 0.2 {
@@ -1569,7 +1568,7 @@ fn get_human_time_for_primitive(
                     // Grasp TMU
                     tmu += 2.0;
 
-                    let (mvc, _dist, _is_one_hand) =
+                    let (mvc, _hand_to_floor_dist, _dist, _is_one_hand) =
                         get_force_mvc(transition, magnitude, agent, job, weight);
 
                     if mvc < 0.2 {
