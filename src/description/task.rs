@@ -9,6 +9,7 @@ use crate::{description::primitive::Primitive, util::split_primitives};
 pub struct Task {
     pub id: Uuid,
     pub name: String,
+    pub order: i32,
     pub primitives: Vec<Uuid>,
     pub dependencies: Vec<(Uuid, usize)>,
     pub output: Vec<(Uuid, usize)>,
@@ -19,6 +20,7 @@ impl Task {
 
     pub fn new(
         name: String, 
+        order: i32,
         primitives: Vec<Uuid>, 
         dependencies: Vec<(Uuid, usize)>, 
         output: Vec<(Uuid, usize)>, 
@@ -27,6 +29,7 @@ impl Task {
         Self {
             id: Uuid::new_v4(),
             name,
+            order,
             primitives,
             dependencies,
             output,
@@ -34,9 +37,10 @@ impl Task {
         }
     }
 
-    pub fn new_empty(name: String) -> Self {
+    pub fn new_empty(name: String, order: i32) -> Self {
         Self {
             id: Uuid::new_v4(),
+            order,
             name,
             primitives: Vec::new(),
             dependencies: Vec::new(),
@@ -114,6 +118,7 @@ impl Default for Task {
     fn default() -> Self {
         Self {
             id: Uuid::new_v4(),
+            order: 1,
             name: "default".to_string(),
             primitives: Vec::new(),
             dependencies: Vec::new(),

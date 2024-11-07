@@ -70,8 +70,8 @@ impl Job {
         self.targets.insert(target.id(), target);
     }
 
-    pub fn create_task(&mut self, name: String) -> Uuid {
-        let task = Task::new_empty(name);
+    pub fn create_task(&mut self, name: String, order: i32) -> Uuid {
+        let task = Task::new_empty(name, order);
         let uuid = task.id;
         self.add_task(task);
         uuid
