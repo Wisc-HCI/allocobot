@@ -1,3 +1,4 @@
+use allocobot::description::gender::Gender;
 use allocobot::description::job::Job;
 use allocobot::description::primitive::Primitive;
 use allocobot::description::rating::Rating;
@@ -20,18 +21,18 @@ fn main() -> std::io::Result<()> {
     //     Rgb::new(100, 100, 200),
     // ];
 
-    let mut job = Job::new("Half Shaft".into(), 0.1);
+    let mut job = Job::new("Test Task".into(), 0.1);
 
     let _panda: Uuid = job.create_robot_agent(
         "Panda".into(),
         0.855,
+        1.0,
         3.0,
         Rating::Medium,
         2.0,
         0.0001,
         Rating::Medium,
-        0.1,
-        13000.0,
+        1.0,
         20000.0,
         300.0,
         5000.0,
@@ -40,10 +41,7 @@ fn main() -> std::io::Result<()> {
     let _charlie: Uuid = job.create_human_agent(
         "Charlie".into(),
         75.0,
-        1.45,
-        2.0,
-        0.77,
-        84.0,
+        Gender::Male,
         Rating::High,
         24.0,
         500.0
@@ -75,16 +73,6 @@ fn main() -> std::io::Result<()> {
         Some(Rating::High),
     );
 
-    // Additional test location to verify move primitive
-    let p6: Uuid = job.create_hand_point_of_interest(
-        "POI6".into(),
-        0.05,
-        0.0,
-        0.05,
-        Some(Rating::Medium),
-        Some(Rating::High)
-    );
-
     let _p4: Uuid = job.create_standing_point_of_interest(
         "POI4".into(),
         0.0,
@@ -110,14 +98,14 @@ fn main() -> std::io::Result<()> {
     let part4: Uuid =
         job.create_precursor_target("Part4".into(), 14.0, 1.0, Rating::High, Vec::new(), 5.0);
     let part5: Uuid =
-        job.create_product_target("Part5".into(), 4.0, 1.0, Rating::Medium, vec![p1, p6, p3], 20.0);
+        job.create_product_target("Part5".into(), 4.0, 1.0, Rating::Medium, vec![p1, p3], 20.0);
     let part6: Uuid =
-        job.create_product_target("Part6".into(), 10.0, 3.0, Rating::Medium, vec![p1, p6, p3], 15.0);
+        job.create_product_target("Part6".into(), 10.0, 3.0, Rating::Medium, vec![p1, p3], 15.0);
     let tool0: Uuid =
         job.create_reusable_target("Tool0".into(), 1.0, 1.0, Rating::High, Vec::new());
 
-    let t1 = job.create_task("task1".into());
-    let t2 = job.create_task("task2".into());
+    let t1 = job.create_task("task1".into(), 1);
+    let t2 = job.create_task("task2".into(), 2);
 
     job.add_task_dependency(t1, part1, 1);
     job.add_task_dependency(t1, part2, 1);

@@ -7,11 +7,14 @@ use crate::description::task::Task;
 use crate::description::weights::Weights;
 use crate::petri::net::PetriNet;
 use enum_tag::EnumTag;
+use nalgebra::Norm;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use uuid::Uuid;
+use statrs::distribution::{Normal, ContinuousCDF};
+use statrs::statistics::Distribution;
 
-use super::units::{Watts, USD};
+use super::{gender::Gender, units::{Watts, USD}};
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -29,6 +32,7 @@ pub struct Job {
     pub cost_net: Option<PetriNet>,
     pub weights: Weights,
     pub kwh_cost: USD, // USD per hour
+    pub target_pop: f64,
 }
 
 impl Job {
@@ -47,6 +51,7 @@ impl Job {
             cost_net: None,
             weights: Weights::default(),
             kwh_cost,
+            target_pop: 0.01
         }
     }
 
@@ -145,17 +150,38 @@ impl Job {
         &mut self,
         name: String,
         age: f64,
-        acromial_height: f64,
-        height: f64,
-        reach: f64,
-        weight: f64,
+        gender: Gender,
         skill: Rating,
         hourly_wage: USD,
         labor_cost: USD,
     ) -> Uuid {
+        let mut height = 0.0;
+        let mut reach = 0.0;
+        let mut acromial_height = 0.0;
+        let mut weight = 0.0;
+
+        if gender == Gender::Female {
+            let height_n = Normal::new(1.6285, 0.0642).unwrap();
+            let reach_n = Normal::new(0.6930, 0.0428).unwrap();
+            let weight_n = Normal::new(62.08, 8.33).unwrap();
+            height += height_n.inverse_cdf(self.target_pop);
+            acromial_height += height - 0.164*height;
+            reach += reach_n.inverse_cdf(self.target_pop);
+            weight += weight_n.inverse_cdf(self.target_pop);
+        } else {
+            let height_n = Normal::new(1.7562, 0.0686).unwrap();
+            let reach_n = Normal::new(0.7569, 0.0437).unwrap();
+            let weight_n = Normal::new(78.75, 11.0).unwrap();
+            height += height_n.inverse_cdf(self.target_pop);
+            acromial_height += height - 0.182*height;
+            reach += reach_n.inverse_cdf(self.target_pop);
+            weight += weight_n.inverse_cdf(self.target_pop);
+        }
+
         let agent = Agent::new_human(
             name,
             age,
+            gender,
             acromial_height,
             height,
             reach,
@@ -278,6 +304,10 @@ impl Job {
 
     pub fn set_monetary_weight(&mut self, weight: f64) {
         self.weights.monetary = weight;
+    }
+
+    pub fn set_target_population(&mut self, target_pop: f64) {
+        self.target_pop = target_pop;
     }
 
     pub fn create_petri_nets(&mut self) {

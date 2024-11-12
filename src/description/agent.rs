@@ -16,7 +16,10 @@ use std::{cmp, collections::HashMap, f64::consts::PI};
 // use std::collections::HashMap;
 use enum_tag::EnumTag;
 use uuid::Uuid;
+use statrs::distribution::{Normal, ContinuousCDF};
+use statrs::statistics::Distribution;
 
+use super::gender::Gender;
 use super::target::{self, Target};
 use super::units::{TokenCount, Watts, USD};
 
@@ -62,6 +65,7 @@ impl Agent {
     pub fn new_human(
         name: String,
         age: f64,             // Years
+        gender: Gender,
         acromial_height: f64, // meters
         height: f64,          // meters
         reach: f64,           // meters
@@ -74,6 +78,7 @@ impl Agent {
             id: Uuid::new_v4(),
             name,
             age,
+            gender,
             acromial_height,
             height,
             reach,
@@ -123,6 +128,7 @@ pub struct HumanInfo {
     // NOTE: This is not currently used, need to check with Rob
     // pub gender: Gender,
     pub age: f64,
+    pub gender: Gender,
     pub acromial_height: f64,
     pub height: f64,
     pub reach: f64,
@@ -211,7 +217,7 @@ impl CostProfiler for HumanInfo {
                 Data::Produce(_target_id, cost) => {
                     ergo_cost_set.push(Cost {
                         frequency: CostFrequency::Extrapolated,
-                        value: cost,
+                        value: -cost,
                         category: CostCategory::Monetary,
                     });
                 }
@@ -281,22 +287,59 @@ impl CostProfiler for HumanInfo {
 
                     let mut denom = 0.0;
                     if is_one_hand {
-                        if hand_travel_distance < 0.279 {
-                            denom += 101.0;
-                        } else if hand_travel_distance < 0.4185 {
-                            denom += 69.5;
-                        } else if hand_travel_distance < 0.558 {
-                            denom += 49.0
+                        if hand_travel_distance < 0.5*self.reach {
+                            if self.gender == Gender::Female {
+                                let n = Normal::new(105.0, 32.0).unwrap();
+                                denom += n.inverse_cdf(job.target_pop);
+                            } else {
+                                let n = Normal::new(232.5, 54.5).unwrap();
+                                denom += n.inverse_cdf(job.target_pop);
+                            }
+                        } else if hand_travel_distance < 0.75*self.reach {
+                            if self.gender == Gender::Female {
+                                let n = Normal::new(73.5, 25.0).unwrap();
+                                denom += n.inverse_cdf(job.target_pop);
+                            } else {
+                                let n = Normal::new(118.5, 25.5).unwrap();
+                                denom += n.inverse_cdf(job.target_pop);
+                            }
+                        } else if hand_travel_distance <= self.reach {
+                            
+                            if self.gender == Gender::Female {
+                                let n = Normal::new(46.0, 13.0).unwrap();
+                                denom += n.inverse_cdf(job.target_pop);
+                            } else {
+                                let n = Normal::new(75.5, 13.0).unwrap();
+                                denom += n.inverse_cdf(job.target_pop);
+                            }
                         } else {
                             denom += 0.001;
                         }
                     } else {
-                        if hand_travel_distance < 0.279 {
-                            denom += 202.0;
-                        } else if hand_travel_distance < 0.4185 {
-                            denom += 139.0;
-                        } else if hand_travel_distance < 0.558 {
-                            denom += 98.0
+                        if hand_travel_distance < 0.5*self.reach {
+                            if self.gender == Gender::Female {
+                                let n = Normal::new(210.0, 64.0).unwrap();
+                                denom += n.inverse_cdf(job.target_pop);
+                            } else {
+                                let n = Normal::new(465.0, 109.0).unwrap();
+                                denom += n.inverse_cdf(job.target_pop);
+                            }
+                        } else if hand_travel_distance < 0.75*self.reach {
+                            if self.gender == Gender::Female {
+                                let n = Normal::new(147.0, 50.0).unwrap();
+                                denom += n.inverse_cdf(job.target_pop);
+                            } else {
+                                let n = Normal::new(237.0, 51.0).unwrap();
+                                denom += n.inverse_cdf(job.target_pop);
+                            }
+                        } else if hand_travel_distance <= self.reach {
+                            if self.gender == Gender::Female {
+                                let n = Normal::new(92.0, 26.0).unwrap();
+                                denom += n.inverse_cdf(job.target_pop);
+                            } else {
+                                let n = Normal::new(151.0, 26.0).unwrap();
+                                denom += n.inverse_cdf(job.target_pop);
+                            }
                         } else {
                             denom += 0.001;
                         }
@@ -358,96 +401,137 @@ impl CostProfiler for HumanInfo {
                     let hand_distance_to_floor = to_hand_pos.z - standing_pos.z;
 
                     let mut denom = 0.0;
+                    let mut vertical_distance_is_zero = false;
 
                     if vertical_distance == 0.0 {
-                        if is_one_hand {
-                            // push
-                            if horizontal_distance > 0.0 {
-                                if hand_distance_to_floor < 0.97 {
-                                    denom += 89.0;
-                                } else if hand_distance_to_floor < 1.296 {
-                                    denom += 76.0;
-                                } else {
-                                    denom += 78.0;
-                                }
-                            // pull
-                            } else {
-                                if hand_distance_to_floor < 0.97 {
-                                    denom += 91.0;
-                                } else if hand_distance_to_floor < 1.296 {
-                                    denom += 86.0;
-                                } else {
-                                    denom += 99.0;
-                                }
-                            }
-                        } else {
-                            // push
-                            if horizontal_distance > 0.0 {
-                                if hand_distance_to_floor < 0.5 {
-                                    denom += 149.0;
-                                } else if hand_distance_to_floor < 1.0 {
-                                    denom += 109.0;
-                                } else {
-                                    denom += 218.0;
-                                }
-                            // pull
-                            } else {
-                                if hand_distance_to_floor < 0.5 {
-                                    denom += 109.0;
-                                } else if hand_distance_to_floor < 1.0 {
-                                    denom += 228.0;
-                                } else {
-                                    denom += 185.0;
-                                }
-                            }
-                        }
+                        vertical_distance_is_zero = true;
                     } else {
                         if is_one_hand {
-                            if is_arm_work_bool {
-                                if reach_distance < 0.279 {
-                                    denom += 101.0;
-                                } else if reach_distance < 0.4185 {
-                                    denom += 69.5;
-                                } else if reach_distance < 0.558 {
-                                    denom += 49.0;
+                            if horizontal_hand_shoulder_distance < 0.45 {
+                                if reach_distance < 0.5*self.reach {
+                                    if self.gender == Gender::Female {
+                                        let n = Normal::new(130.5, 43.5).unwrap();
+                                        denom += n.inverse_cdf(job.target_pop);
+                                    } else {
+                                        let n = Normal::new(295.0, 70.0).unwrap();
+                                        denom += n.inverse_cdf(job.target_pop);
+                                    }
+                                } else if reach_distance < 0.75*self.reach {
+                                    if self.gender == Gender::Female {
+                                        let n = Normal::new(91.0, 31.5).unwrap();
+                                        denom += n.inverse_cdf(job.target_pop);
+                                    } else {
+                                        let n = Normal::new(147.5, 33.5).unwrap();
+                                        denom += n.inverse_cdf(job.target_pop);
+                                    }
                                 } else {
-                                    denom += 0.001;
+                                    if self.gender == Gender::Female {
+                                        let n = Normal::new(59.0, 16.5).unwrap();
+                                        denom += n.inverse_cdf(job.target_pop);
+                                    } else {
+                                        let n = Normal::new(92.0, 17.0).unwrap();
+                                        denom += n.inverse_cdf(job.target_pop);
+                                    }
+                                }
+                            } else if horizontal_hand_shoulder_distance < 2.0 {
+                                if reach_distance < 0.5*self.reach {
+                                    if self.gender == Gender::Female {
+                                        let n = Normal::new(87.5, 29.5).unwrap();
+                                        denom += n.inverse_cdf(job.target_pop);
+                                    } else {
+                                        let n = Normal::new(192.0, 48.5).unwrap();
+                                        denom += n.inverse_cdf(job.target_pop);
+                                    }
+                                } else if reach_distance < 0.75*self.reach {
+                                    if self.gender == Gender::Female {
+                                        let n = Normal::new(68.5, 17.0).unwrap();
+                                        denom += n.inverse_cdf(job.target_pop);
+                                    } else {
+                                        let n = Normal::new(145.0, 45.0).unwrap();
+                                        denom += n.inverse_cdf(job.target_pop);
+                                    }
+                                } else {
+                                    if self.gender == Gender::Female {
+                                        let n = Normal::new(46.5, 9.0).unwrap();
+                                        denom += n.inverse_cdf(job.target_pop);
+                                    } else {
+                                        let n = Normal::new(99.5, 39.5).unwrap();
+                                        denom += n.inverse_cdf(job.target_pop);
+                                    }
                                 }
                             } else {
-                                if reach_distance < 0.279 {
-                                    denom += 15.0;
-                                } else if reach_distance < 0.4185 {
-                                    denom += 27.0;
-                                } else {
-                                    // make this really small to blow up the cost
-                                    denom += 0.001;
-                                }
+                                denom += 0.001;
                             }
                         } else {
-                            if is_arm_work_bool {
-                                if reach_distance < 0.279 {
-                                    denom += 202.0;
-                                } else if reach_distance < 0.4185 {
-                                    denom += 139.0;
-                                } else if reach_distance < 0.558 {
-                                    denom += 98.0;
+                            if horizontal_hand_shoulder_distance < 0.45 {
+                                if reach_distance < 0.5*self.reach {
+                                    if self.gender == Gender::Female {
+                                        let n = Normal::new(261.0, 87.0).unwrap();
+                                        denom += n.inverse_cdf(job.target_pop);
+                                    } else {
+                                        let n = Normal::new(590.0, 140.0).unwrap();
+                                        denom += n.inverse_cdf(job.target_pop);
+                                    }
+                                } else if reach_distance < 0.75*self.reach {
+                                    if self.gender == Gender::Female {
+                                        let n = Normal::new(182.0, 63.0).unwrap();
+                                        denom += n.inverse_cdf(job.target_pop);
+                                    } else {
+                                        let n = Normal::new(295.0, 67.0).unwrap();
+                                        denom += n.inverse_cdf(job.target_pop);
+                                    }
                                 } else {
-                                    denom += 0.001;
+                                    if self.gender == Gender::Female {
+                                        let n = Normal::new(118.0, 33.0).unwrap();
+                                        denom += n.inverse_cdf(job.target_pop);
+                                    } else {
+                                        let n = Normal::new(184.0, 34.0).unwrap();
+                                        denom += n.inverse_cdf(job.target_pop);
+                                    }
+                                }
+                            } else if horizontal_hand_shoulder_distance < 2.0 {
+                                if reach_distance < 0.5*self.reach {
+                                    if self.gender == Gender::Female {
+                                        let n = Normal::new(175.0, 59.0).unwrap();
+                                        denom += n.inverse_cdf(job.target_pop);
+                                    } else {
+                                        let n = Normal::new(384.0, 97.0).unwrap();
+                                        denom += n.inverse_cdf(job.target_pop);
+                                    }
+                                } else if reach_distance < 0.75*self.reach {
+                                    if self.gender == Gender::Female {
+                                        let n = Normal::new(137.0, 59.0).unwrap();
+                                        denom += n.inverse_cdf(job.target_pop);
+                                    } else {
+                                        let n = Normal::new(290.0, 90.0).unwrap();
+                                        denom += n.inverse_cdf(job.target_pop);
+                                    }
+                                } else {
+                                    if self.gender == Gender::Female {
+                                        let n = Normal::new(93.0, 18.0).unwrap();
+                                        denom += n.inverse_cdf(job.target_pop);
+                                    } else {
+                                        let n = Normal::new(199.0, 79.0).unwrap();
+                                        denom += n.inverse_cdf(job.target_pop);
+                                    }
                                 }
                             } else {
-                                if reach_distance < 0.279 {
-                                    denom += 30.0;
-                                } else if reach_distance < 0.4185 {
-                                    denom += 54.0;
-                                } else {
-                                    // make this really small to blow up the cost
-                                    denom += 0.001;
-                                }
+                                denom += 0.001;
                             }
                         }
+                    
                     }
 
-                    let mvc = weight / denom;
+                    let mut mvc = 0.0;
+                    if vertical_distance_is_zero {
+                        // TODO: no magnitude here....... what do??????
+                        // Todo: 
+                        let (force_mvc, _hand_to_floor_dist, _dist, _is_one_hand) = get_force_mvc(transition, &horizontal_distance, self, job, weight);
+                        mvc += force_mvc;
+                    } else {
+                        mvc += weight / denom;
+                    }
+
                     let cost = mvc * execution_time;
 
                     ergo_cost_set.push(Cost {
@@ -482,9 +566,21 @@ impl CostProfiler for HumanInfo {
 
                     let mut denom = 0.0;
                     if volume > 0.406 {
-                        denom += 233.5;
+                        if self.gender == Gender::Female {
+                            let n = Normal::new(31.4, 6.24).unwrap();
+                            denom += n.inverse_cdf(job.target_pop);
+                        } else {
+                            let n = Normal::new(49.7, 11.13).unwrap();
+                            denom += n.inverse_cdf(job.target_pop);
+                        }
                     } else {
-                        denom += 41.7;
+                        if self.gender == Gender::Female {
+                            let n = Normal::new(7.0, 1.25).unwrap();
+                            denom += n.inverse_cdf(job.target_pop);
+                        } else {
+                            let n = Normal::new(9.4, 1.39).unwrap();
+                            denom += n.inverse_cdf(job.target_pop);
+                        }
                     }
 
                     let mvc = weight / denom;
@@ -539,15 +635,47 @@ impl CostProfiler for HumanInfo {
                     // todo: shoulder and elbow angles????
                     if is_one_hand {
                         if is_hand_work {
-                            denom += 99.0;
+                             // elbow at 90 degrees
+
+                            if self.gender == Gender::Female {
+                                let n = Normal::new(105.0, 32.0).unwrap();
+                                denom += n.inverse_cdf(job.target_pop);
+                            } else {
+                                let n = Normal::new(232.5, 54.5).unwrap();
+                                denom += n.inverse_cdf(job.target_pop);
+                            }
                         } else {
-                            denom += 38.96;
+                            // shoulder at 90 degrees
+
+                            if self.gender == Gender::Female {
+                                let n = Normal::new(46.0, 13.0).unwrap();
+                                denom += n.inverse_cdf(job.target_pop);
+                            } else {
+                                let n = Normal::new(75.5, 13.0).unwrap();
+                                denom += n.inverse_cdf(job.target_pop);
+                            }
                         }
                     } else {
                         if is_hand_work {
-                            denom += 198.0;
+                            // elbow at 90  degrees
+
+                            if self.gender == Gender::Female {
+                                let n = Normal::new(210.0, 64.0).unwrap();
+                                denom += n.inverse_cdf(job.target_pop);
+                            } else {
+                                let n = Normal::new(465.0, 109.0).unwrap();
+                                denom += n.inverse_cdf(job.target_pop);
+                            }
                         } else {
-                            denom += 77.9;
+                            // shoulder at 90 degrees
+
+                            if self.gender == Gender::Female {
+                                let n = Normal::new(92.0, 26.0).unwrap();
+                                denom += n.inverse_cdf(job.target_pop);
+                            } else {
+                                let n = Normal::new(151.0, 26.0).unwrap();
+                                denom += n.inverse_cdf(job.target_pop);
+                            }
                         }
                     }
                     let mvc = weight / denom;
@@ -1027,35 +1155,107 @@ fn get_force_mvc(
     let mut denom = 0.0;
     if !is_one_hand && *magnitude >= 0.0 {
         if hand_distance_to_floor < 0.5 {
-            denom += 149.0;
+            if agent.gender == Gender::Female {
+                let n = Normal::new(246.0, 51.0).unwrap();
+                denom += n.inverse_cdf(job.target_pop);
+            } else {
+                let n = Normal::new(362.0, 112.0).unwrap();
+                denom += n.inverse_cdf(job.target_pop);
+            }
         } else if hand_distance_to_floor < 1.0 {
-            denom += 109.0;
+            if agent.gender == Gender::Female {
+                let n = Normal::new(339.0, 76.0).unwrap();
+                denom += n.inverse_cdf(job.target_pop);
+            } else {
+                let n = Normal::new(520.0, 174.0).unwrap();
+                denom += n.inverse_cdf(job.target_pop);
+            }
         } else {
-            denom += 218.0;
+            if agent.gender == Gender::Female {
+                let n = Normal::new(272.0, 68.0).unwrap();
+                denom += n.inverse_cdf(job.target_pop);
+            } else {
+                let n = Normal::new(482.0, 165.0).unwrap();
+                denom += n.inverse_cdf(job.target_pop);
+            }
         }
     } else if !is_one_hand && *magnitude < 0.0 {
         if hand_distance_to_floor < 0.5 {
-            denom += 109.0;
+            if agent.gender == Gender::Female {
+                let n = Normal::new(209.0, 82.0).unwrap();
+                denom += n.inverse_cdf(job.target_pop);
+            } else {
+                let n = Normal::new(356.0, 61.0).unwrap();
+                denom += n.inverse_cdf(job.target_pop);
+            }
         } else if hand_distance_to_floor < 1.0 {
-            denom += 228.0;
+            if agent.gender == Gender::Female {
+                let n = Normal::new(521.0, 95.0).unwrap();
+                denom += n.inverse_cdf(job.target_pop);
+            } else {
+                let n = Normal::new(763.0, 202.0).unwrap();
+                denom += n.inverse_cdf(job.target_pop);
+            }
         } else {
-            denom += 185.0;
+            if agent.gender == Gender::Female {
+                let n = Normal::new(427.0, 76.0).unwrap();
+                denom += n.inverse_cdf(job.target_pop);
+            } else {
+                let n = Normal::new(744.0, 243.0).unwrap();
+                denom += n.inverse_cdf(job.target_pop);
+            }
         }
     } else if *magnitude >= 0.0 {
-        if hand_distance_to_floor < 0.97 {
-            denom += 89.0;
-        } else if hand_distance_to_floor < 1.296 {
-            denom += 76.0;
+        if hand_distance_to_floor < ((1.0 - 0.336)*agent.height) {
+            if agent.gender == Gender::Female {
+                let n = Normal::new(108.0, 18.0).unwrap();
+                denom += n.inverse_cdf(job.target_pop);
+            } else {
+                let n = Normal::new(147.0, 25.0).unwrap();
+                denom += n.inverse_cdf(job.target_pop);
+            }
+        } else if hand_distance_to_floor < ((1.0 - 0.182)*agent.height) {
+            if agent.gender == Gender::Female {
+                let n = Normal::new(107.0, 16.0).unwrap();
+                denom += n.inverse_cdf(job.target_pop);
+            } else {
+                let n = Normal::new(136.0, 26.0).unwrap();
+                denom += n.inverse_cdf(job.target_pop);
+            }
         } else {
-            denom += 78.0;
+            if agent.gender == Gender::Female {
+                let n = Normal::new(144.0, 25.0).unwrap();
+                denom += n.inverse_cdf(job.target_pop);
+            } else {
+                let n = Normal::new(201.0, 53.0).unwrap();
+                denom += n.inverse_cdf(job.target_pop);
+            }
         }
     } else {
-        if hand_distance_to_floor < 0.97 {
-            denom += 91.0;
-        } else if hand_distance_to_floor < 1.296 {
-            denom += 86.0;
+        if hand_distance_to_floor < ((1.0 - 0.336)*agent.height) {
+            if agent.gender == Gender::Female {
+                let n = Normal::new(128.0, 27.0).unwrap();
+                denom += n.inverse_cdf(job.target_pop);
+            } else {
+                let n = Normal::new(168.0, 33.0).unwrap();
+                denom += n.inverse_cdf(job.target_pop);
+            }
+        } else if hand_distance_to_floor < ((1.0 - 0.182)*agent.height) {
+            if agent.gender == Gender::Female {
+                let n = Normal::new(122.0, 29.0).unwrap();
+                denom += n.inverse_cdf(job.target_pop);
+            } else {
+                let n = Normal::new(145.0, 25.0).unwrap();
+                denom += n.inverse_cdf(job.target_pop);
+            }
         } else {
-            denom += 99.0;
+            if agent.gender == Gender::Female {
+                let n = Normal::new(178.0, 40.0).unwrap();
+                denom += n.inverse_cdf(job.target_pop);
+            } else {
+                let n = Normal::new(241.0, 61.0).unwrap();
+                denom += n.inverse_cdf(job.target_pop);
+            }
         }
     }
 
