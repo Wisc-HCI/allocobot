@@ -567,18 +567,18 @@ impl CostProfiler for HumanInfo {
                     let mut denom = 0.0;
                     if volume > 0.406 {
                         if self.gender == Gender::Female {
-                            let n = Normal::new(31.4, 6.24).unwrap();
+                            let n = Normal::new(308.0, 61.2).unwrap();
                             denom += n.inverse_cdf(job.target_pop);
                         } else {
-                            let n = Normal::new(49.7, 11.13).unwrap();
+                            let n = Normal::new(487.5, 109.1).unwrap();
                             denom += n.inverse_cdf(job.target_pop);
                         }
                     } else {
                         if self.gender == Gender::Female {
-                            let n = Normal::new(7.0, 1.25).unwrap();
+                            let n = Normal::new(68.6, 12.2).unwrap();
                             denom += n.inverse_cdf(job.target_pop);
                         } else {
-                            let n = Normal::new(9.4, 1.39).unwrap();
+                            let n = Normal::new(92.2, 13.6).unwrap();
                             denom += n.inverse_cdf(job.target_pop);
                         }
                     }
