@@ -525,8 +525,9 @@ impl CostProfiler for HumanInfo {
                     let mut mvc = 0.0;
                     if vertical_distance_is_zero {
                         // TODO: no magnitude here....... what do??????
-                        // Todo: 
-                        let (force_mvc, _hand_to_floor_dist, _dist, _is_one_hand) = get_force_mvc(transition, &horizontal_distance, self, job, weight);
+                        // Todo: +/- weight based on displacement
+                        let magnitude = if (horizontal_distance < 0.0) { -1.0 * weight } else { weight };
+                        let (force_mvc, _hand_to_floor_dist, _dist, _is_one_hand) = get_force_mvc(transition, &weight, self, job, weight);
                         mvc += force_mvc;
                     } else {
                         mvc += weight / denom;
