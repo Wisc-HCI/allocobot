@@ -524,8 +524,6 @@ impl CostProfiler for HumanInfo {
 
                     let mut mvc = 0.0;
                     if vertical_distance_is_zero {
-                        // TODO: no magnitude here....... what do??????
-                        // Todo: +/- weight based on displacement
                         let magnitude = if (horizontal_distance < 0.0) { -1.0 * weight } else { weight };
                         let (force_mvc, _hand_to_floor_dist, _dist, _is_one_hand) = get_force_mvc(transition, &weight, self, job, weight);
                         mvc += force_mvc;
@@ -739,6 +737,9 @@ impl CostProfiler for RobotInfo {
             .collect();
 
         let mut robot_cost_set = CostSet::new();
+
+        // If this contains data, it's for pruning the non-possible transitions.
+        let mut robo_ergo_costs: Vec<Data> = Vec::new();
         
         // Add one-time purchasing cost (if the transition adds the agent)
         if transition.has_data(&vec![Query::Data(Data::AgentAdd(self.id))]) {
@@ -777,6 +778,13 @@ impl CostProfiler for RobotInfo {
                     let cost = get_robot_error_rate_independent(to_hand_info.structure(), to_hand_info.variability(), self.sensing.clone()) * max_error_cost;
                     // let cost = get_robot_error_rate_exponential(to_hand_info.structure(), to_hand_info.variability(), self.sensing);
                     // let cost = get_robot_error_rate_multiplicative(to_hand_info.structure(), to_hand_info.variability(), self.sensing);
+
+                    let target_info = job.targets.get(target).unwrap();
+
+                    if target_info.weight() > (self.payload * 9.81) {
+                        robo_ergo_costs.push(Data::MVC(*id, 0.001));
+                    }
+
                     
                     // TODO: integration cost
 
@@ -798,6 +806,12 @@ impl CostProfiler for RobotInfo {
                     let cost = get_robot_error_rate_independent(to_hand_info.structure(), to_hand_info.variability(), self.sensing.clone()) * max_error_cost;
                     // let cost = get_robot_error_rate_exponential(to_hand_info.structure(), to_hand_info.variability(), self.sensing);
                     // let cost = get_robot_error_rate_multiplicative(to_hand_info.structure(), to_hand_info.variability(), self.sensing);
+
+                    let target_info = job.targets.get(target).unwrap();
+
+                    if target_info.weight() > (self.payload * 9.81) {
+                        robo_ergo_costs.push(Data::MVC(*id, 0.001));
+                    }
                     
                     // TODO: integration cost
 
@@ -900,7 +914,7 @@ impl CostProfiler for RobotInfo {
             }
         }
 
-        (robot_cost_set, vec![])
+        (robot_cost_set, robo_ergo_costs)
     }
 }
 

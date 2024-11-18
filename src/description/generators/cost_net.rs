@@ -104,7 +104,7 @@ impl Job {
                             // If transition has MVC >= 150%, remove it.
                             match ergo_meta_data {
                                 Data::MVC(_, n) => {
-                                    if *n >= 1.5 {
+                                    if *n > 1.0 {
                                         remove_transitions.push(transition.id);
                                     }
                                 }
@@ -159,6 +159,7 @@ impl Job {
                     // Create a new place to store updated transitions.
                     // This will be merged into the other transitions at the end.
                     let mut updated_transitions: HashMap<Uuid, Transition> = HashMap::new();
+                    let mut remove_transitions: Vec<Uuid> = Vec::new();
 
                     // Find all transitions that are relevant to this agent
                     for transition in net.query_transitions(&vec![
@@ -170,8 +171,19 @@ impl Job {
                             None => transition.clone(),
                         };
 
-                        let (cost_set, _new_ergo_meta_data): (CostSet, Vec<Data>) = robot.cost_set(&transition, &self);
+                        let (cost_set, new_ergo_meta_data): (CostSet, Vec<Data>) = robot.cost_set(&transition, &self);
                         let execution_time: Time = robot.execution_time(&transition, &self);
+
+                        
+                        for ergo_meta_data in new_ergo_meta_data.iter() {
+                            // If transition has MVC, remove it.
+                            match ergo_meta_data {
+                                Data::MVC(_, _n) => {
+                                    remove_transitions.push(transition.id);
+                                }
+                                _ => {}
+                            }
+                        }
 
                         let time: Time;
                         // if transition_copy.time < execution_time {
@@ -188,6 +200,10 @@ impl Job {
                     // Update the transitions with the new versions
                     for (id, transition) in updated_transitions {
                         net.transitions.insert(id, transition);
+                    }
+
+                    for id in remove_transitions {
+                        net.delete_transition(id);
                     }
                 }
             }
