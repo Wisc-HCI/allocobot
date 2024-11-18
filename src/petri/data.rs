@@ -63,7 +63,8 @@ pub enum Data {
     HandDistanceToFloor(Uuid, f64),
     MVC(Uuid, f64),
     IsOneHanded(Uuid, f64),
-    IsHandWork(Uuid, f64)
+    IsHandWork(Uuid, f64),
+    Force(Uuid, f64)
 }
 
 impl Data {
@@ -113,6 +114,7 @@ impl Data {
             Data::MVC(id, _) => Some(*id),
             Data::IsOneHanded(id, _) => Some(*id),
             Data::IsHandWork(id, _) => Some(*id),
+            Data::Force(id, _) => Some(*id),
             Data::Setup => None,
             Data::Simulation => None,
         }
@@ -160,6 +162,7 @@ impl Data {
             Data::MVC(_, _) => None,
             Data::IsOneHanded(_, _) => None,
             Data::IsHandWork(_, _) => None,
+            Data::Force(_, _) => None,
             Data::Setup => None,
             Data::Simulation => None,
         }
@@ -207,6 +210,7 @@ impl Data {
             Data::MVC(_, n) => Some(*n),
             Data::IsOneHanded(_, n) => Some(*n),
             Data::IsHandWork(_, n) => Some(*n),
+            Data::Force(_, n) => Some(*n),
             Data::Setup => None,
             Data::Simulation => None,
         }

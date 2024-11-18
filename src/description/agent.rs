@@ -253,6 +253,7 @@ impl CostProfiler for HumanInfo {
                     new_ergo_meta_data.append(&mut new_data);
                     new_ergo_meta_data.push(Data::HandDistanceToFloor(*id, hand_to_floor_dist));
                     new_ergo_meta_data.push(Data::MVC(*id, mvc));
+                    new_ergo_meta_data.push(Data::Force(*id, *magnitude));
                     new_ergo_meta_data
                         .push(Data::IsOneHanded(*id, if is_one_hand { 1.0 } else { 0.0 }));
                 }
@@ -358,6 +359,7 @@ impl CostProfiler for HumanInfo {
                     new_ergo_meta_data
                         .push(Data::StandTravelDistance(*id, total_distance_traveled));
                     new_ergo_meta_data.push(Data::MVC(*id, mvc));
+                    new_ergo_meta_data.push(Data::Force(*id, weight));
                     new_ergo_meta_data
                         .push(Data::IsOneHanded(*id, if is_one_hand { 1.0 } else { 0.0 }));
                 }
@@ -546,6 +548,7 @@ impl CostProfiler for HumanInfo {
                     new_ergo_meta_data.push(Data::ReachDistance(*id, reach_distance));
                     new_ergo_meta_data.push(Data::HandDistanceToFloor(*id, hand_distance_to_floor));
                     new_ergo_meta_data.push(Data::MVC(*id, mvc));
+                    new_ergo_meta_data.push(Data::Force(*id, weight));
                     new_ergo_meta_data
                         .push(Data::IsOneHanded(*id, if is_one_hand { 1.0 } else { 0.0 }));
                 }
@@ -596,6 +599,7 @@ impl CostProfiler for HumanInfo {
                     new_ergo_meta_data.append(&mut new_data);
                     new_ergo_meta_data.push(Data::HorizontalHandTravelDistance(*id, horizontal_hand_shoulder_distance));
                     new_ergo_meta_data.push(Data::MVC(*id, mvc));
+                    new_ergo_meta_data.push(Data::Force(*id, weight));
                 }
                 Primitive::Travel {
                     id,
@@ -691,6 +695,7 @@ impl CostProfiler for HumanInfo {
                     new_ergo_meta_data.append(&mut new_data);
                     new_ergo_meta_data.push(Data::ReachDistance(*id, horizontal_hand_shoulder_distance));
                     new_ergo_meta_data.push(Data::MVC(*id, mvc));
+                    new_ergo_meta_data.push(Data::Force(*id, weight));
                     new_ergo_meta_data
                         .push(Data::IsOneHanded(*id, if is_one_hand { 1.0 } else { 0.0 }));
                     new_ergo_meta_data.push(Data::IsHandWork(*id, if is_hand_work { 1.0 } else { 0.0 }));
