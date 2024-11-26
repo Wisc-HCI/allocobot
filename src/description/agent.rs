@@ -755,6 +755,15 @@ impl CostProfiler for RobotInfo {
             });
         }
 
+        // Cost for integration (4-6x)
+        // https://www.engineering.com/time-and-money-how-much-do-industrial-robots-cost/
+        robot_cost_set.push(Cost {
+            frequency: CostFrequency::Once,
+            value: self.purchase_price * 5.0,
+            category: CostCategory::Monetary,
+        });
+        
+
         // Add electricity cost
         let execution_time = self.execution_time(transition, job);
         if execution_time > 0.0 {
@@ -767,7 +776,6 @@ impl CostProfiler for RobotInfo {
 
         let max_error_cost = get_produced_value(job);
 
-        // Cost for integration
         // Cost for error
         for primitive in assigned_primitives.iter() {
             match *primitive {
@@ -789,9 +797,6 @@ impl CostProfiler for RobotInfo {
                     if target_info.weight() > (self.payload * 9.81) {
                         robo_ergo_costs.push(Data::MVC(*id, 0.001));
                     }
-
-                    
-                    // TODO: integration cost
 
                     // error cost
                     robot_cost_set.push(Cost {
@@ -817,8 +822,6 @@ impl CostProfiler for RobotInfo {
                     if target_info.weight() > (self.payload * 9.81) {
                         robo_ergo_costs.push(Data::MVC(*id, 0.001));
                     }
-                    
-                    // TODO: integration cost
 
                     // error cost
                     robot_cost_set.push(Cost {
@@ -838,8 +841,6 @@ impl CostProfiler for RobotInfo {
                     let cost = get_robot_error_rate_independent(to_hand_info.structure(), to_hand_info.variability(), self.sensing.clone()) * max_error_cost;
                     // let cost = get_robot_error_rate_exponential(to_hand_info.structure(), to_hand_info.variability(), self.sensing);
                     // let cost = get_robot_error_rate_multiplicative(to_hand_info.structure(), to_hand_info.variability(), self.sensing);
-                    
-                    // TODO: integration cost
 
                     // error cost
                     robot_cost_set.push(Cost {
@@ -871,8 +872,6 @@ impl CostProfiler for RobotInfo {
                     }
                     cost *= max_error_cost;
 
-                    // TODO: integration cost
-
                     // error cost
                     robot_cost_set.push(Cost {
                         frequency: CostFrequency::Extrapolated,
@@ -903,8 +902,6 @@ impl CostProfiler for RobotInfo {
                         cost += 0.05;
                     }
                     cost *= max_error_cost;
-
-                    // TODO: integration cost
 
                     // error cost
                     robot_cost_set.push(Cost {
