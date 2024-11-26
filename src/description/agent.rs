@@ -1880,6 +1880,16 @@ fn get_human_time_for_primitive(
     };
 }
 
+fn get_robot_grasp_time(agent: &RobotInfo) -> f64 {
+    if agent.sensing == Rating::Low {
+        return 4.0;
+    } else if agent.sensing == Rating::Medium {
+        return 2.0;
+    } else {
+        return 1.5;
+    }
+}
+
 fn get_robot_time_for_primitive(
     assigned_primitives: Vec<&Primitive>,
     transition: &Transition,
@@ -1919,9 +1929,19 @@ fn get_robot_time_for_primitive(
             let hand_vector = from_hand_info.position() - to_hand_info.position();
             let hand_distance = hand_vector.norm();
             let hand_travel_time = hand_distance / agent.speed;
+            
+            // grasp time
+            let mut time_delta = 0.0;
+            time_delta += get_robot_grasp_time(agent);
 
+            // travel time
             // TODO: should this be max or additive?
-            return standing_travel_time + hand_travel_time;
+            time_delta += standing_travel_time + hand_travel_time;
+
+            // release time
+            time_delta += 1.0;
+
+            return time_delta;
         }
         (
             1,
@@ -1939,7 +1959,18 @@ fn get_robot_time_for_primitive(
             let hand_vector = from_hand_info.position() - to_hand_info.position();
             let hand_distance = hand_vector.norm();
             let hand_travel_time = hand_distance / agent.speed;
-            return hand_travel_time;
+
+            // grasp time
+            let mut time_delta = 0.0;
+            time_delta += get_robot_grasp_time(agent);
+
+            // travel time
+            time_delta += hand_travel_time;
+
+            // release time
+            time_delta += 1.0;
+
+            return time_delta;
         }
         (
             1,
@@ -1982,12 +2013,11 @@ fn get_robot_time_for_primitive(
                 ..
             }),
         ) => {
-            // TODO
+
+            // grasp time (based on precision and sensing)
             let mut time_delta = 0.0;
-
-            // grasp time (based on precision)
-            time_delta += 5.0;
-
+            time_delta += get_robot_grasp_time(agent);
+            
             // duration of force
             time_delta += 1.0;
 
@@ -2007,9 +2037,7 @@ fn get_robot_time_for_primitive(
         ) => {
             // TODO: fix this
             let mut time_delta = 0.0;
-
-            // grasp time (based on precision)
-            time_delta += 5.0;
+            time_delta += get_robot_grasp_time(agent);
 
             // position time (by max speed)
             time_delta += 0.5 + degrees / agent.speed;
@@ -2025,13 +2053,31 @@ fn get_robot_time_for_primitive(
                 id, target, skill, ..
             }),
         ) => {
-            // this primitive's time will be based on sensor rating
-            if agent.sensing == Rating::Low {
-                return 3.0;
-            } else if agent.sensing == Rating::Medium {
-                return 1.0;
+            // this primitive's time will be based on sensor rating and skill rating for task
+            if *skill == Rating::Low {
+                if agent.sensing == Rating::Low {
+                    return 1.0;
+                } else if agent.sensing == Rating::Medium {
+                    return 0.6;
+                } else {
+                    return 0.4;
+                }
+            } else if *skill == Rating::Medium {
+                if agent.sensing == Rating::Low {
+                    return 1.5;
+                } else if agent.sensing == Rating::Medium {
+                    return 0.9;
+                } else {
+                    return 0.5;
+                }
             } else {
-                return 0.5;
+                if agent.sensing == Rating::Low {
+                    return 3.0;
+                } else if agent.sensing == Rating::Medium {
+                    return 1.0;
+                } else {
+                    return 0.6;
+                }
             }
         }
         (
@@ -2040,15 +2086,31 @@ fn get_robot_time_for_primitive(
                 id, target, skill, ..
             }),
         ) => {
-            // TODO: have some base time for sensing and then time for movement
-
-            // this primitive's time will be based on sensor rating
-            if agent.sensing == Rating::Low {
-                return 10.0;
-            } else if agent.sensing == Rating::Medium {
-                return 5.0;
+            // this primitive's time will be based on sensor rating and skill rating for task
+            if *skill == Rating::Low {
+                if agent.sensing == Rating::Low {
+                    return 5.0;
+                } else if agent.sensing == Rating::Medium {
+                    return 3.0;
+                } else {
+                    return 2.0;
+                }
+            } else if *skill == Rating::Medium {
+                if agent.sensing == Rating::Low {
+                    return 8.0;
+                } else if agent.sensing == Rating::Medium {
+                    return 4.0;
+                } else {
+                    return 2.5;
+                }
             } else {
-                return 2.5;
+                if agent.sensing == Rating::Low {
+                    return 10.0;
+                } else if agent.sensing == Rating::Medium {
+                    return 5.0;
+                } else {
+                    return 3.0;
+                }
             }
         }
         (
@@ -2071,7 +2133,7 @@ fn get_robot_time_for_primitive(
                     let mut time_delta = 0.0;
 
                     // grasp time (based on precision)
-                    time_delta += 5.0;
+                    time_delta += get_robot_grasp_time(agent);
 
                     // position time (by max speed)
                     time_delta += 0.5 + degrees / agent.speed;
@@ -2105,7 +2167,7 @@ fn get_robot_time_for_primitive(
                     let mut time_delta = 0.0;
 
                     // grasp time (based on precision)
-                    time_delta += 5.0;
+                    time_delta += get_robot_grasp_time(agent);
 
                     // position time (by max speed)
                     time_delta += 0.5 + degrees / agent.speed;
