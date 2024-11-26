@@ -852,23 +852,23 @@ impl CostProfiler for RobotInfo {
                 Primitive::Inspect { skill, ..} => {
                     let mut cost = 0.0;
                     if *skill == Rating::High && self.sensing == Rating::High {
-                        cost += 0.01;
+                        cost += 0.001;
                     } else if *skill == Rating::High && self.sensing == Rating::Medium {
-                        cost += 0.125;
+                        cost += 0.02;
                     } else if *skill == Rating::High && self.sensing == Rating::Low {
-                        cost += 0.25;
-                    } else if *skill == Rating::Medium && self.sensing == Rating::High {
-                        cost += 0.0075;
-                    } else if *skill == Rating::Medium && self.sensing == Rating::Medium {
-                        cost += 0.06;
-                    } else if *skill == Rating::Medium && self.sensing == Rating::Low {
                         cost += 0.1;
-                    } else if *skill == Rating::Low && self.sensing == Rating::High {
-                        cost += 0.005;
-                    } else if *skill == Rating::Low && self.sensing == Rating::Medium {
+                    } else if *skill == Rating::Medium && self.sensing == Rating::High {
+                        cost += 0.00075;
+                    } else if *skill == Rating::Medium && self.sensing == Rating::Medium {
+                        cost += 0.006;
+                    } else if *skill == Rating::Medium && self.sensing == Rating::Low {
                         cost += 0.015;
+                    } else if *skill == Rating::Low && self.sensing == Rating::High {
+                        cost += 0.0005;
+                    } else if *skill == Rating::Low && self.sensing == Rating::Medium {
+                        cost += 0.002;
                     } else if *skill == Rating::Low && self.sensing == Rating::Low {
-                        cost += 0.05;
+                        cost += 0.005;
                     }
                     cost *= max_error_cost;
 
@@ -883,23 +883,23 @@ impl CostProfiler for RobotInfo {
                     
                     let mut cost = 0.0;
                     if *skill == Rating::High && self.sensing == Rating::High {
-                        cost += 0.01;
+                        cost += 0.001;
                     } else if *skill == Rating::High && self.sensing == Rating::Medium {
-                        cost += 0.125;
+                        cost += 0.02;
                     } else if *skill == Rating::High && self.sensing == Rating::Low {
-                        cost += 0.25;
-                    } else if *skill == Rating::Medium && self.sensing == Rating::High {
-                        cost += 0.0075;
-                    } else if *skill == Rating::Medium && self.sensing == Rating::Medium {
-                        cost += 0.06;
-                    } else if *skill == Rating::Medium && self.sensing == Rating::Low {
                         cost += 0.1;
-                    } else if *skill == Rating::Low && self.sensing == Rating::High {
-                        cost += 0.005;
-                    } else if *skill == Rating::Low && self.sensing == Rating::Medium {
+                    } else if *skill == Rating::Medium && self.sensing == Rating::High {
+                        cost += 0.00075;
+                    } else if *skill == Rating::Medium && self.sensing == Rating::Medium {
+                        cost += 0.006;
+                    } else if *skill == Rating::Medium && self.sensing == Rating::Low {
                         cost += 0.015;
+                    } else if *skill == Rating::Low && self.sensing == Rating::High {
+                        cost += 0.0005;
+                    } else if *skill == Rating::Low && self.sensing == Rating::Medium {
+                        cost += 0.002;
                     } else if *skill == Rating::Low && self.sensing == Rating::Low {
-                        cost += 0.05;
+                        cost += 0.005;
                     }
                     cost *= max_error_cost;
 
@@ -995,47 +995,52 @@ fn get_robot_error_rate_exponential(structure: Rating, variability: Rating, sens
 
 fn get_robot_error_rate_independent(structure: Rating, variability: Rating, sensing: Rating) -> f64 {
     if sensing == Rating::Low {
+        // not very resiliant to the environment (error prone)
+
         if structure == Rating::High && variability == Rating::High {
-            return 0.6;
-        } else if structure == Rating::High && variability == Rating::Medium {
-            return 0.3;
-        } else if structure == Rating::High && variability == Rating::Low {
-            return 0.1;
-        } else if structure == Rating::Medium && variability == Rating::High {
-            return 0.75;
-        } else if structure == Rating::Medium && variability == Rating::Medium {
             return 0.5;
-        } else if structure == Rating::Medium && variability == Rating::Low {
-            return 0.25;
-        } else if structure == Rating::Low && variability == Rating::High {
-            return 1.0;
-        } else if structure == Rating::Low && variability == Rating::Medium {
-            return 0.75;
-        } else {
+        } else if structure == Rating::High && variability == Rating::Medium {
+            return 0.20;
+        } else if structure == Rating::High && variability == Rating::Low {
+            return 0.01;
+        } else if structure == Rating::Medium && variability == Rating::High {
+            return 0.8;
+        } else if structure == Rating::Medium && variability == Rating::Medium {
             return 0.4;
+        } else if structure == Rating::Medium && variability == Rating::Low {
+            return 0.15;
+        } else if structure == Rating::Low && variability == Rating::High {
+            return 0.95;
+        } else if structure == Rating::Low && variability == Rating::Medium {
+            return 0.7;
+        } else {
+            return 0.3;
         }
     } else if sensing == Rating::Medium {
+        // moderately resiliant to the environment (somewhat error prone)
+
         if structure == Rating::High && variability == Rating::High {
-            return 0.6;
+            return 0.04;
         } else if structure == Rating::High && variability == Rating::Medium {
-            return 0.3;
+            return 0.015;
         } else if structure == Rating::High && variability == Rating::Low {
-            return 0.1;
+            return 0.004;
         } else if structure == Rating::Medium && variability == Rating::High {
-            return 0.75;
+            return 0.06;
         } else if structure == Rating::Medium && variability == Rating::Medium {
-            return 0.5;
+            return 0.02;
         } else if structure == Rating::Medium && variability == Rating::Low {
-            return 0.25;
+            return 0.01;
         } else if structure == Rating::Low && variability == Rating::High {
-            return 1.0;
+            return 0.1;
         } else if structure == Rating::Low && variability == Rating::Medium {
-            return 0.75;
+            return 0.06;
         } else {
-            return 0.4;
+            return 0.015;
         }
     } else {
-        
+        // most resiliant to the environment (least prone to error)
+
         if structure == Rating::High && variability == Rating::High {
             return 0.006;
         } else if structure == Rating::High && variability == Rating::Medium {
@@ -1043,17 +1048,17 @@ fn get_robot_error_rate_independent(structure: Rating, variability: Rating, sens
         } else if structure == Rating::High && variability == Rating::Low {
             return 0.001;
         } else if structure == Rating::Medium && variability == Rating::High {
-            return 0.75;
+            return 0.0075;
         } else if structure == Rating::Medium && variability == Rating::Medium {
-            return 0.5;
+            return 0.005;
         } else if structure == Rating::Medium && variability == Rating::Low {
-            return 0.25;
+            return 0.0025;
         } else if structure == Rating::Low && variability == Rating::High {
-            return 1.0;
+            return 0.01;
         } else if structure == Rating::Low && variability == Rating::Medium {
-            return 0.75;
+            return 0.0075;
         } else {
-            return 0.4;
+            return 0.004;
         }
     }
 }
