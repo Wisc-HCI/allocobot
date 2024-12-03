@@ -753,15 +753,17 @@ impl CostProfiler for RobotInfo {
                 value: self.purchase_price,
                 category: CostCategory::Monetary,
             });
+            
+            // Cost for integration (4-6x)
+            // https://www.engineering.com/time-and-money-how-much-do-industrial-robots-cost/
+            // TODO: update the value based on needed systems (i.e. integration breakdown - vision, pick+place, etc))
+            robot_cost_set.push(Cost {
+                frequency: CostFrequency::Once,
+                value: self.purchase_price * 5.0,
+                category: CostCategory::Monetary,
+            });
         }
 
-        // Cost for integration (4-6x)
-        // https://www.engineering.com/time-and-money-how-much-do-industrial-robots-cost/
-        robot_cost_set.push(Cost {
-            frequency: CostFrequency::Once,
-            value: self.purchase_price * 5.0,
-            category: CostCategory::Monetary,
-        });
         
 
         // Add electricity cost
@@ -848,6 +850,13 @@ impl CostProfiler for RobotInfo {
                         value: cost,
                         category: CostCategory::Monetary,
                     });
+                }
+                Primitive::Hold { id, target } => {
+                    let target_info = job.targets.get(target).unwrap();
+
+                    if target_info.weight() > (self.payload * 9.81) {
+                        robo_ergo_costs.push(Data::MVC(*id, 0.001));
+                    }
                 }
                 Primitive::Inspect { skill, ..} => {
                     let mut cost = 0.0;
