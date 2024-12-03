@@ -263,6 +263,7 @@ impl Job {
                             Data::Setup,
                             Data::Task(task_id),
                             Data::AllocatedTask(task_id),
+                            Data::Decide,
                         ]
                         .into_iter()
                         .chain(all_assigned_agent_ids.iter().map(|id| Data::Agent(**id)))

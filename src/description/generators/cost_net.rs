@@ -6,8 +6,9 @@ use crate::petri::data::{Data, DataTag, Query};
 use crate::petri::net::PetriNet;
 use crate::petri::place::Place;
 use crate::petri::token::TokenSet;
-use crate::petri::transition::{Signature, Transition};
+use crate::petri::transition::{self, Signature, Transition};
 use enum_tag::EnumTag;
+use itertools::Itertools;
 use std::collections::HashMap;
 use uuid::Uuid;
 
@@ -208,6 +209,37 @@ impl Job {
                 }
             }
             // Add a place for each ergo bin
+        }
+
+        // Check allocations and make sure they have outgoing arcs, if not we can prune the relevant decide action
+        let mut prealloc_places_to_update: Vec<Uuid> = Vec::new();
+        for transition in net.query_transitions(&vec![Query::Data(Data::Decide)]) {
+            for key in transition.output.keys() {
+                let mut keep_allocation = false;
+
+                // if key is not in the input set, then it's the allocation location
+                if !transition.input.keys().contains(key) {
+                    for some_transition in net.transitions.keys() {
+                        if *some_transition != transition.id && net.transitions.get(some_transition).unwrap().input.contains_key(key) {
+                            keep_allocation = true;
+                        }
+                    }
+
+                    // update the pre-allocation item to be 0 (easiest removal)
+                    if !keep_allocation {
+                        for i_key in transition.input.keys() {
+                            let contains_key = transition.output.keys().contains(i_key);
+                            if !contains_key {
+                                prealloc_places_to_update.push(i_key.clone());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        for prealloc_place in prealloc_places_to_update {
+            net.initial_marking.insert(prealloc_place, 0);
         }
 
         println!(

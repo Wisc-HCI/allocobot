@@ -9,6 +9,7 @@ pub enum Data {
     // Markers for Transitions indicating Setup or Simulation Phases
     Setup,
     Simulation,
+    Decide,
 
     // Contain Agent UUID
     Agent(Uuid),
@@ -117,6 +118,7 @@ impl Data {
             Data::Force(id, _) => Some(*id),
             Data::Setup => None,
             Data::Simulation => None,
+            Data::Decide => None,
         }
     }
 
@@ -165,6 +167,7 @@ impl Data {
             Data::Force(_, _) => None,
             Data::Setup => None,
             Data::Simulation => None,
+            Data::Decide => None,
         }
     }
 
@@ -213,6 +216,7 @@ impl Data {
             Data::Force(_, n) => Some(*n),
             Data::Setup => None,
             Data::Simulation => None,
+            Data::Decide => None,
         }
     }
 }
