@@ -298,7 +298,7 @@ impl Job {
                                 Data::Hand(*hand_poi_id, *hand_agent_id),
                                 Data::Rest(*agent_id),
                             ],
-                            5.0,
+                            60.0,
                             vec![],
                         );
                         // println!("Rest Transition: {:?}", transition);
