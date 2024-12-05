@@ -212,7 +212,7 @@ impl Job {
         }
 
         // Check allocations and make sure they have outgoing arcs, if not we can prune the relevant decide action
-        let mut prealloc_places_to_update: Vec<Uuid> = Vec::new();
+        let mut remove_transitions: Vec<Uuid> = Vec::new();
         for transition in net.query_transitions(&vec![Query::Data(Data::Decide)]) {
             for key in transition.output.keys() {
                 let mut keep_allocation = false;
@@ -225,21 +225,16 @@ impl Job {
                         }
                     }
 
-                    // update the pre-allocation item to be 0 (easiest removal)
+                    // remove the transition, as this agent/combo can't perform the action
                     if !keep_allocation {
-                        for i_key in transition.input.keys() {
-                            let contains_key = transition.output.keys().contains(i_key);
-                            if !contains_key {
-                                prealloc_places_to_update.push(i_key.clone());
-                            }
-                        }
+                        remove_transitions.push(transition.id);
                     }
                 }
             }
         }
 
-        for prealloc_place in prealloc_places_to_update {
-            net.initial_marking.insert(prealloc_place, 0);
+        for id in remove_transitions {
+            net.delete_transition(id);
         }
 
         println!(
