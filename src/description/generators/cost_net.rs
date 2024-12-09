@@ -1,7 +1,7 @@
 use crate::description::job::Job;
 use crate::description::agent::{Agent, CostProfiler};
 use crate::description::units::Time;
-use crate::petri::cost::{CostSet, add_cost_sets};
+use crate::petri::cost::{add_cost_sets, Cost, CostSet, CostCategory, CostFrequency};
 use crate::petri::data::{Data, DataTag, Query};
 use crate::petri::net::PetriNet;
 use crate::petri::place::Place;
@@ -198,6 +198,37 @@ impl Job {
 
                         updated_transitions.insert(transition.id, transition_copy);
                     }
+
+
+                    for transition in net.query_transitions(&vec![
+                        Query::Data(Data::AgentAdd(*id)),
+                    ]) {
+                        // If we already updated this transition, use the updated version
+                        let mut transition_copy = match updated_transitions.get(&transition.id) {
+                            Some(t) => t.clone(),
+                            None => transition.clone(),
+                        };
+
+                        let mut cost_set: Vec<Cost> = CostSet::new();
+                        cost_set.push(Cost {
+                            frequency: CostFrequency::Once,
+                            value: robot.purchase_price,
+                            category: CostCategory::Monetary,
+                        });
+                        
+                        // Cost for integration (4-6x)
+                        // https://www.engineering.com/time-and-money-how-much-do-industrial-robots-cost/
+                        // TODO: update the value based on needed systems (i.e. integration breakdown - vision, pick+place, etc))
+                        cost_set.push(Cost {
+                            frequency: CostFrequency::Once,
+                            value: robot.purchase_price * 5.0,
+                            category: CostCategory::Monetary,
+                        });
+
+                        transition_copy.cost = add_cost_sets(&transition.cost, &cost_set);
+                        updated_transitions.insert(transition.id, transition_copy);
+                    }
+
 
                     // Update the transitions with the new versions
                     for (id, transition) in updated_transitions {
