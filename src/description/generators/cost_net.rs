@@ -165,6 +165,7 @@ impl Job {
                     // Find all transitions that are relevant to this agent
                     for transition in net.query_transitions(&vec![
                         Query::Data(Data::Agent(*id)),
+                        Query::Data(Data::Action(*id)),
                     ]) {
                         // If we already updated this transition, use the updated version
                         let mut transition_copy = match updated_transitions.get(&transition.id) {
