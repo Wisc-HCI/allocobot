@@ -1,5 +1,6 @@
 use crate::description::job::Job;
 use crate::description::agent::{Agent, CostProfiler};
+use crate::description::rating::Rating;
 use crate::description::units::Time;
 use crate::petri::cost::{add_cost_sets, Cost, CostSet, CostCategory, CostFrequency};
 use crate::petri::data::{Data, DataTag, Query};
@@ -219,9 +220,10 @@ impl Job {
                         // Cost for integration (4-6x)
                         // https://www.engineering.com/time-and-money-how-much-do-industrial-robots-cost/
                         // TODO: update the value based on needed systems (i.e. integration breakdown - vision, pick+place, etc))
+                        let multiplicative_factor = if robot.sensing == Rating::High { 6.0 } else if robot.sensing == Rating::Medium { 5.0 } else { 4.0 }; 
                         cost_set.push(Cost {
                             frequency: CostFrequency::Once,
-                            value: robot.purchase_price * 5.0,
+                            value: robot.purchase_price * multiplicative_factor,
                             category: CostCategory::Monetary,
                         });
 
