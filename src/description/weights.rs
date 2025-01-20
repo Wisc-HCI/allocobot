@@ -10,8 +10,8 @@ pub struct Weights {
 impl Default for Weights {
     fn default() -> Self {
         Weights {
-            ergonomic: 1.0,
-            monetary: 1.0
+            ergonomic: 0.5,
+            monetary: 0.5
         }
     }
 }
