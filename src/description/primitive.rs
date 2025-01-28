@@ -36,6 +36,7 @@ pub enum Primitive {
         id: Uuid,
         target: Uuid,
         degrees: f64,
+        displacement: f64
     },
     // A process by which a tool is used
     Use {
@@ -128,11 +129,12 @@ impl Primitive {
         }
     }
 
-    pub fn new_position(target: Uuid, degrees: f64) -> Self {
+    pub fn new_position(target: Uuid, degrees: f64, displacement: f64) -> Self {
         Primitive::Position {
             id: Uuid::new_v4(),
             target,
-            degrees
+            degrees,
+            displacement
         }
     }
 

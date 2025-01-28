@@ -1626,11 +1626,15 @@ fn get_human_time_for_primitive(
                 id,
                 target,
                 degrees,
+                displacement,
                 ..
             }),
         ) => {
             // Consider Force Calculation
             let mut tmu: f64 = 0.0;
+
+            let deg: f64 = *degrees;
+            let dis: f64 = *displacement;
 
             let target_info = job.targets.get(target).unwrap();
             let weight = target_info.weight();
@@ -1638,13 +1642,39 @@ fn get_human_time_for_primitive(
             // Grasp tmu
             tmu += 2.0;
 
-            // upper bounding by 360 degrees
-            if weight < 8.9271 {
-                tmu += 1.4927 + 0.043878 * degrees;
-            } else if weight < 44.5374 {
-                tmu += 2.3463636 + 0.0689090 * degrees;
-            } else {
-                tmu += 4.4781818 + 0.131636 * degrees;
+            if deg > 0.0 {
+                if weight < 8.9271 {
+                    tmu += 1.4927 + 0.043878 * deg;
+                } else if weight < 44.5374 {
+                    tmu += 2.3463636 + 0.0689090 * deg;
+                } else {
+                    tmu += 4.4781818 + 0.131636 * deg;
+                }
+            }
+
+            if dis > 0.0 {
+                let mut movement_tmu = 0.0;
+                if dis < 0.0254 {
+                    movement_tmu += 2.0;
+                } else if 0.0254 <= dis && dis <= 0.127 {
+                    movement_tmu += 2.91 * dis.powf(0.660);
+                } else if 0.1016 <= dis && dis <= 0.762 {
+                    movement_tmu += 5.647749 + 0.625535 * dis;
+                } else {
+                    movement_tmu +=
+                        5.647749 + 0.625535 * dis + 0.6 * (dis - 0.762);
+                }
+
+                // Depending on the weight of the object, add a tmu penalty
+                let weight = target_info.weight();
+                for (lower, upper, factor, constant) in HUMAN_WEIGHT_FACTORS_MAPPING {
+                    if lower < weight && weight <= upper {
+                        movement_tmu += factor * weight + constant;
+                        break;
+                    }
+                }
+                tmu += movement_tmu;
+    
             }
 
             // Release tmu
@@ -1791,6 +1821,7 @@ fn get_human_time_for_primitive(
                     id,
                     target,
                     degrees,
+                    displacement,
                 }) => {
                     let target_info = job.targets.get(target).unwrap();
                     let weight = target_info.weight();
@@ -2046,6 +2077,7 @@ fn get_robot_time_for_primitive(
                 id,
                 target,
                 degrees,
+                displacement,
                 ..
             }),
         ) => {
@@ -2053,8 +2085,17 @@ fn get_robot_time_for_primitive(
             let mut time_delta = 0.0;
             time_delta += get_robot_grasp_time(agent);
 
+            let deg: f64 = *degrees;
+            let dis: f64 = *displacement;
+
             // position time (by max speed)
-            time_delta += 0.5 + degrees / agent.speed;
+            if deg > 0.0 {
+                time_delta += 0.5 + deg / agent.speed;
+            }
+            
+            if dis > 0.0 {
+                time_delta += dis / agent.speed;
+            }
 
             // release
             time_delta += 1.0;
@@ -2133,6 +2174,7 @@ fn get_robot_time_for_primitive(
                 id,
                 target,
                 degrees,
+                displacement,
             }),
         ) => {
             return match assigned_primitives.last() {
@@ -2174,6 +2216,7 @@ fn get_robot_time_for_primitive(
                     id,
                     target,
                     degrees,
+                    displacement,
                 }) => {
                     // TODO: based on magnitude of force and symmetry of object?????
 
