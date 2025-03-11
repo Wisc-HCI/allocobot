@@ -442,12 +442,12 @@ impl PetriNet {
                         new_transition.id = Uuid::new_v4();
                         let new_transition_id = new_transition.id.clone();
                         if new_transition.input.contains_key(id) {
-                            new_transition.input.remove(id);
-                            new_transition.input.insert(new_place_id, Signature::Static(1));
+                            let prior_in_val = new_transition.input.remove(id);;
+                            new_transition.input.insert(new_place_id, prior_in_val.unwrap().clone());
                         }
                         if new_transition.output.contains_key(id) {
-                            new_transition.output.remove(id);
-                            new_transition.output.insert(new_place_id, Signature::Static(1));
+                            let prior_out_val = new_transition.output.remove(id);
+                            new_transition.output.insert(new_place_id, prior_out_val.unwrap().clone());
                         }
                         for split_data in split.iter() {
                             if !new_transition.meta_data.contains(split_data) {
